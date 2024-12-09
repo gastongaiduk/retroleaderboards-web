@@ -6,11 +6,12 @@ import {LeaderboardEntries} from "../models/LeaderboardEntries.ts";
 import { useUserStore } from '../stores/user';
 
 class GameRepository {
+    private url = import.meta.env.VITE_API_URL;
     private user = useUserStore();
 
     public async fetchLastPlayedGames(): Promise<GameList> {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/API/API_GetUserRecentlyPlayedGames.php`, {
+            const response = await axios.get(`${this.url}/API/API_GetUserRecentlyPlayedGames.php`, {
                 params: {y: this.user.key, u: this.user.username, c: 20}
             });
             return response.data as GameList;
@@ -22,7 +23,7 @@ class GameRepository {
 
     public async fetchLeaderboards(gameId: string) {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/API/API_GetGameLeaderboards.php`, {
+            const response = await axios.get(`${this.url}/API/API_GetGameLeaderboards.php`, {
                 params: {y: this.user.key, i: gameId}
             });
             return response.data as GameLeaderboards;
@@ -34,8 +35,8 @@ class GameRepository {
 
     public async fetchLeaderboardEntries(leaderboardId: string) {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/API/API_GetLeaderboardEntries.php`, {
-                params: {y: this.user.key, i: leaderboardId, c: 500}
+            const response = await axios.get(`${this.url}/API/API_GetLeaderboardEntries.php`, {
+                params: {y: this.user.key, i: leaderboardId, c: 100}
             });
             return response.data as LeaderboardEntries;
         } catch (error) {

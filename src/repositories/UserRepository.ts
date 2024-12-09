@@ -3,11 +3,12 @@ import {Friends} from "../models/Friends";
 import { useUserStore } from '../stores/user';
 
 class UserRepository {
+    private url = import.meta.env.VITE_API_URL;
     private user = useUserStore();
 
     public async fetchFriends() {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/API/API_GetUsersIFollow.php`, {
+            const response = await axios.get(`${this.url}/API/API_GetUsersIFollow.php`, {
                 params: {y: this.user.key}
             });
             return response.data as Friends;

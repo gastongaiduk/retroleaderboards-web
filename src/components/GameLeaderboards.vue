@@ -6,9 +6,11 @@ import {GameLeaderboards} from "../models/GameLeaderboards";
 import GameRepository from "../repositories/GameRepository";
 
 import {usePostStore} from '../stores/postStore';
+import {useUserStore} from '../stores/user';
 
 const router = useRouter();
 const postStore = usePostStore();
+const user = useUserStore();
 
 const repository = new GameRepository();
 
@@ -24,16 +26,17 @@ const props = defineProps({
   id: {
     type: String,
     required: true
-  },
-  title: {
-    type: String,
-    required: true
   }
 })
 
 const leaderboards = ref<GameLeaderboards | null>(null);
 
 onMounted(async () => {
+  if (!user.isSet()) {
+    await router.push("/login")
+    return;
+  }
+
   try {
     leaderboards.value = await repository.fetchLeaderboards(props.id);
   } catch (error) {
@@ -46,7 +49,7 @@ onMounted(async () => {
 <template>
   <div class="leaderboard-container">
     <button class="back-button" @click="goBack">Back</button>
-    <h1 class="leaderboard-title">{{ title }}</h1>
+    <h1 class="leaderboard-title">{{ postStore.selectedGameName }}</h1>
     <div v-if="leaderboards">
       <ul class="leaderboard-list" v-if="leaderboards.Results.length">
         <li

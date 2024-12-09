@@ -5,11 +5,13 @@ import {useRouter} from 'vue-router';
 import GameRepository from "../repositories/GameRepository";
 import {LeaderboardEntries} from "../models/LeaderboardEntries";
 import {Friends} from "../models/Friends";
-
-import {useUserStore} from '../stores/user';
 import UserRepository from "../repositories/UserRepository";
 
+import {usePostStore} from '../stores/postStore';
+import {useUserStore} from '../stores/user';
+
 const router = useRouter();
+const postStore = usePostStore();
 const user = useUserStore();
 
 const repository = new GameRepository();
@@ -34,6 +36,11 @@ const entries = ref<LeaderboardEntries | null>(null);
 const friends = ref<Friends | null>(null);
 
 onMounted(async () => {
+  if (!user.isSet()) {
+    await router.push("/login")
+    return;
+  }
+
   try {
     entries.value = await repository.fetchLeaderboardEntries(props.id);
     friends.value = await userRepository.fetchFriends();
@@ -97,7 +104,8 @@ function isFriend(user: string) {
 <template>
   <div class="entries-container">
     <button class="back-button" @click="goBack">Back</button>
-    <h1 class="entries-title">{{ title }}</h1>
+    <h1 class="entries-title">{{ postStore.selectedLeaderboardName }}</h1>
+    <h2 class="entries-title">{{ postStore.selectedGameName }}</h2>
     <div v-if="entries">
       <ul class="entries-list" v-if="entries.Results.length">
         <li
@@ -128,8 +136,14 @@ function isFriend(user: string) {
   font-family: 'Press Start 2P', cursive;
 }
 
-.entries-title {
+h1.entries-title {
   font-size: 24px; /* Larger font for title */
+  color: #f5a623;
+  text-align: center;
+}
+
+h2.entries-title {
+  font-size: 12px; /* Larger font for title */
   color: #f5a623;
   text-align: center;
 }

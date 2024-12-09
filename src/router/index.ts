@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router';
 import Home from '../components/Home.vue';
 import GameLeaderboards from '../components/GameLeaderboards.vue';
 import Leaderboard from "../components/Leaderboard.vue";
@@ -10,13 +10,13 @@ const routes: Array<RouteRecordRaw> = [
     { path: '/home', name: 'Home', component: Home },
     { path: '/login', name: 'Login', component: Authenticate },
     {
-        path: '/:title/leaderboards/:id/',
+        path: '/game/:id/leaderboards',
         name: 'GameLeaderboards',
         component: GameLeaderboards,
         props: true,
     },
     {
-        path: '/leaderboard/:title/:id',
+        path: '/leaderboard/:id',
         name: 'Leaderboard',
         component: Leaderboard,
         props: true,
@@ -25,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
 
 // Create the router with type annotations
 const router = createRouter({
-    history: createWebHistory(import.meta.env.VITE_BASE_URL as string),
+    history: createWebHashHistory(),
     routes,
 });
 
