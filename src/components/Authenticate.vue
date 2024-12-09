@@ -2,7 +2,7 @@
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 
-import { useUserStore } from '../stores/user'
+import {useUserStore} from '../stores/user'
 
 const router = useRouter();
 const user = useUserStore();
@@ -15,13 +15,12 @@ function handleSubmit() {
   router.push("/");
 }
 
-onMounted( () => {
+onMounted(() => {
   if (user.isSet()) {
     router.push("/")
   }
 });
 </script>
-
 <template>
   <div class="retro-container">
     <h1 class="retro-title">Authenticate</h1>
@@ -31,7 +30,12 @@ onMounted( () => {
         <input type="text" id="username" v-model="usernameInput" class="form-input" required>
       </div>
       <div class="form-group">
-        <label for="key" class="form-label">API KEY:</label>
+        <label for="key" class="form-label">
+          Web API Key:
+          <a href="https://retroachievements.org/settings" target="_blank" class="link-icon">
+            🔗
+          </a>
+        </label>
         <input type="password" id="key" v-model="keyInput" class="form-input" required>
       </div>
       <button type="submit" class="form-button">Submit</button>
@@ -66,8 +70,8 @@ onMounted( () => {
 }
 
 .form-label {
-  display: block;
-  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
 }
 
 .form-input {
@@ -89,6 +93,10 @@ onMounted( () => {
 
 .form-button:hover {
   background-color:#d48821; /* Darker orange on hover */
+}
+
+.link-icon {
+  margin-left: 8px; /* Space between text and icon */
 }
 
 /* Media query for desktop screens*/
