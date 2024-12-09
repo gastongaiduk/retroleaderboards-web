@@ -26,10 +26,6 @@ const props = defineProps({
     type: String,
     required: true
   },
-  title: {
-    type: String,
-    required: true
-  }
 })
 
 const entries = ref<LeaderboardEntries | null>(null);
