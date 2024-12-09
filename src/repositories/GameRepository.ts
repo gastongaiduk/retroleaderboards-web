@@ -12,7 +12,7 @@ class GameRepository {
     public async fetchLastPlayedGames(): Promise<GameList> {
         try {
             const response = await axios.get(`${this.url}/API/API_GetUserRecentlyPlayedGames.php`, {
-                params: {y: this.user.key, u: this.user.username, c: 20}
+                params: {y: this.user.key, u: this.user.username, c: 50}
             });
             return response.data as GameList;
         } catch (error) {
@@ -36,7 +36,7 @@ class GameRepository {
     public async fetchLeaderboardEntries(leaderboardId: string) {
         try {
             const response = await axios.get(`${this.url}/API/API_GetLeaderboardEntries.php`, {
-                params: {y: this.user.key, i: leaderboardId, c: 100}
+                params: {y: this.user.key, i: leaderboardId, c: 500}
             });
             return response.data as LeaderboardEntries;
         } catch (error) {

@@ -7,19 +7,32 @@ import GameRepository from "../repositories/GameRepository";
 
 import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
+import {useGamesStore} from "../stores/games";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
+const games = useGamesStore();
 
 const repository = new GameRepository();
 
 function goBack() {
-  router.back(); // Navigates back to the previous route
+  router.back();
 }
 
 function selectLeaderboard(id: number, title: string) {
   postStore.selectLeaderboard(id, title);
+}
+
+async function refreshLeaderboards() {
+  try {
+    leaderboards.value = null;
+    games.gamesLeaderboards?.clear;
+    games.addGameLeaderboards(Number(props.id), await repository.fetchLeaderboards(props.id));
+    leaderboards.value = games.getGameLeaderboards(Number(props.id));
+  } catch (error) {
+    console.error('Error fetching last played games:', error);
+  }
 }
 
 const props = defineProps({
@@ -37,18 +50,20 @@ onMounted(async () => {
     return;
   }
 
-  try {
-    leaderboards.value = await repository.fetchLeaderboards(props.id);
-  } catch (error) {
-    console.error('Error fetching last played games:', error);
+  if (games.hasGameLeaderboard(Number(props.id))) {
+    leaderboards.value = games.getGameLeaderboards(Number(props.id));
+    return;
   }
+
+  await refreshLeaderboards();
 });
 
 </script>
 
 <template>
   <div class="leaderboard-container">
-    <button class="back-button" @click="goBack">Back</button>
+    <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
+    <button class="refresh-button" @click="refreshLeaderboards"><i class="fa fa-refresh"></i></button>
     <h1 class="leaderboard-title">{{ postStore.selectedGameName }}</h1>
     <div v-if="leaderboards">
       <ul class="leaderboard-list" v-if="leaderboards.Results.length">
@@ -57,7 +72,12 @@ onMounted(async () => {
             :key="leaderboard.ID"
             class="leaderboard-item-container"
             @click="selectLeaderboard(leaderboard.ID, leaderboard.Title)">
-          <span class="leaderboard-item">{{ leaderboard.Title }}</span>
+          <span class="leaderboard-item">
+            {{ leaderboard.Title }}
+            <span v-if="leaderboard.Title.length < 2" class="leaderboard-item-description">
+              {{ leaderboard.Description }}
+            </span>
+          </span>
           <span class="top-entry">{{ leaderboard.TopEntry.User }} ({{ leaderboard.TopEntry.FormattedScore }})</span>
         </li>
       </ul>
@@ -85,7 +105,7 @@ onMounted(async () => {
   text-align: center;
 }
 
-.back-button {
+.back-button, .refresh-button {
   background-color: #f5a623;
   color: #1a1a2e;
   border: none;
@@ -95,8 +115,12 @@ onMounted(async () => {
   border-radius: 10px;
 }
 
-.back-button:hover {
+.back-button:hover, .refresh-button:hover {
   background-color: #d48821; /* Slightly darker orange on hover */
+}
+
+.refresh-button {
+  float: right;
 }
 
 .leaderboard-list {
@@ -120,6 +144,10 @@ onMounted(async () => {
 .leaderboard-item {
   color: #f5a623; /* Color for the leaderboard title */
   flex-grow: 1; /* Allow title to take up most space */
+}
+
+.leaderboard-item-description {
+  font-size: 0.7rem;
 }
 
 .top-entry {

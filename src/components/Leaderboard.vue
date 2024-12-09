@@ -4,21 +4,20 @@ import {computed, onMounted, ref} from "vue";
 import {useRouter} from 'vue-router';
 import GameRepository from "../repositories/GameRepository";
 import {LeaderboardEntries} from "../models/LeaderboardEntries";
-import {Friends} from "../models/Friends";
-import UserRepository from "../repositories/UserRepository";
 
 import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
+import {useFriendsState} from "../stores/friends.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
+const friends = useFriendsState();
 
 const repository = new GameRepository();
-const userRepository = new UserRepository();
 
 function goBack() {
-  router.back(); // Navigates back to the previous route
+  router.back();
 }
 
 const props = defineProps({
@@ -29,7 +28,15 @@ const props = defineProps({
 })
 
 const entries = ref<LeaderboardEntries | null>(null);
-const friends = ref<Friends | null>(null);
+
+async function refreshScores() {
+  try {
+    entries.value = null;
+    entries.value = await repository.fetchLeaderboardEntries(props.id);
+  } catch (error) {
+    console.error('Error fetching last played games:', error);
+  }
+}
 
 onMounted(async () => {
   if (!user.isSet()) {
@@ -37,12 +44,8 @@ onMounted(async () => {
     return;
   }
 
-  try {
-    entries.value = await repository.fetchLeaderboardEntries(props.id);
-    friends.value = await userRepository.fetchFriends();
-  } catch (error) {
-    console.error('Error fetching last played games:', error);
-  }
+  await friends.load();
+  await refreshScores();
 });
 
 const sortedEntries = computed(() => {
@@ -50,7 +53,7 @@ const sortedEntries = computed(() => {
     return [];
   }
 
-  if (friends.value === null) {
+  if (friends.friends === null) {
     return entries.value.Results;
   }
 
@@ -89,17 +92,18 @@ function isMe(userToCompare: string) {
 }
 
 function isFriend(user: string) {
-  if (friends.value === null) {
+  if (friends.friends === null) {
     return false;
   }
-  return friends.value.Results.some((friend) => friend.User === user)
+  return friends.friends.Results.some((friend) => friend.User === user)
 }
 
 </script>
 
 <template>
   <div class="entries-container">
-    <button class="back-button" @click="goBack">Back</button>
+    <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
+    <button class="refresh-button" @click="refreshScores"><i class="fa fa-refresh"></i></button>
     <h1 class="entries-title">{{ postStore.selectedLeaderboardName }}</h1>
     <h2 class="entries-title">{{ postStore.selectedGameName }}</h2>
     <div v-if="entries">
@@ -144,7 +148,7 @@ h2.entries-title {
   text-align: center;
 }
 
-.back-button {
+.back-button, .refresh-button {
   background-color: #f5a623;
   color: #1a1a2e;
   border: none;
@@ -154,8 +158,12 @@ h2.entries-title {
   border-radius: 10px;
 }
 
-.back-button:hover {
+.back-button:hover, .refresh-button:hover {
   background-color: #d48821; /* Slightly darker orange on hover */
+}
+
+.refresh-button {
+  float: right;
 }
 
 .entries-list {
