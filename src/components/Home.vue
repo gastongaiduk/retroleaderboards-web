@@ -17,6 +17,11 @@ function selectGame(id: number, title: string) {
   postStore.selectGame(id, title);
 }
 
+function logout() {
+  user.logout();
+  router.push("/login")
+}
+
 const lastPlayedGames = ref<GameList | null>(null);
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -36,8 +41,8 @@ onMounted(async () => {
 
 <template>
   <div class="retro-container">
+    <button class="logout-button" @click="logout">Logout</button>
     <h1 class="retro-title">Welcome {{ user.username }}</h1>
-
     <div v-if="lastPlayedGames">
       <ul v-if="lastPlayedGames.length" class="game-list">
         <li v-for="game in lastPlayedGames" :key="game.GameID" class="game-item">
@@ -65,6 +70,20 @@ onMounted(async () => {
   border-radius: 15px;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
   font-family: 'Press Start 2P', cursive;
+}
+
+.logout-button {
+  background-color: #f5a623;
+  color: #1a1a2e;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+.logout-button:hover {
+  background-color: #d48821; /* Slightly darker orange on hover */
 }
 
 .retro-title {

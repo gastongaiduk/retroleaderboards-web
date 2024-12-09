@@ -30,5 +30,11 @@ export const useUserStore = defineStore('user', {
             encryptStorage.setItem('username', username);
             encryptStorage.setItem('key', key);
         },
+        logout(): void {
+            this.username = null;
+            this.key = null;
+            encryptStorage.removeItem('username');
+            encryptStorage.removeItem('key');
+        }
     },
 });
