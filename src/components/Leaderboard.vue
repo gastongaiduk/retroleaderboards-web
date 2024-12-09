@@ -2,18 +2,22 @@
 
 import {computed, onMounted, ref} from "vue";
 import {useRouter} from 'vue-router';
-import {fetchLeaderboardEntries} from "../repositories/GameRepository.js";
-import {LeaderboardEntries} from "../models/LeaderboardEntries.js";
-import {Friends} from "../models/Friends.ts";
-import {fetchFriends} from "../repositories/UserRepository.ts";
+import GameRepository from "../repositories/GameRepository";
+import {LeaderboardEntries} from "../models/LeaderboardEntries";
+import {Friends} from "../models/Friends";
+
+import {useUserStore} from '../stores/user';
+import UserRepository from "../repositories/UserRepository";
 
 const router = useRouter();
+const user = useUserStore();
+
+const repository = new GameRepository();
+const userRepository = new UserRepository();
 
 function goBack() {
   router.back(); // Navigates back to the previous route
 }
-
-const username = import.meta.env.VITE_API_USERNAME;
 
 const props = defineProps({
   id: {
@@ -31,14 +35,18 @@ const friends = ref<Friends | null>(null);
 
 onMounted(async () => {
   try {
-    entries.value = await fetchLeaderboardEntries(props.id);
-    friends.value = await fetchFriends();
+    entries.value = await repository.fetchLeaderboardEntries(props.id);
+    friends.value = await userRepository.fetchFriends();
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }
 });
 
 const sortedEntries = computed(() => {
+  if (entries.value === null) {
+    return [];
+  }
+
   if (friends.value === null) {
     return entries.value.Results;
   }
@@ -73,8 +81,8 @@ const sortedEntries = computed(() => {
   });
 })
 
-function isMe(user: string) {
-  return user === username;
+function isMe(userToCompare: string) {
+  return userToCompare === user.username;
 }
 
 function isFriend(user: string) {
@@ -94,7 +102,7 @@ function isFriend(user: string) {
       <ul class="entries-list" v-if="entries.Results.length">
         <li
             v-for="entry in sortedEntries"
-            :key="entry.ID"
+            :key="entry.User"
             class="entry-item"
             :class="{ isFriend: isFriend(entry.User), isMe: isMe(entry.User) }">
           <span class="entry-rank">#{{ entry.Rank }}</span>

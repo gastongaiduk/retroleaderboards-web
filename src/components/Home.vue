@@ -1,22 +1,33 @@
 <script setup lang="ts">
-import {usePostStore} from '../stores/postStore.js';
 import {onMounted, ref} from "vue";
-import {fetchLastPlayedGames} from "../repositories/GameRepository";
 import type {GameList} from "../models/RecentlyPlayedGames";
+import {useRouter} from "vue-router";
 
+import {usePostStore} from '../stores/postStore';
+import {useUserStore} from '../stores/user';
+import GameRepository from "../repositories/GameRepository";
+
+const router = useRouter();
+const user = useUserStore();
 const postStore = usePostStore();
 
-function selectGame(id, title) {
+const repository = new GameRepository();
+
+function selectGame(id: number, title: string) {
   postStore.selectGame(id, title);
 }
 
 const lastPlayedGames = ref<GameList | null>(null);
-const username = import.meta.env.VITE_API_USERNAME;
 const apiUrl = import.meta.env.VITE_API_URL;
 
 onMounted(async () => {
+  if (!user.isSet()) {
+    await router.push("/login")
+    return;
+  }
+
   try {
-    lastPlayedGames.value = await fetchLastPlayedGames(username);
+    lastPlayedGames.value = await repository.fetchLastPlayedGames();
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }
@@ -25,7 +36,7 @@ onMounted(async () => {
 
 <template>
   <div class="retro-container">
-    <h1 class="retro-title">Welcome {{ username }}</h1>
+    <h1 class="retro-title">Welcome {{ user.username }}</h1>
 
     <div v-if="lastPlayedGames">
       <ul v-if="lastPlayedGames.length" class="game-list">
@@ -85,7 +96,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(34,34,59,0.5); /* Darker overlay with transparency */
+  background-color: rgba(34, 34, 59, 0.5); /* Darker overlay with transparency */
 }
 
 .game-icon {
@@ -104,16 +115,16 @@ onMounted(async () => {
   padding: 15px; /* Button padding */
   cursor: pointer; /* Pointer cursor on hover */
   font-size: 16px; /* Button font size */
-  border-radius:10px; /* Rounded corners */
+  border-radius: 10px; /* Rounded corners */
   z-index: 1; /* Ensure button is above overlay */
 }
 
 .game-button:hover {
-  background-color:#d48821; /* Darker orange on hover */
+  background-color: #d48821; /* Darker orange on hover */
 }
 
 .loading-text {
-  text-align:center; /* Center loading text */
+  text-align: center; /* Center loading text */
 }
 
 /* Media query for desktop screens */

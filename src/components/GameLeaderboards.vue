@@ -1,20 +1,22 @@
 <script setup lang="ts">
 
 import {onMounted, ref} from "vue";
-import {usePostStore} from '../stores/postStore.js';
 import {useRouter} from 'vue-router';
-import {GameLeaderboards} from "../models/GameLeaderboards.js";
-import {fetchLeaderboards} from "../repositories/GameRepository.js";
+import {GameLeaderboards} from "../models/GameLeaderboards";
+import GameRepository from "../repositories/GameRepository";
+
+import {usePostStore} from '../stores/postStore';
 
 const router = useRouter();
+const postStore = usePostStore();
+
+const repository = new GameRepository();
 
 function goBack() {
   router.back(); // Navigates back to the previous route
 }
 
-const postStore = usePostStore();
-
-function selectLeaderboard(id, title) {
+function selectLeaderboard(id: number, title: string) {
   postStore.selectLeaderboard(id, title);
 }
 
@@ -33,7 +35,7 @@ const leaderboards = ref<GameLeaderboards | null>(null);
 
 onMounted(async () => {
   try {
-    leaderboards.value = await fetchLeaderboards(props.id);
+    leaderboards.value = await repository.fetchLeaderboards(props.id);
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }

@@ -1,14 +1,21 @@
 import axios from "axios";
-import {Friends} from "../models/Friends.ts";
+import {Friends} from "../models/Friends";
+import { useUserStore } from '../stores/user';
 
-export async function fetchFriends() {
-    try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/API/API_GetUsersIFollow.php`, {
-            params: {y: import.meta.env.VITE_API_KEY}
-        });
-        return response.data as Friends;
-    } catch (error) {
-        console.error('Error fetching request:', error);
-        throw error;
+class UserRepository {
+    private user = useUserStore();
+
+    public async fetchFriends() {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/API/API_GetUsersIFollow.php`, {
+                params: {y: this.user.key}
+            });
+            return response.data as Friends;
+        } catch (error) {
+            console.error('Error fetching request:', error);
+            throw error;
+        }
     }
 }
+
+export default UserRepository;
