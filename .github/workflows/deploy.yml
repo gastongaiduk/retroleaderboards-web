@@ -25,7 +25,7 @@ jobs:
       - name: Build project
         env:
           VITE_API_URL: ${{ vars.API_URL }}
-          VITE_ENCRYPTION_KEY: ${{ secrets.ENCRIPTION_KEY }}
+          VITE_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
         run: npm run build
 
       - name: Deploy to GitHub Pages
