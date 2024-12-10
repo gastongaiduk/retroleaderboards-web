@@ -1,33 +1,41 @@
 import { defineStore } from 'pinia';
 import { Router } from 'vue-router';
+import {Game} from "../models/RecentlyPlayedGames.ts";
+import {Leaderboard} from "../models/GameLeaderboards.ts";
 
-// Define the state interface
 interface PostState {
-    selectedGameId: number | null;
-    selectedGameName: string | null;
-    selectedLeaderboardId: number | null;
-    selectedLeaderboardName: string | null;
+    selectedGameLeaderboards: Game | null;
+    selectedLeaderboard: Leaderboard | null;
 }
 
-// Define the store using TypeScript
 export const usePostStore = defineStore('post', {
     state: (): PostState => ({
-        selectedGameId: null,
-        selectedGameName: null,
-        selectedLeaderboardId: null,
-        selectedLeaderboardName: null,
+        selectedGameLeaderboards: null,
+        selectedLeaderboard: null,
     }),
     actions: {
-        selectGame(id: number, title: string): void {
-            this.selectedGameId = id;
-            this.selectedGameName = title;
-            this.router.push({ name: 'GameLeaderboards', params: { id } });
+        selectGameLeaderboards(game: Game): void {
+            this.selectedGameLeaderboards = game;
+            localStorage.setItem('selectedGameLeaderboards', JSON.stringify(game));
+            this.router.push({ name: 'GameLeaderboards', params: { id: game.GameID } });
         },
-        selectLeaderboard(id: number, title: string): void {
-            this.selectedLeaderboardId = id;
-            this.selectedLeaderboardName = title;
-            this.router.push({ name: 'Leaderboard', params: { id } });
+        getSelectedGameLeaderboards() {
+            if (this.selectedGameLeaderboards === null) {
+                this.selectedGameLeaderboards = JSON.parse(<string>localStorage.getItem('selectedGameLeaderboards'));
+            }
+            return this.selectedGameLeaderboards;
         },
+        selectLeaderboard(leaderboard: Leaderboard): void {
+            this.selectedLeaderboard = leaderboard;
+            localStorage.setItem("selectedLeaderboard", JSON.stringify(leaderboard));
+            this.router.push({ name: 'Leaderboard', params: { id: leaderboard.ID } });
+        },
+        getSelectedLeaderboard() {
+            if (this.selectedLeaderboard === null) {
+                this.selectedLeaderboard = JSON.parse(<string>localStorage.getItem('selectedLeaderboard'));
+            }
+            return this.selectedLeaderboard;
+        }
     },
 });
 

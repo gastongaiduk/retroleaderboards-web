@@ -12,7 +12,7 @@ class GameRepository {
     public async fetchLastPlayedGames(): Promise<GameList> {
         try {
             const response = await axios.get(`${this.url}/API/API_GetUserRecentlyPlayedGames.php`, {
-                params: {y: this.user.key, u: this.user.username, c: 50}
+                params: {y: this.user.key, u: this.user.username, c: 10}
             });
             return response.data as GameList;
         } catch (error) {

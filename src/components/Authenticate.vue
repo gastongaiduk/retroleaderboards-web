@@ -82,30 +82,29 @@ onMounted(() => {
 }
 
 .form-button {
-  background-color: #f5a623; /* Button color */
-  color: #1a1a2e; /* Text color */
-  border: none; /* No border */
-  padding: 10px; /* Button padding */
-  cursor: pointer; /* Pointer cursor on hover */
-  font-size: 16px; /* Button font size */
-  border-radius:10px; /* Rounded corners */
+  background-color: #f5a623;
+  color: #1a1a2e;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius:10px;
 }
 
 .form-button:hover {
-  background-color:#d48821; /* Darker orange on hover */
+  background-color:#d48821;
 }
 
 .link-icon {
-  margin-left: 8px; /* Space between text and icon */
+  margin-left: 8px;
 }
 
-/* Media query for desktop screens*/
 @media (min-width :768 px) {
   .retro-container{
-    width :calc(100%-40 px);/* Full width minus padding/margin for centering*/
-    max-width :1200 px ;/* Set a maximum width for larger screens*/
-    margin-left :auto ;/* Center the container horizontally*/
-    margin-right :auto ;/* Center the container horizontally*/
+    width :calc(100%-40 px);
+    max-width :1200 px ;
+    margin-left :auto ;
+    margin-right :auto ;
   }
 }
 </style>

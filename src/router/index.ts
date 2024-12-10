@@ -1,13 +1,12 @@
 import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router';
-import Home from '../components/Home.vue';
+import RecentlyPlayedGames from '../components/RecentlyPlayedGames.vue';
 import GameLeaderboards from '../components/GameLeaderboards.vue';
-import Leaderboard from "../components/Leaderboard.vue";
+import Leaderboard from "../components/LeaderboardEntries.vue";
 import Authenticate from "../components/Authenticate.vue";
 
-// Define the routes with type annotations
 const routes: Array<RouteRecordRaw> = [
-    { path: '/', redirect: '/home' },
-    { path: '/home', name: 'Home', component: Home },
+    { path: '/', redirect: '/games' },
+    { path: '/games', name: 'Games', component: RecentlyPlayedGames },
     { path: '/login', name: 'Login', component: Authenticate },
     {
         path: '/game/:id/leaderboards',
@@ -23,7 +22,6 @@ const routes: Array<RouteRecordRaw> = [
     },
 ];
 
-// Create the router with type annotations
 const router = createRouter({
     history: createWebHashHistory(),
     routes,

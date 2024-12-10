@@ -8,11 +8,15 @@ import {LeaderboardEntries} from "../models/LeaderboardEntries";
 import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
 import {useFriendsState} from "../stores/friends.ts";
+import {Game} from "../models/RecentlyPlayedGames.ts";
+import {Leaderboard} from "../models/GameLeaderboards.ts";
+import {useGamesStore} from "../stores/games.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
 const friends = useFriendsState();
+const games = useGamesStore();
 
 const repository = new GameRepository();
 
@@ -27,12 +31,15 @@ const props = defineProps({
   },
 })
 
+const selectedGame = ref<Game | null>(null);
+const selectedLeaderboard = ref<Leaderboard | null>(null);
 const entries = ref<LeaderboardEntries | null>(null);
 
 async function refreshScores() {
   try {
     entries.value = null;
-    entries.value = await repository.fetchLeaderboardEntries(props.id);
+    games.setLeaderboardEntries(Number(props.id), await repository.fetchLeaderboardEntries(props.id));
+    entries.value = games.getLeaderboardEntries(Number(props.id));
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }
@@ -45,6 +52,15 @@ onMounted(async () => {
   }
 
   await friends.load();
+
+  selectedGame.value = postStore.getSelectedGameLeaderboards();
+  selectedLeaderboard.value = postStore.getSelectedLeaderboard();
+
+  if (games.hasLeaderboardEntries(Number(props.id))) {
+    entries.value = games.getLeaderboardEntries(Number(props.id));
+    return;
+  }
+
   await refreshScores();
 });
 
@@ -104,8 +120,8 @@ function isFriend(user: string) {
   <div class="entries-container">
     <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
     <button class="refresh-button" @click="refreshScores"><i class="fa fa-refresh"></i></button>
-    <h1 class="entries-title">{{ postStore.selectedLeaderboardName }}</h1>
-    <h2 class="entries-title">{{ postStore.selectedGameName }}</h2>
+    <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
+    <h2 class="entries-title">{{ selectedGame?.Title }}</h2>
     <div v-if="entries">
       <ul class="entries-list" v-if="entries.Results.length">
         <li
@@ -114,8 +130,8 @@ function isFriend(user: string) {
             class="entry-item"
             :class="{ isFriend: isFriend(entry.User), isMe: isMe(entry.User) }">
           <span class="entry-rank">#{{ entry.Rank }}</span>
-          <div class="entry-username">{{ entry.User }}</div>
           <div class="entry-user-score">{{ entry.FormattedScore }}</div>
+          <div class="entry-username">{{ entry.User }}</div>
         </li>
       </ul>
       <span v-else>No entries found for this leaderboard.</span>
@@ -137,13 +153,13 @@ function isFriend(user: string) {
 }
 
 h1.entries-title {
-  font-size: 24px; /* Larger font for title */
+  font-size: 24px;
   color: #f5a623;
   text-align: center;
 }
 
 h2.entries-title {
-  font-size: 12px; /* Larger font for title */
+  font-size: 12px;
   color: #f5a623;
   text-align: center;
 }
@@ -159,7 +175,7 @@ h2.entries-title {
 }
 
 .back-button:hover, .refresh-button:hover {
-  background-color: #d48821; /* Slightly darker orange on hover */
+  background-color: #d48821;
 }
 
 .refresh-button {
@@ -172,40 +188,38 @@ h2.entries-title {
 }
 
 .entry-item {
-  background-color: #22223b; /* Darker background for each entry */
+  background-color: #22223b;
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 15px;
 }
 
 .entry-item:hover {
-  background-color: #3a3c58; /* Change background on hover */
+  background-color: #3a3c58;
 }
 
 .entry-rank {
-  color: #f5a623; /* Color for rank */
-  font-size: 28px; /* Larger font size for rank */
+  color: #f5a623;
+  font-size: 1.5rem;
 }
 
 .entry-username {
-  color: #e0e1dd; /* Color for username */
-  margin-top: 5px; /* Spacing above username */
+  color: #e0e1dd;
+  margin-top: 5px;
 }
 
 .entry-user-score {
-  color: #e0e1dd; /* Color for user score details */
-  margin-top: -10px; /* Spacing above score */
+  color: #e0e1dd;
   float: right;
 }
 
-/* Distinction styles for friends and current user */
 .isFriend {
-  background-color: rgba(245,166,35,0.2); /* Light orange background for friends */
+  background-color: rgba(245,166,35,0.2);
 }
 
 .isMe {
-  border: solid #f5a623; /* Border for current user */
-  border-width: thick; /* Thicker border for emphasis */
+  border: solid #f5a623;
+  border-width: thick;
 }
 
 .loading-text {

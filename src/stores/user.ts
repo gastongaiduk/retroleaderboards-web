@@ -1,13 +1,11 @@
 import {defineStore} from 'pinia';
-import encryptStorage from './encryption.ts';
+import {decryptData, encryptData} from "../utils/crypto.ts";
 
-// Define the state interface
 interface UserState {
     username: string | null;
     key: string | null;
 }
 
-// Define the store using TypeScript
 export const useUserStore = defineStore('user', {
     state: (): UserState => ({
         username: null,
@@ -16,10 +14,16 @@ export const useUserStore = defineStore('user', {
     actions: {
         isSet(): boolean {
             if (localStorage.getItem('username') !== null) {
-                this.username = <string>encryptStorage.getItem('username');
+                const encryptedSecret = localStorage.getItem('username');
+                if (encryptedSecret) {
+                    this.username = decryptData(encryptedSecret);
+                }
             }
             if (localStorage.getItem('key') !== null) {
-                this.key = <string>encryptStorage.getItem('key');
+                const encryptedSecret = localStorage.getItem('key');
+                if (encryptedSecret) {
+                    this.key = decryptData(encryptedSecret);
+                }
             }
 
             return this.username !== null && this.key !== null;
@@ -27,14 +31,8 @@ export const useUserStore = defineStore('user', {
         set(username: string, key: string): void {
             this.username = username;
             this.key = key;
-            encryptStorage.setItem('username', username);
-            encryptStorage.setItem('key', key);
+            localStorage.setItem('username', encryptData(username));
+            localStorage.setItem('key', encryptData(key));
         },
-        logout(): void {
-            this.username = null;
-            this.key = null;
-            encryptStorage.removeItem('username');
-            encryptStorage.removeItem('key');
-        }
     },
 });

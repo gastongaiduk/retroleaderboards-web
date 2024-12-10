@@ -1,38 +1,61 @@
 <script setup lang="ts">
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import GameRepository from "../repositories/GameRepository";
 
 import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
 import {useGamesStore} from "../stores/games";
+import {GameList, Game} from "../models/RecentlyPlayedGames.ts";
+import ConfirmLogoutModal from "./ConfirmLogoutModal.vue";
+import {useFriendsState} from "../stores/friends.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
+const friends = useFriendsState();
 const games = useGamesStore();
 
 const repository = new GameRepository();
 
-function selectGame(id: number, title: string) {
-  postStore.selectGame(id, title);
+function selectGameLeaderboards(game: Game) {
+  postStore.selectGameLeaderboards(game);
+}
+
+const isLogoutModalVisible = ref(false);
+
+function showLogoutModal() {
+  isLogoutModalVisible.value = true;
+}
+
+function hideLogoutModal() {
+  isLogoutModalVisible.value = false;
 }
 
 function logout() {
-  user.logout();
+  localStorage.clear();
+  user.$reset();
+  games.$reset();
+  friends.$reset();
+  postStore.$reset();
+
+  hideLogoutModal();
+
   router.push("/login")
 }
 
 async function refreshGames() {
   try {
-    games.setLastPlayedGames(null);
+    lastPlayedGames.value = null;
     games.setLastPlayedGames(await repository.fetchLastPlayedGames());
+    lastPlayedGames.value = games.lastPlayedGames;
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }
 }
 
 const apiUrl = import.meta.env.VITE_API_URL;
+const lastPlayedGames = ref<GameList | null>(null);
 
 onMounted(async () => {
   if (!user.isSet()) {
@@ -42,13 +65,17 @@ onMounted(async () => {
 
   if (games.lastPlayedGames === null) {
     await refreshGames();
+    return;
   }
+
+  lastPlayedGames.value = games.lastPlayedGames;
 });
 </script>
 
 <template>
   <div class="retro-container">
-    <button class="logout-button" @click="logout"><i class="fa fa-sign-out"></i> Logout</button>
+    <button class="logout-button" @click="showLogoutModal"><i class="fa fa-sign-out"></i> Logout</button>
+    <ConfirmLogoutModal :isVisible="isLogoutModalVisible" @confirm="logout" @nope="hideLogoutModal"/>
     <button class="refresh-button" @click="refreshGames"><i class="fa fa-refresh"></i></button>
     <h1 class="retro-title">Welcome {{ user.username }}</h1>
     <div v-if="games.lastPlayedGames">
@@ -57,7 +84,7 @@ onMounted(async () => {
           <div class="game-container" :style="{ backgroundImage: 'url(' + apiUrl + '\\' + game.ImageIngame + ')' }">
             <div class="background-overlay"></div>
             <img :src="apiUrl + '\\' + game.ImageIcon" :alt="game.Title" class="game-icon">
-            <button @click="selectGame(game.GameID, game.Title)" class="game-button">
+            <button @click="selectGameLeaderboards(game)" class="game-button">
               {{ game.Title }}
             </button>
           </div>
@@ -91,7 +118,7 @@ onMounted(async () => {
 }
 
 .logout-button:hover, .refresh-button:hover {
-  background-color: #d48821; /* Slightly darker orange on hover */
+  background-color: #d48821;
 }
 
 .refresh-button {
@@ -115,56 +142,56 @@ onMounted(async () => {
 }
 
 .game-container {
-  position: relative; /* Position relative for overlay */
-  display: flex; /* Use flexbox for layout */
-  align-items: center; /* Center items vertically */
-  padding: 10px; /* Padding around the container */
-  border-radius: 10px; /* Rounded corners */
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  background-position-y: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .background-overlay {
-  position: absolute; /* Overlay positioned absolutely */
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(34, 34, 59, 0.5); /* Darker overlay with transparency */
+  background-color: rgba(34, 34, 59, 0.5);
 }
 
 .game-icon {
-  width: 70px; /* Set width for game icon */
-  height: auto; /* Maintain aspect ratio */
-  margin-right: 15px; /* Space between icon and title */
-
-  /* Ensure icon is above overlay */
+  width: 70px;
+  height: auto;
+  margin-right: 15px;
   z-index: 1;
 }
 
 .game-button {
-  background-color: #f5a623; /* Button color */
-  color: #1a1a2e; /* Text color */
-  border: none; /* No border */
-  padding: 15px; /* Button padding */
-  cursor: pointer; /* Pointer cursor on hover */
-  font-size: 16px; /* Button font size */
-  border-radius: 10px; /* Rounded corners */
-  z-index: 1; /* Ensure button is above overlay */
+  background-color: #f5a623;
+  color: #1a1a2e;
+  border: none;
+  padding: 15px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 10px;
+  z-index: 1;
 }
 
 .game-button:hover {
-  background-color: #d48821; /* Darker orange on hover */
+  background-color: #d48821;
 }
 
 .loading-text {
-  text-align: center; /* Center loading text */
+  text-align: center;
 }
 
-/* Media query for desktop screens */
 @media (min-width: 768px) {
   .game-container {
-    background-repeat: no-repeat; /* Prevent background from repeating */
-    background-size: cover; /* Cover the entire container with the image */
-    background-position: center center; /* Center the image in the container */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
   }
 }
 </style>

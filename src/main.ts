@@ -4,10 +4,8 @@ import App from './App.vue';
 import router from './router/index';
 import {markRaw} from 'vue';
 
-// Create a Pinia instance
 const pinia = createPinia();
 
-// Integrate router with Pinia
 const piniaPlugin: PiniaPlugin = ({store}) => {
     store.router = markRaw(router);
 };

@@ -2,12 +2,13 @@
 
 import {onMounted, ref} from "vue";
 import {useRouter} from 'vue-router';
-import {GameLeaderboards} from "../models/GameLeaderboards";
+import {GameLeaderboards, Leaderboard} from "../models/GameLeaderboards";
 import GameRepository from "../repositories/GameRepository";
 
 import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
 import {useGamesStore} from "../stores/games";
+import {Game} from "../models/RecentlyPlayedGames.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -20,15 +21,14 @@ function goBack() {
   router.back();
 }
 
-function selectLeaderboard(id: number, title: string) {
-  postStore.selectLeaderboard(id, title);
+function selectLeaderboard(leaderboard: Leaderboard) {
+  postStore.selectLeaderboard(leaderboard);
 }
 
 async function refreshLeaderboards() {
   try {
     leaderboards.value = null;
-    games.gamesLeaderboards?.clear;
-    games.addGameLeaderboards(Number(props.id), await repository.fetchLeaderboards(props.id));
+    games.setGameLeaderboards(Number(props.id), await repository.fetchLeaderboards(props.id));
     leaderboards.value = games.getGameLeaderboards(Number(props.id));
   } catch (error) {
     console.error('Error fetching last played games:', error);
@@ -42,6 +42,7 @@ const props = defineProps({
   }
 })
 
+const selectedGame = ref<Game | null>(null);
 const leaderboards = ref<GameLeaderboards | null>(null);
 
 onMounted(async () => {
@@ -49,6 +50,8 @@ onMounted(async () => {
     await router.push("/login")
     return;
   }
+
+  selectedGame.value = postStore.getSelectedGameLeaderboards();
 
   if (games.hasGameLeaderboard(Number(props.id))) {
     leaderboards.value = games.getGameLeaderboards(Number(props.id));
@@ -64,14 +67,14 @@ onMounted(async () => {
   <div class="leaderboard-container">
     <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
     <button class="refresh-button" @click="refreshLeaderboards"><i class="fa fa-refresh"></i></button>
-    <h1 class="leaderboard-title">{{ postStore.selectedGameName }}</h1>
+    <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
     <div v-if="leaderboards">
       <ul class="leaderboard-list" v-if="leaderboards.Results.length">
         <li
             v-for="leaderboard in leaderboards.Results"
             :key="leaderboard.ID"
             class="leaderboard-item-container"
-            @click="selectLeaderboard(leaderboard.ID, leaderboard.Title)">
+            @click="selectLeaderboard(leaderboard)">
           <span class="leaderboard-item">
             {{ leaderboard.Title }}
             <span v-if="leaderboard.Title.length < 2" class="leaderboard-item-description">
@@ -100,7 +103,7 @@ onMounted(async () => {
 }
 
 .leaderboard-title {
-  font-size: 24px; /* Larger font for title */
+  font-size: 24px;
   color: #f5a623;
   text-align: center;
 }
@@ -116,7 +119,7 @@ onMounted(async () => {
 }
 
 .back-button:hover, .refresh-button:hover {
-  background-color: #d48821; /* Slightly darker orange on hover */
+  background-color: #d48821;
 }
 
 .refresh-button {
@@ -129,21 +132,21 @@ onMounted(async () => {
 }
 
 .leaderboard-item-container {
-  background-color: #22223b; /* Darker background for each entry */
+  background-color: #22223b;
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 15px;
-  display: flex; /* Flexbox for layout */
-  flex-direction: column; /* Stack children vertically */
+  display: flex;
+  flex-direction: column;
 }
 
 .leaderboard-item-container:hover {
-  background-color: #3a3c58; /* Change background on hover */
+  background-color: #3a3c58;
 }
 
 .leaderboard-item {
-  color: #f5a623; /* Color for the leaderboard title */
-  flex-grow: 1; /* Allow title to take up most space */
+  color: #f5a623;
+  flex-grow: 1;
 }
 
 .leaderboard-item-description {
@@ -151,10 +154,10 @@ onMounted(async () => {
 }
 
 .top-entry {
-  color: #e0e1dd; /* Color for the top entry details */
-  font-size: 12px; /* Smaller font size for top entry */
-  opacity: 0.7; /* Slightly faded to indicate less importance */
-  align-self: flex-end; /* Align to the bottom right */
+  color: #e0e1dd;
+  font-size: 12px;
+  opacity: 0.7;
+  align-self: flex-end;
   padding-top: 1rem;
 }
 
