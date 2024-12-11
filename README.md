@@ -32,8 +32,8 @@ Install node, at least version 18. First run `npm install` and then `npm run dev
 The project should be accessible via http://localhost:5173/retroleaderboards/.
 
 ## Running screens
-![Login](public/login.png)
-![Recently played games list](public/recently_played_games_list.png)
-![Logout](public/logout.png)
-![Game leaderboards](public/game_leaderboards.png)
-![Leaderboard entries](public/leaderboard_entries.png)
+<img src="public/login.png" width="450" alt="Login"/>
+<img src="public/recently_played_games_list.png" width="250" alt="Recently played games list"/>
+<img src="public/logout.png" width="250" alt="Logout"/>
+<img src="public/game_leaderboards.png" width="250" alt="Game leaderboards"/>
+<img src="public/leaderboard_entries.png" width="250" alt="Leaderboard entries"/>
