@@ -4,17 +4,10 @@ describe('recently played games page', () => {
   })
 
   it('no games played', () => {
-    cy.visit('/')
-
-    cy.url().should('include', '/login')
-    cy.contains('Authenticate')
-
-    cy.get('input[id="username"]').type('player')
-    cy.get('input[id="key"]').type('player-secret')
-
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'no-played-games.json' }).as('getRecentlyPlayedGames')
 
-    cy.contains('Submit').click()
+    cy.authenticate('player', 'player-secret')
+    cy.visit('/')
 
     cy.wait('@getRecentlyPlayedGames').its('response.body')
       .should('deep.equal', [])
@@ -24,17 +17,10 @@ describe('recently played games page', () => {
   })
 
   it('recently played games list with refresh', () => {
-    cy.visit('/')
-
-    cy.url().should('include', '/login')
-    cy.contains('Authenticate')
-
-    cy.get('input[id="username"]').type('example')
-    cy.get('input[id="key"]').type('example-secret')
-
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'recently-played-games-1.json' }).as('getRecentlyPlayedGames')
 
-    cy.contains('Submit').click()
+    cy.authenticate('player', 'player-secret')
+    cy.visit('/')
 
     cy.wait('@getRecentlyPlayedGames').its('response.body')
       .should('have.length', 1)
@@ -42,11 +28,11 @@ describe('recently played games page', () => {
     cy.url().should('include', '/games')
     cy.contains('Colin McRae Rally')
 
-    cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'recently-played-games-2.json' }).as('getRecentlyPlayedGames')
+    cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'recently-played-games-2.json' }).as('getRecentlyPlayedGamesTwo')
 
     cy.get('.refresh-button').click()
 
-    cy.wait('@getRecentlyPlayedGames').its('response.body')
+    cy.wait('@getRecentlyPlayedGamesTwo').its('response.body')
       .should('have.length', 2)
 
     cy.get('.game-list li').eq(0).contains('Colin McRae Rally')
@@ -54,20 +40,10 @@ describe('recently played games page', () => {
   })
 
   it('logout', () => {
-    cy.visit('/')
-
-    cy.url().should('include', '/login')
-    cy.contains('Authenticate')
-
-    cy.get('input[id="username"]').type('player')
-    cy.get('input[id="key"]').type('player-secret')
-
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'no-played-games.json' }).as('getRecentlyPlayedGames')
 
-    cy.contains('Submit').click()
-
-    cy.wait('@getRecentlyPlayedGames').its('response.body')
-      .should('deep.equal', [])
+    cy.authenticate('player', 'player-secret')
+    cy.visit('/')
 
     cy.contains('Logout').click()
 
