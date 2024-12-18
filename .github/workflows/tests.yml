@@ -16,26 +16,5 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           start: npm run dev:expose
-          env: VITE_ENCRYPTION_KEY=1234567890_KEY
-
-    #   - name: Install dependencies
-    #     run: npm install
-
-    #   - name: Start Vite server
-    #     run: npm run dev &
-    #     env:
-    #       VITE_ENCRYPTION_KEY: 1234567890_KEY
-
-    #   - name: Wait for Vite server
-    #     run: |
-    #       for i in {1..10}; do
-    #         if curl -s http://localhost:5173/retroleaderboards/; then
-    #           echo "Vite server is up!"
-    #           break
-    #         fi
-    #         echo "Waiting for Vite server..."
-    #         sleep 2
-    #       done
-
-    #   - name: Run Cypress tests
-    #     run: npm run cy:run
+        env:
+          CYPRESS_VITE_ENCRYPTION_KEY: 1234567890_KEY
