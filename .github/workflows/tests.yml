@@ -34,7 +34,3 @@ jobs:
 
       - name: Run Cypress tests
         run: npm run cy:run
-    #   - name: Run Cypress tests
-    #     uses: cypress-io/github-action@v6
-    #     with:
-    #       env: VITE_ENCRYPTION_KEY=1234567890_KEY
