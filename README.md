@@ -7,7 +7,7 @@ You only need two things in order to use it: your username and your web api key 
 
 This small webpage is built using [VITE](https://vite.dev) and [VUE](https://vuejs.org). Uses [GitHub Pages](https://pages.github.com) to host.
 It uses local storage to keep track of visited games information (so we don't overwhelm the server each time we navigate through pages).
-Sensitive data is stored using [crypto-js](https://www.npmjs.com/package/crypto-js).
+Sensitive data is stored using [crypto-js](https://www.npmjs.com/package/crypto-js). Testing aiming for full code coverage with [Cypress](https://www.cypress.io).
 
 ## Is it safe?
 
