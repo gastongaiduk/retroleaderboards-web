@@ -1,12 +1,14 @@
 {
   "name": "retroleaderboards",
   "private": true,
-  "version": "0.0.1",
-  "type": "module",
+  "version": "0.0.2",
   "scripts": {
     "dev": "vite",
+    "dev:cypress": "VITE_ENCRYPTION_KEY=1234567890_KEY vite --host",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -18,6 +20,7 @@
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
     "@vitejs/plugin-vue": "^5.2.1",
+    "cypress": "^13.16.1",
     "typescript": "~5.6.2",
     "vite": "^6.0.1",
     "vue-tsc": "^2.1.10"

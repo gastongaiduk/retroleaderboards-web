@@ -9,6 +9,7 @@ import {useGamesStore} from "../stores/games";
 import {GameList, Game} from "../models/RecentlyPlayedGames.ts";
 import ConfirmLogoutModal from "./ConfirmLogoutModal.vue";
 import {useFriendsState} from "../stores/friends.ts";
+import { AxiosError } from "axios";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -50,6 +51,11 @@ async function refreshGames() {
     games.setLastPlayedGames(await repository.fetchLastPlayedGames());
     lastPlayedGames.value = games.lastPlayedGames;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      alert("Bad credentials");
+      logout();
+      router.push("/login")
+    }
     console.error('Error fetching last played games:', error);
   }
 }
@@ -90,6 +96,7 @@ onMounted(async () => {
           </div>
         </li>
       </ul>
+      <div v-else>No games played yet</div>
     </div>
     <div v-else class="loading-text">Loading...</div>
   </div>
