@@ -32,12 +32,10 @@ jobs:
             sleep 2
           done
 
-      - name: Load environment variables
-        run: |
-          echo "Loading environment variables from .env.test"
-          set -o allexport; source .env.test; set +o allexport
-
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
+        env:
+          BASE_URL: 'http://localhost:5173/retroleaderboards'
+          VITE_ENCRYPTION_KEY: '1234567890'
         with:
           browser: chrome
