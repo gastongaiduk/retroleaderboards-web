@@ -7,19 +7,17 @@ on:
 
 jobs:
   cypress_run:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: npm run dev --host
+          start: npm run dev:expose &
           wait-on: 'http://localhost:5173/retroleaderboards'
-          env:
-            VITE_ENCRYPTION_KEY: 1234567890_KEY
+          env: VITE_ENCRYPTION_KEY=1234567890_KEY
 
     #   - name: Install dependencies
     #     run: npm install
