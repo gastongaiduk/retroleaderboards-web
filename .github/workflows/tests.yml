@@ -32,8 +32,10 @@ jobs:
             sleep 2
           done
 
-      - name: Set environment variables
-        run: echo "VITE_ENCRYPTION_KEY=1234567890" >> $GITHUB_ENV
+      - name: Load environment variables
+        run: |
+          echo "Loading environment variables from .env.test"
+          set -o allexport; source .env.test; set +o allexport
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
