@@ -23,12 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build project
-        env:
-          VITE_API_URL: ${{ vars.API_URL }}
-          VITE_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-        run: npm run build
-
       - name: Start Vite server
         run: npm run dev:expose &
 
