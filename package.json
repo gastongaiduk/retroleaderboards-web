@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "dev:cypress": "VITE_ENCRYPTION_KEY=1234567890_KEY vite --host",
-    "build": "vue-tsc -b && vite build",
+    "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "cy:open": "cypress open",
     "cy:run": "cypress run"
