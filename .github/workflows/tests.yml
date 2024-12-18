@@ -6,30 +6,28 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  build:
+  cypress-run:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
 
       - name: Install dependencies
         run: npm install
 
       - name: Start Vite server
-        run: npm run dev:expose &
+        run: npm run dev &
+        env:
+          CI: true
 
-      - name: Cypress run
+      - name: Wait for Vite server to start
+        uses: jakejarvis/wait-action@v1
+        with:
+          url: 'http://localhost:5173/retroleaderboards'
+          timeout: 60
+
+      - name: Run Cypress tests
         uses: cypress-io/github-action@v6
-
-    #   - name: Run Cypress tests
-    #     env:
-    #       BASE_URL: http://localhost:5173/retroleaderboards
-    #     run: npm run cy:run
+        with:
+          browser: chrome
