@@ -19,7 +19,6 @@ jobs:
       - name: Start Vite server
         run: npm run dev &
         env:
-          CI: true
           VITE_ENCRYPTION_KEY: 1234567890_KEY
 
       - name: Wait for Vite server
