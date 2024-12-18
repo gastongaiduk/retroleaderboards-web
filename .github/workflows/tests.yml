@@ -15,7 +15,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: npm run dev:expose &
+          start: npm run dev:expose
           wait-on: 'http://localhost:5173/retroleaderboards'
           env: VITE_ENCRYPTION_KEY=1234567890_KEY
 
