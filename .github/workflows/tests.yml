@@ -15,6 +15,4 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: npm run dev:expose
-        env:
-          CYPRESS_VITE_ENCRYPTION_KEY: 1234567890_KEY
+          start: npm run dev:expose --mode test
