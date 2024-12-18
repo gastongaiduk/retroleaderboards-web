@@ -21,16 +21,5 @@ jobs:
         env:
           VITE_ENCRYPTION_KEY: 1234567890_KEY
 
-      - name: Wait for Vite server
-        run: |
-          for i in {1..10}; do
-            if curl -s http://localhost:5173/retroleaderboards/; then
-              echo "Vite server is up!"
-              break
-            fi
-            echo "Waiting for Vite server..."
-            sleep 2
-          done
-
       - name: Run Cypress tests
         run: npm run cy:run
