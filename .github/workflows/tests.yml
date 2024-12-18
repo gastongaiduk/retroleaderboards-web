@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Start Vite server
-        run: npm run dev &
+        run: npm run dev:expose &
 
       - name: Run Cypress tests
         env:
