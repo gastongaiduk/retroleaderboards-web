@@ -26,7 +26,10 @@ jobs:
       - name: Start Vite server
         run: npm run dev:expose &
 
-      - name: Run Cypress tests
-        env:
-          BASE_URL: http://localhost:5173/retroleaderboards
-        run: npm run cy:run
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+
+    #   - name: Run Cypress tests
+    #     env:
+    #       BASE_URL: http://localhost:5173/retroleaderboards
+    #     run: npm run cy:run
