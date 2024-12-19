@@ -1,7 +1,7 @@
 {
   "name": "retroleaderboards",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.6",
   "scripts": {
     "dev": "vite",
     "dev:cypress": "VITE_ENCRYPTION_KEY=1234567890_KEY vite --host",
