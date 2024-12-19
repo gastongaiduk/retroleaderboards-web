@@ -29,7 +29,7 @@ VITE_ENCRYPTION_KEY=example
 ```
 
 Install node, at least version 18. First run `npm install` and then `npm run dev`.
-The project should be accessible via http://localhost:5173/retroleaderboards/.
+The project should be accessible via http://localhost:5173/.
 
 ## Screens
 <img src="public/v0.0.4.gif" alt="Screenshots" style="width: 50%;">
