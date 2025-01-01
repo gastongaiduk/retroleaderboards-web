@@ -3,6 +3,8 @@ import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 
 import {useUserStore} from '../stores/user'
+import axios from "axios";
+import BurgerMenu from "./BurgerMenu.vue";
 
 const router = useRouter();
 const user = useUserStore();
@@ -10,20 +12,36 @@ const user = useUserStore();
 const usernameInput = ref("");
 const keyInput = ref("");
 
-function handleSubmit() {
-  user.set(usernameInput.value, keyInput.value);
-  router.push("/");
+async function handleSubmit() {
+  const options = {
+    method: 'POST',
+    url: import.meta.env.VITE_SUPABASE_URL + '/functions/v1/set-ra-credentials',
+    headers: {
+      Authorization: 'Bearer ' + user.token
+    },
+    data: {username: usernameInput.value, api_key: keyInput.value}
+  };
+
+  try {
+    await axios.request(options);
+    user.set(usernameInput.value, keyInput.value);
+  } catch (error) {
+  }
+
+  await router.push("/");
 }
 
 onMounted(() => {
-  if (user.isSet()) {
-    router.push("/")
+  if (user.isSet() && user.username && user.key) {
+    usernameInput.value = user.username;
+    keyInput.value = user.key;
   }
 });
 </script>
 <template>
   <div class="retro-container">
-    <h1 class="retro-title">Authenticate</h1>
+    <BurgerMenu :updates-number="0"></BurgerMenu>
+    <h1 class="retro-title">Set your RA credentials</h1>
     <form @submit.prevent="handleSubmit" class="user-form">
       <div class="form-group">
         <label for="username" class="form-label">Username:</label>
@@ -31,10 +49,10 @@ onMounted(() => {
       </div>
       <div class="form-group">
         <label for="key" class="form-label">
-          Web API Key:
           <a href="https://retroachievements.org/settings" target="_blank" class="link-icon">
-            🔗
+            <i class="fa fa-external-link"></i>
           </a>
+          Web API Key:
         </label>
         <input type="password" id="key" v-model="keyInput" class="form-input" required>
       </div>
@@ -88,23 +106,25 @@ onMounted(() => {
   padding: 10px;
   cursor: pointer;
   font-size: 16px;
-  border-radius:10px;
+  border-radius: 10px;
 }
 
 .form-button:hover {
-  background-color:#d48821;
+  background-color: #d48821;
 }
 
 .link-icon {
-  margin-left: 8px;
+  color: #e0e1dd;
+  padding-bottom: 5px;
+  padding-right: 10px;
 }
 
-@media (min-width :768 px) {
-  .retro-container{
-    width :calc(100%-40 px);
-    max-width :1200 px ;
-    margin-left :auto ;
-    margin-right :auto ;
+@media (min-width: 768px) {
+  .retro-container {
+    width: calc(100% - 40px);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 </style>

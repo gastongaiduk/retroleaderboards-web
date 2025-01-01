@@ -11,6 +11,7 @@ import {useFriendsState} from "../stores/friends.ts";
 import {Game} from "../models/RecentlyPlayedGames.ts";
 import {Leaderboard} from "../models/GameLeaderboards.ts";
 import {useGamesStore} from "../stores/games.ts";
+import Tooltip from "./Tooltip.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -119,7 +120,9 @@ function isFriend(user: string) {
 <template>
   <div class="entries-container">
     <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
-    <button class="refresh-button" @click="refreshScores"><i class="fa fa-refresh"></i></button>
+    <Tooltip text="Refresh content" position="left" style="float: right">
+      <button class="refresh-button" @click="refreshScores"><i class="fa fa-refresh"></i></button>
+    </Tooltip>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
     <h2 class="entries-title">{{ selectedGame?.Title }}</h2>
     <div v-if="entries">

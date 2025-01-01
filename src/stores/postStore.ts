@@ -14,10 +14,12 @@ export const usePostStore = defineStore('post', {
         selectedLeaderboard: null,
     }),
     actions: {
-        selectGameLeaderboards(game: Game): void {
+        selectGameLeaderboards(game: Game, navigate = true): void {
             this.selectedGameLeaderboards = game;
             localStorage.setItem('selectedGameLeaderboards', JSON.stringify(game));
-            this.router.push({ name: 'GameLeaderboards', params: { id: game.GameID } });
+            if (navigate) {
+                this.router.push({ name: 'GameLeaderboards', params: { id: game.GameID } });
+            }
         },
         getSelectedGameLeaderboards() {
             if (this.selectedGameLeaderboards === null) {
