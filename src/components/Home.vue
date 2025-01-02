@@ -7,14 +7,13 @@ import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
 import {useGamesStore} from "../stores/games";
 import {GameList, Game} from "../models/RecentlyPlayedGames.ts";
-import ConfirmLogoutModal from "./ConfirmLogoutModal.vue";
-import {useFriendsState} from "../stores/friends.ts";
-import { AxiosError } from "axios";
+import BurgerMenu from "./BurgerMenu.vue";
+import {supabase} from "../utils/supabaseClient.ts";
+import Tooltip from "./Tooltip.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
-const friends = useFriendsState();
 const games = useGamesStore();
 
 const repository = new GameRepository();
@@ -23,51 +22,59 @@ function selectGameLeaderboards(game: Game) {
   postStore.selectGameLeaderboards(game);
 }
 
-const isLogoutModalVisible = ref(false);
-
-function showLogoutModal() {
-  isLogoutModalVisible.value = true;
-}
-
-function hideLogoutModal() {
-  isLogoutModalVisible.value = false;
-}
-
-function logout() {
-  localStorage.clear();
-  user.$reset();
-  games.$reset();
-  friends.$reset();
-  postStore.$reset();
-
-  hideLogoutModal();
-
-  router.push("/login")
-}
-
 async function refreshGames() {
   try {
     lastPlayedGames.value = null;
     games.setLastPlayedGames(await repository.fetchLastPlayedGames());
     lastPlayedGames.value = games.lastPlayedGames;
   } catch (error) {
-    if (error instanceof AxiosError && error.response?.status === 401) {
-      alert("Bad credentials");
-      logout();
-      router.push("/login")
-    }
     console.error('Error fetching last played games:', error);
+  }
+}
+
+async function updatesCount() {
+  updatesNumber.value = null
+  let {data, error} = await supabase
+      .from('leaderboards_updates')
+      .select(`
+        leaderboard_id,
+        friend_name,
+        user_score,
+        friend_score,
+        created_at,
+        read_at,
+        leaderboards (name, description, games (name, image_icon))
+      `)
+      .is('read_at', null)
+      .is('deleted_at', null)
+      .order('created_at', {ascending: false})
+
+  if (error) {
+    console.error('Error fetching updates:', error);
+    return;
+  }
+
+  if (data) {
+    updatesNumber.value = data?.length
   }
 }
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const lastPlayedGames = ref<GameList | null>(null);
+const updatesNumber = ref<number | null>(null);
 
 onMounted(async () => {
-  if (!user.isSet()) {
+  if (!user.isLoggedIn()) {
     await router.push("/login")
     return;
   }
+
+  if (!user.isSet()) {
+    await router.push("/ra-credentials")
+    return;
+  }
+
+  await updatesCount();
 
   if (games.lastPlayedGames === null) {
     await refreshGames();
@@ -80,9 +87,10 @@ onMounted(async () => {
 
 <template>
   <div class="retro-container">
-    <button class="logout-button" @click="showLogoutModal"><i class="fa fa-sign-out"></i> Logout</button>
-    <ConfirmLogoutModal :isVisible="isLogoutModalVisible" @confirm="logout" @nope="hideLogoutModal"/>
-    <button class="refresh-button" @click="refreshGames"><i class="fa fa-refresh"></i></button>
+    <BurgerMenu :updates-number="updatesNumber ? updatesNumber : 0"></BurgerMenu>
+    <Tooltip text="Refresh content" position="left" style="float: right">
+      <button class="refresh-button" @click="refreshGames"><i class="fa fa-refresh"></i></button>
+    </Tooltip>
     <h1 class="retro-title">Welcome {{ user.username }}</h1>
     <div v-if="games.lastPlayedGames">
       <ul v-if="games.lastPlayedGames.length" class="game-list">
@@ -114,7 +122,7 @@ onMounted(async () => {
   font-family: 'Press Start 2P', cursive;
 }
 
-.logout-button, .refresh-button {
+.refresh-button {
   background-color: #f5a623;
   color: #1a1a2e;
   border: none;
@@ -124,7 +132,7 @@ onMounted(async () => {
   border-radius: 10px;
 }
 
-.logout-button:hover, .refresh-button:hover {
+.refresh-button:hover {
   background-color: #d48821;
 }
 

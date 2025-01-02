@@ -6,26 +6,30 @@ describe('recently played games page', () => {
   it('no games played', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'no-played-games.json' }).as('getRecentlyPlayedGames')
 
-    cy.authenticate('player', 'player-secret')
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.visit('/')
 
     cy.wait('@getRecentlyPlayedGames').its('response.body')
       .should('deep.equal', [])
 
-    cy.url().should('include', '/games')
+    cy.url().should('include', '/home')
     cy.contains('No games played yet')
   })
 
   it('recently played games list with refresh', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'recently-played-games-1.json' }).as('getRecentlyPlayedGames')
 
-    cy.authenticate('player', 'player-secret')
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.visit('/')
 
     cy.wait('@getRecentlyPlayedGames').its('response.body')
       .should('have.length', 1)
 
-    cy.url().should('include', '/games')
+    cy.url().should('include', '/home')
     cy.contains('Colin McRae Rally')
 
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'recently-played-games-2.json' }).as('getRecentlyPlayedGamesTwo')
@@ -42,9 +46,15 @@ describe('recently played games page', () => {
   it('logout', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'no-played-games.json' }).as('getRecentlyPlayedGames')
 
-    cy.authenticate('player', 'player-secret')
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.visit('/')
 
+    cy.wait('@getRecentlyPlayedGames').its('response.body')
+        .should('deep.equal', [])
+
+    cy.get('.menu-toggle').click()
     cy.contains('Logout').click()
 
     cy.get('.confirm-button').click()

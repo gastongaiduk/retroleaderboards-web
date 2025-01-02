@@ -9,6 +9,9 @@ import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
 import {useGamesStore} from "../stores/games";
 import {Game} from "../models/RecentlyPlayedGames.ts";
+import {supabase} from "../utils/supabaseClient.ts";
+import Tooltip from "./Tooltip.vue";
+import ConfirmModal from "./ConfirmModal.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -17,12 +20,77 @@ const games = useGamesStore();
 
 const repository = new GameRepository();
 
+const isSubscribeModalVisible = ref(false);
+
+function showSubscribeModal() {
+  isSubscribeModalVisible.value = true;
+}
+
+function hideSubscribeModal() {
+  isSubscribeModalVisible.value = false;
+}
+
+const isUnsubscribeModalVisible = ref(false);
+
+function showUnsubscribeModal() {
+  isUnsubscribeModalVisible.value = true;
+}
+
+function hideUnsubscribeModal() {
+  isUnsubscribeModalVisible.value = false;
+}
+
 function goBack() {
   router.back();
 }
 
 function selectLeaderboard(leaderboard: Leaderboard) {
   postStore.selectLeaderboard(leaderboard);
+}
+
+async function refreshSubscriptionToGame() {
+  if (leaderboards.value && leaderboards.value.Total === 0) {
+    return
+  }
+
+  let {data, error} = await supabase
+      .from('game_subscriptions')
+      .select()
+      .eq('game_id', props.id)
+  if (error) {
+    console.log('Error while fetching subscription status: ', error)
+    return
+  }
+
+  if (data) {
+    subscribedToGame.value = data.length > 0
+  }
+}
+
+async function subscribe() {
+  let {error} = await supabase
+      .from('game_subscriptions')
+      .insert({game_id: props.id, user_id: user.user_id})
+  if (error) {
+    console.log('Error while updating notification status to read: ', error)
+  }
+
+  await refreshSubscriptionToGame()
+  hideSubscribeModal()
+}
+
+async function unsubscribe() {
+  let {error} = await supabase
+      .from('game_subscriptions')
+      .delete()
+      .eq('user_id', user.user_id)
+      .eq('game_id', props.id)
+  if (error) {
+    console.log('Error while updating notification status to read: ', error)
+  }
+
+  await refreshSubscriptionToGame()
+  hideUnsubscribeModal()
 }
 
 async function refreshLeaderboards() {
@@ -44,6 +112,7 @@ const props = defineProps({
 
 const selectedGame = ref<Game | null>(null);
 const leaderboards = ref<GameLeaderboards | null>(null);
+const subscribedToGame = ref<boolean | null>(null);
 
 onMounted(async () => {
   if (!user.isSet()) {
@@ -55,19 +124,35 @@ onMounted(async () => {
 
   if (games.hasGameLeaderboard(Number(props.id))) {
     leaderboards.value = games.getGameLeaderboards(Number(props.id));
+    await refreshSubscriptionToGame()
     return;
   }
 
   await refreshLeaderboards();
+  await refreshSubscriptionToGame()
 });
-
 </script>
 
 <template>
   <div class="leaderboard-container">
     <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
-    <button class="refresh-button" @click="refreshLeaderboards"><i class="fa fa-refresh"></i></button>
+    <Tooltip text="Refresh content" position="left" style="float: right">
+      <button class="refresh-button" @click="refreshLeaderboards"><i class="fa fa-refresh"></i></button>
+    </Tooltip>
     <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
+    <div v-if="leaderboards && leaderboards.Results.length" style="text-align: center">
+      <button v-if="!subscribedToGame" class="subscribe-button" @click="showSubscribeModal">Subscribe</button>
+      <ConfirmModal :isVisible="isSubscribeModalVisible" @confirm="subscribe" @nope="hideSubscribeModal"
+                    :title="'Subscribe to ' + selectedGame?.Title + '?'"
+                    :text="'Receive updates when a friend beats any of your scores in ' + selectedGame?.Title + '? (no emails or push notifications are sent)'"
+      />
+
+      <button v-if="subscribedToGame" class="unsubscribe-button" @click="showUnsubscribeModal">Unsubscribe</button>
+      <ConfirmModal :isVisible="isUnsubscribeModalVisible" @confirm="unsubscribe" @nope="hideUnsubscribeModal"
+                    :title="'Unsubscribe from ' + selectedGame?.Title + '?'"
+                    :text="'Don\'t receive updates for this game when a friend beats any of your scores in ' + selectedGame?.Title + '?'"
+      />
+    </div>
     <div v-if="leaderboards">
       <ul class="leaderboard-list" v-if="leaderboards.Results.length">
         <li
@@ -118,8 +203,26 @@ onMounted(async () => {
   border-radius: 10px;
 }
 
-.back-button:hover, .refresh-button:hover {
+.subscribe-button, .unsubscribe-button {
+  background-color: #f5a623;
+  color: #1a1a2e;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.unsubscribe-button {
+  background-color: #22223b;
+  color: #e0e1dd;
+}
+
+.back-button:hover, .refresh-button:hover, .subscribe-button:hover {
   background-color: #d48821;
+}
+
+.unsubscribe-button:hover {
+  background-color: #d9534f;
 }
 
 .refresh-button {

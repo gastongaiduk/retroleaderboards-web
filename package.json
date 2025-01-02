@@ -4,13 +4,14 @@
   "version": "0.0.6",
   "scripts": {
     "dev": "vite",
-    "dev:cypress": "VITE_ENCRYPTION_KEY=1234567890_KEY vite --host",
+    "dev:cypress": "VITE_ENCRYPTION_KEY=1234567890_KEY VITE_SUPABASE_URL=http://127.0.0.1:54321 VITE_SUPABASE_KEY=some-key vite --host",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "cy:open": "cypress open",
     "cy:run": "cypress run"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
     "axios": "^1.7.9",
     "crypto-js": "^4.2.0",
     "pinia": "^2.3.0",

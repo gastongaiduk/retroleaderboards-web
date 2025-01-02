@@ -1,11 +1,11 @@
 <template>
   <div v-if="isVisible" class="modal-overlay">
     <div class="modal-content">
-      <h2 class="modal-title">Confirm Logout</h2>
-      <p class="modal-text">Are you sure you want to log out?</p>
+      <h2 class="modal-title">{{title}}</h2>
+      <p class="modal-text">{{text}}</p>
       <div class="modal-buttons">
-        <button @click="confirmLogout" class="confirm-button">Logout</button>
-        <button @click="cancelLogout" class="cancel-button">Cancel</button>
+        <button @click="confirmAction" class="confirm-button">Confirm</button>
+        <button @click="cancelAction" class="cancel-button">Cancel</button>
       </div>
     </div>
   </div>
@@ -13,12 +13,12 @@
 
 <script>
 export default {
-  props: ['isVisible'],
+  props: ['isVisible', 'title', 'text'],
   methods: {
-    confirmLogout() {
+    confirmAction() {
       this.$emit('confirm');
     },
-    cancelLogout() {
+    cancelAction() {
       this.$emit('nope');
     }
   }
