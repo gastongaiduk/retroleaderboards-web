@@ -49,6 +49,10 @@ function selectLeaderboard(leaderboard: Leaderboard) {
 }
 
 async function refreshSubscriptionToGame() {
+  if (leaderboards.value && leaderboards.value.Total === 0) {
+    return
+  }
+
   let {data, error} = await supabase
       .from('game_subscriptions')
       .select()
@@ -116,16 +120,16 @@ onMounted(async () => {
     return;
   }
 
-  await refreshSubscriptionToGame();
-
   selectedGame.value = postStore.getSelectedGameLeaderboards();
 
   if (games.hasGameLeaderboard(Number(props.id))) {
     leaderboards.value = games.getGameLeaderboards(Number(props.id));
+    await refreshSubscriptionToGame()
     return;
   }
 
   await refreshLeaderboards();
+  await refreshSubscriptionToGame()
 });
 </script>
 

@@ -7,16 +7,18 @@ describe('login page', () => {
     cy.visit('/')
 
     cy.url().should('include', '/login')
-    cy.contains('Authenticate')
+    cy.contains('Login')
 
-    cy.get('input[id="username"]').type('unauthorized')
-    cy.get('input[id="key"]').type('unauthorized-secret')
+    cy.get('input[id="email"]').type('unauthorized')
+    cy.get('input[id="pass"]').type('unauthorized-secret')
 
-    cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { statusCode: 401 }).as('getRecentlyPlayedGames')
+    cy.intercept('POST', '**/auth/v1/token?grant_type*', {
+      body: {message: 'Bad credentials'}, statusCode: 401
+    }).as('auth')
 
     cy.contains('Submit').click()
 
-    cy.wait('@getRecentlyPlayedGames').its('response.statusCode')
+    cy.wait('@auth').its('response.statusCode')
       .should('equal', 401)
 
     cy.on('window:alert', (txt) => {
@@ -24,25 +26,63 @@ describe('login page', () => {
     })
 
     cy.url().should('include', '/login')
-    cy.contains('Authenticate')
+    cy.contains('Login')
   })
 
-  it('success', () => {
+  it('success-without-ra-credentials', () => {
     cy.visit('/')
 
     cy.url().should('include', '/login')
-    cy.contains('Authenticate')
+    cy.contains('Login')
 
-    cy.get('input[id="username"]').type('player')
-    cy.get('input[id="key"]').type('player-secret')
+    cy.get('input[id="email"]').type('user@retroleaderboards.app')
+    cy.get('input[id="pass"]').type('user-secret')
 
-    cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'no-played-games.json' }).as('getRecentlyPlayedGames')
+    cy.intercept('POST', '**/auth/v1/token?grant_type*', {
+      fixture: 'supabase.auth-granted.json'
+    }).as('auth')
+
+    cy.intercept('GET', '**/functions/v1/get-ra-credentials', {
+      fixture: 'supabase.ra-credentials-bad.json', statusCode: 400
+    }).as('raCredentials')
 
     cy.contains('Submit').click()
 
-    cy.wait('@getRecentlyPlayedGames').its('response.body')
-      .should('deep.equal', [])
+    cy.wait('@raCredentials').its('response.statusCode')
+        .should('equal', 400)
 
-    cy.url().should('include', '/games')
+    cy.url().should('include', '/ra-credentials')
+    cy.contains('Set your RA credentials');
+  })
+
+  it('success-with-ra-credentials', () => {
+    cy.visit('/')
+
+    cy.url().should('include', '/login')
+    cy.contains('Login')
+
+    cy.get('input[id="email"]').type('user@retroleaderboards.app')
+    cy.get('input[id="pass"]').type('user-secret')
+
+    cy.intercept('POST', '**/auth/v1/token?grant_type*', {
+      fixture: 'supabase.auth-granted.json'
+    }).as('auth')
+
+    cy.intercept('GET', '**/functions/v1/get-ra-credentials', {
+      fixture: 'supabase.ra-credentials-ok.json', statusCode: 200
+    }).as('raCredentials')
+
+    cy.intercept('GET', '**/rest/v1/leaderboards_updates?*', {
+      body: {}, statusCode: 200
+    }).as('leaderboardsUpdates')
+
+    cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', {
+      fixture: 'no-played-games.json', statusCode: 200
+    }).as('getRecentlyPlayedGames')
+
+    cy.contains('Submit').click()
+
+    cy.url().should('include', '/home')
+    cy.contains('Welcome');
   })
 })

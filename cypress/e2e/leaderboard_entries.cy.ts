@@ -5,9 +5,12 @@ describe('leaderboard entries page', () => {
 
   it('no entries', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-with-leaderboard.json' }).as('getRecentlyPlayedGames')
-    
-    cy.authenticate('player', 'player-secret')
+
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.interceptUsersIFollow()
+    cy.interceptGameSubscription(false)
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'leaderboards.json' }).as('getLeaderboards')
@@ -29,9 +32,12 @@ describe('leaderboard entries page', () => {
 
   it('entries with refresh and no entry from me or my friends', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-with-leaderboard.json' }).as('getRecentlyPlayedGames')
-    
-    cy.authenticate('player', 'player-secret')
+
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.interceptUsersIFollow()
+    cy.interceptGameSubscription(false)
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'leaderboards.json' }).as('getLeaderboards')
@@ -69,9 +75,12 @@ describe('leaderboard entries page', () => {
 
   it('entries with an entry only from me', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-with-leaderboard.json' }).as('getRecentlyPlayedGames')
-    
-    cy.authenticate('matias721744', 'matias721744-secret')
+
+    cy.interceptRACredentials(true, 'matias721744')
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.interceptUsersIFollow()
+    cy.interceptGameSubscription(false)
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'leaderboards.json' }).as('getLeaderboards')
@@ -98,9 +107,12 @@ describe('leaderboard entries page', () => {
 
   it('entries with entry only from a friend', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-with-leaderboard.json' }).as('getRecentlyPlayedGames')
-    
-    cy.authenticate('player', 'player-secret')
+
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.intercept('GET', '**/API/API_GetUsersIFollow.php*', { fixture: 'users-i-follow-with-matias.json' }).as('getUsersIFollow')
+    cy.interceptGameSubscription(false)
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'leaderboards.json' }).as('getLeaderboards')
@@ -127,9 +139,12 @@ describe('leaderboard entries page', () => {
 
   it('entries with a entry from me and a friend', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-with-leaderboard.json' }).as('getRecentlyPlayedGames')
-    
-    cy.authenticate('masakimu', 'masakimu-secret')
+
+    cy.interceptRACredentials(true, 'masakimu')
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.intercept('GET', '**/API/API_GetUsersIFollow.php*', { fixture: 'users-i-follow-with-matias.json' }).as('getUsersIFollow')
+    cy.interceptGameSubscription(false)
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'leaderboards.json' }).as('getLeaderboards')

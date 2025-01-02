@@ -26,6 +26,19 @@ async function handleSubmit() {
     await axios.request(options);
     user.set(usernameInput.value, keyInput.value);
   } catch (error) {
+    let errorMessage = error.response.data.error;
+
+    if (errorMessage.includes("JWT expired")){
+      await router.push("/logout");
+    }
+
+    if (errorMessage.includes("duplicate key value violates unique constraint")) {
+      alert("Username already assigned to a user. Contact the administrator if you need assistance.");
+      return;
+    }
+
+    alert(error.response.data.error);
+    return;
   }
 
   await router.push("/");

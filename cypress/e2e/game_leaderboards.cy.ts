@@ -6,7 +6,9 @@ describe('game leaderboards page', () => {
   it('no leaderboards', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-without-leaderboard.json' }).as('getRecentlyPlayedGames')
 
-    cy.authenticate('player', 'player-secret')
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'no-leaderboards.json' }).as('getLeaderboards')
@@ -23,8 +25,11 @@ describe('game leaderboards page', () => {
 
   it('leaderboards list with refresh', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-with-leaderboard.json' }).as('getRecentlyPlayedGames')
-    
-    cy.authenticate('player', 'player-secret')
+
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
+    cy.interceptGameSubscription(false)
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'leaderboards.json' }).as('getLeaderboards')
@@ -58,7 +63,10 @@ describe('game leaderboards page', () => {
   it('go back to recently played games', () => {
     cy.intercept('GET', '**/API/API_GetUserRecentlyPlayedGames.php*', { fixture: 'game-list-with-leaderboard.json' }).as('getRecentlyPlayedGames')
 
-    cy.authenticate('player', 'player-secret')
+    cy.interceptRACredentials()
+    cy.authenticate()
+    cy.interceptLeaderboardsUpdates()
+    cy.interceptGameSubscription(false)
     cy.visit('/')
 
     cy.intercept('GET', '**/API/API_GetGameLeaderboards.php*', { fixture: 'leaderboards.json' }).as('getLeaderboards')
@@ -67,6 +75,6 @@ describe('game leaderboards page', () => {
 
     cy.get('.back-button').click()
 
-    cy.url().should('include', '/games')
+    cy.url().should('include', '/home')
   })
 })
