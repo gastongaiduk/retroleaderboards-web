@@ -4,7 +4,7 @@
   "version": "0.0.6",
   "scripts": {
     "dev": "vite",
-    "dev:cypress": "VITE_ENCRYPTION_KEY=1234567890_KEY vite --host",
+    "dev:cypress": "VITE_ENCRYPTION_KEY=1234567890_KEY VITE_SUPABASE_URL=http://127.0.0.1:54321 vite --host",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "cy:open": "cypress open",
