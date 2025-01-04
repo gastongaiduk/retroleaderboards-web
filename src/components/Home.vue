@@ -23,6 +23,7 @@ function selectGameLeaderboards(game: Game) {
 }
 
 async function refreshGames() {
+  loadingRefresh.value = true;
   try {
     lastPlayedGames.value = null;
     games.setLastPlayedGames(await repository.fetchLastPlayedGames());
@@ -30,6 +31,7 @@ async function refreshGames() {
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }
+  loadingRefresh.value = false;
 }
 
 async function updatesCount() {
@@ -62,6 +64,7 @@ async function updatesCount() {
 const apiUrl = import.meta.env.VITE_API_URL;
 const lastPlayedGames = ref<GameList | null>(null);
 const updatesNumber = ref<number | null>(null);
+const loadingRefresh = ref<boolean>(false);
 
 onMounted(async () => {
   if (!user.isLoggedIn()) {
@@ -89,7 +92,10 @@ onMounted(async () => {
   <div class="retro-container">
     <BurgerMenu :updates-number="updatesNumber ? updatesNumber : 0"></BurgerMenu>
     <Tooltip text="Refresh content" position="left" style="float: right">
-      <button class="refresh-button" @click="refreshGames"><i class="fa fa-refresh"></i></button>
+      <button class="refresh-button" @click="refreshGames" :disabled="loadingRefresh">
+        <i v-if="loadingRefresh" class="fa fa-spinner fa-spin"></i>
+        <i v-else class="fa fa-refresh"></i>
+      </button>
     </Tooltip>
     <h1 class="retro-title">Welcome {{ user.username }}</h1>
     <div v-if="games.lastPlayedGames">

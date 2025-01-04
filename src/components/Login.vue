@@ -10,6 +10,7 @@ const user = useUserStore();
 
 const emailInput = ref("");
 const passInput = ref("");
+const loading = ref(false);
 
 async function handleRACredentials() {
   const options = {
@@ -31,6 +32,7 @@ async function handleRACredentials() {
 }
 
 async function handleSubmit() {
+  loading.value = true;
   const {data, error} = await supabase.auth.signInWithPassword({
     email: emailInput.value,
     password: passInput.value,
@@ -38,6 +40,7 @@ async function handleSubmit() {
 
   if (error) {
     alert(error.message);
+    loading.value = false;
     return;
   }
 
@@ -49,6 +52,7 @@ async function handleSubmit() {
 
 onMounted(async () => {
   if (user.isLoggedIn()) {
+    loading.value = true;
     await handleRACredentials();
     await router.push("/")
   }
@@ -70,7 +74,10 @@ onMounted(async () => {
         <span class="clickable link">
           <a @click="router.push('sign-up')">Or sign-up <i class="fa fa-arrow-right"></i></a>
         </span>
-        <button type="submit" class="form-button">Submit</button>
+        <button type="submit" class="form-button" :disabled="loading">
+          <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+          <span v-else>Submit</span>
+        </button>
       </div>
     </form>
   </div>

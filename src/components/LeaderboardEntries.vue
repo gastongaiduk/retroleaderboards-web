@@ -35,8 +35,10 @@ const props = defineProps({
 const selectedGame = ref<Game | null>(null);
 const selectedLeaderboard = ref<Leaderboard | null>(null);
 const entries = ref<LeaderboardEntries | null>(null);
+const loadingRefresh = ref<boolean>(false);
 
 async function refreshScores() {
+  loadingRefresh.value = true;
   try {
     entries.value = null;
     games.setLeaderboardEntries(Number(props.id), await repository.fetchLeaderboardEntries(props.id));
@@ -44,6 +46,7 @@ async function refreshScores() {
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }
+  loadingRefresh.value = false;
 }
 
 onMounted(async () => {
@@ -121,7 +124,10 @@ function isFriend(user: string) {
   <div class="entries-container">
     <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
     <Tooltip text="Refresh content" position="left" style="float: right">
-      <button class="refresh-button" @click="refreshScores"><i class="fa fa-refresh"></i></button>
+      <button class="refresh-button" @click="refreshScores" :disabled="loadingRefresh">
+        <i v-if="loadingRefresh" class="fa fa-spinner fa-spin"></i>
+        <i v-else class="fa fa-refresh"></i>
+      </button>
     </Tooltip>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
     <h2 class="entries-title">{{ selectedGame?.Title }}</h2>
@@ -151,7 +157,7 @@ function isFriend(user: string) {
   color: #e0e1dd;
   padding: 20px;
   border-radius: 15px;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   font-family: 'Press Start 2P', cursive;
 }
 
@@ -221,8 +227,7 @@ h2.entries-title {
 }
 
 .isMe {
-  border: solid #f5a623;
-  border-width: thick;
+  border: thick solid #f5a623;
 }
 
 .loading-text {

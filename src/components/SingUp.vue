@@ -10,10 +10,13 @@ const user = useUserStore();
 const emailInput = ref("");
 const passInput = ref("");
 const passConfirmInput = ref("");
+const loading = ref(false);
 
 async function handleSubmit() {
+  loading.value = true;
   if (passInput.value !== passConfirmInput.value) {
     alert("Passwords do not match");
+    loading.value = false;
     return;
   }
 
@@ -28,6 +31,7 @@ async function handleSubmit() {
   if (error) {
     console.log(error);
     alert("Error, please try again later")
+    loading.value = false;
     return;
   }
 
@@ -64,7 +68,10 @@ onMounted(() => {
         <span class="clickable link">
           <a @click="router.push('login')">Or login <i class="fa fa-arrow-right"></i></a>
         </span>
-        <button type="submit" class="form-button">Submit</button>
+        <button type="submit" class="form-button" :disabled="loading">
+          <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+          <span v-else>Submit</span>
+        </button>
       </div>
     </form>
   </div>
