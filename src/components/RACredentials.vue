@@ -11,8 +11,10 @@ const user = useUserStore();
 
 const usernameInput = ref("");
 const keyInput = ref("");
+const loading = ref(false);
 
 async function handleSubmit() {
+  loading.value = true;
   const options = {
     method: 'POST',
     url: import.meta.env.VITE_SUPABASE_URL + '/functions/v1/set-ra-credentials',
@@ -34,10 +36,12 @@ async function handleSubmit() {
 
     if (errorMessage.includes("duplicate key value violates unique constraint")) {
       alert("Username already assigned to a user. Contact the administrator if you need assistance.");
+      loading.value = false;
       return;
     }
 
     alert(error.response.data.error);
+    loading.value = false;
     return;
   }
 
@@ -69,7 +73,10 @@ onMounted(() => {
         </label>
         <input type="password" id="key" v-model="keyInput" class="form-input" required>
       </div>
-      <button type="submit" class="form-button">Submit</button>
+      <button type="submit" class="form-button" :disabled="loading">
+        <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+        <span v-else>Submit</span>
+      </button>
     </form>
   </div>
 </template>

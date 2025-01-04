@@ -68,6 +68,7 @@ async function refreshSubscriptionToGame() {
 }
 
 async function subscribe() {
+  loadingSubscription.value = true
   let {error} = await supabase
       .from('game_subscriptions')
       .insert({game_id: props.id, user_id: user.user_id})
@@ -77,9 +78,11 @@ async function subscribe() {
 
   await refreshSubscriptionToGame()
   hideSubscribeModal()
+  loadingSubscription.value = false
 }
 
 async function unsubscribe() {
+  loadingSubscription.value = true
   let {error} = await supabase
       .from('game_subscriptions')
       .delete()
@@ -91,9 +94,11 @@ async function unsubscribe() {
 
   await refreshSubscriptionToGame()
   hideUnsubscribeModal()
+  loadingSubscription.value = false
 }
 
 async function refreshLeaderboards() {
+  loadingRefresh.value = true;
   try {
     leaderboards.value = null;
     games.setGameLeaderboards(Number(props.id), await repository.fetchLeaderboards(props.id));
@@ -101,6 +106,7 @@ async function refreshLeaderboards() {
   } catch (error) {
     console.error('Error fetching last played games:', error);
   }
+  loadingRefresh.value = false;
 }
 
 const props = defineProps({
@@ -113,6 +119,8 @@ const props = defineProps({
 const selectedGame = ref<Game | null>(null);
 const leaderboards = ref<GameLeaderboards | null>(null);
 const subscribedToGame = ref<boolean | null>(null);
+const loadingSubscription = ref<boolean>(false);
+const loadingRefresh = ref<boolean>(false);
 
 onMounted(async () => {
   if (!user.isSet()) {
@@ -120,16 +128,19 @@ onMounted(async () => {
     return;
   }
 
+  loadingSubscription.value = true;
   selectedGame.value = postStore.getSelectedGameLeaderboards();
 
   if (games.hasGameLeaderboard(Number(props.id))) {
     leaderboards.value = games.getGameLeaderboards(Number(props.id));
     await refreshSubscriptionToGame()
+    loadingSubscription.value = false;
     return;
   }
 
   await refreshLeaderboards();
   await refreshSubscriptionToGame()
+  loadingSubscription.value = false;
 });
 </script>
 
@@ -137,17 +148,30 @@ onMounted(async () => {
   <div class="leaderboard-container">
     <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
     <Tooltip text="Refresh content" position="left" style="float: right">
-      <button class="refresh-button" @click="refreshLeaderboards"><i class="fa fa-refresh"></i></button>
+      <button class="refresh-button" @click="refreshLeaderboards" :disabled="loadingRefresh">
+        <i v-if="loadingRefresh" class="fa fa-spinner fa-spin"></i>
+        <i v-else class="fa fa-refresh"></i>
+      </button>
     </Tooltip>
     <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
     <div v-if="leaderboards && leaderboards.Results.length" style="text-align: center">
-      <button v-if="!subscribedToGame" class="subscribe-button" @click="showSubscribeModal">Subscribe</button>
+      <button v-if="!subscribedToGame" class="subscribe-button" @click="showSubscribeModal" :disabled="loadingSubscription">
+        <i v-if="loadingSubscription" class="fa fa-spinner fa-spin"></i>
+        <span v-else>
+          Subscribe
+        </span>
+      </button>
       <ConfirmModal :isVisible="isSubscribeModalVisible" @confirm="subscribe" @nope="hideSubscribeModal"
                     :title="'Subscribe to ' + selectedGame?.Title + '?'"
                     :text="'Receive updates when a friend beats any of your scores in ' + selectedGame?.Title + '? (no emails or push notifications are sent)'"
       />
 
-      <button v-if="subscribedToGame" class="unsubscribe-button" @click="showUnsubscribeModal">Unsubscribe</button>
+      <button v-if="subscribedToGame" class="unsubscribe-button" @click="showUnsubscribeModal" :disabled="loadingSubscription">
+        <i v-if="loadingSubscription" class="fa fa-spinner fa-spin"></i>
+        <span v-else>
+          Unsubscribe
+        </span>
+      </button>
       <ConfirmModal :isVisible="isUnsubscribeModalVisible" @confirm="unsubscribe" @nope="hideUnsubscribeModal"
                     :title="'Unsubscribe from ' + selectedGame?.Title + '?'"
                     :text="'Don\'t receive updates for this game when a friend beats any of your scores in ' + selectedGame?.Title + '?'"
@@ -183,7 +207,7 @@ onMounted(async () => {
   color: #e0e1dd;
   padding: 20px;
   border-radius: 15px;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   font-family: 'Press Start 2P', cursive;
 }
 
@@ -210,6 +234,11 @@ onMounted(async () => {
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 10px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .unsubscribe-button {
