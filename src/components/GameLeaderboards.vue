@@ -12,6 +12,7 @@ import {Game} from "../models/RecentlyPlayedGames.ts";
 import {supabase} from "../utils/supabaseClient.ts";
 import ConfirmModal from "./_shared/ConfirmModal.vue";
 import RefreshButton from "./_shared/RefreshButton.vue";
+import BackButton from "./_shared/BackButton.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -38,10 +39,6 @@ function showUnsubscribeModal() {
 
 function hideUnsubscribeModal() {
   isUnsubscribeModalVisible.value = false;
-}
-
-function goBack() {
-  router.back();
 }
 
 function selectLeaderboard(leaderboard: Leaderboard) {
@@ -146,7 +143,7 @@ onMounted(async () => {
 
 <template>
   <div class="leaderboard-container">
-    <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
+    <BackButton></BackButton>
     <RefreshButton :loading-state="loadingRefresh" @click="refreshLeaderboards"></RefreshButton>
     <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
     <div v-if="leaderboards && leaderboards.Results.length" style="text-align: center">
@@ -212,16 +209,6 @@ onMounted(async () => {
   text-align: center;
 }
 
-.back-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
-}
-
 .subscribe-button, .unsubscribe-button {
   background-color: #f5a623;
   color: #1a1a2e;
@@ -241,7 +228,7 @@ button:disabled {
   color: #e0e1dd;
 }
 
-.back-button:hover, .subscribe-button:hover {
+.subscribe-button:hover {
   background-color: #d48821;
 }
 

@@ -12,6 +12,7 @@ import {Game} from "../models/RecentlyPlayedGames.ts";
 import {Leaderboard} from "../models/GameLeaderboards.ts";
 import {useGamesStore} from "../stores/games.ts";
 import RefreshButton from "./_shared/RefreshButton.vue";
+import BackButton from "./_shared/BackButton.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -20,10 +21,6 @@ const friends = useFriendsState();
 const games = useGamesStore();
 
 const repository = new GameRepository();
-
-function goBack() {
-  router.back();
-}
 
 const props = defineProps({
   id: {
@@ -122,7 +119,7 @@ function isFriend(user: string) {
 
 <template>
   <div class="entries-container">
-    <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
+    <BackButton></BackButton>
     <RefreshButton :loading-state="loadingRefresh" @click="refreshScores"></RefreshButton>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
     <h2 class="entries-title">{{ selectedGame?.Title }}</h2>
@@ -166,20 +163,6 @@ h2.entries-title {
   font-size: 12px;
   color: #f5a623;
   text-align: center;
-}
-
-.back-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
-}
-
-.back-button:hover {
-  background-color: #d48821;
 }
 
 .entries-list {
