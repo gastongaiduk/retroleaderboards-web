@@ -6,7 +6,7 @@ import {supabase} from "../utils/supabaseClient.ts";
 import {usePostStore} from "../stores/postStore.ts";
 import {Leaderboard} from "../models/GameLeaderboards.ts";
 import {Game} from "../models/RecentlyPlayedGames.ts";
-import BurgerMenu from "./BurgerMenu.vue";
+import BurgerMenu from "./_shared/BurgerMenu.vue";
 
 const router = useRouter();
 const postStore = usePostStore();

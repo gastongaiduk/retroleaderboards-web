@@ -10,8 +10,8 @@ import {useUserStore} from '../stores/user';
 import {useGamesStore} from "../stores/games";
 import {Game} from "../models/RecentlyPlayedGames.ts";
 import {supabase} from "../utils/supabaseClient.ts";
-import Tooltip from "./Tooltip.vue";
-import ConfirmModal from "./ConfirmModal.vue";
+import ConfirmModal from "./_shared/ConfirmModal.vue";
+import RefreshButton from "./_shared/RefreshButton.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -147,12 +147,7 @@ onMounted(async () => {
 <template>
   <div class="leaderboard-container">
     <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
-    <Tooltip text="Refresh content" position="left" style="float: right">
-      <button class="refresh-button" @click="refreshLeaderboards" :disabled="loadingRefresh">
-        <i v-if="loadingRefresh" class="fa fa-spinner fa-spin"></i>
-        <i v-else class="fa fa-refresh"></i>
-      </button>
-    </Tooltip>
+    <RefreshButton :loading-state="loadingRefresh" @click="refreshLeaderboards"></RefreshButton>
     <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
     <div v-if="leaderboards && leaderboards.Results.length" style="text-align: center">
       <button v-if="!subscribedToGame" class="subscribe-button" @click="showSubscribeModal" :disabled="loadingSubscription">
@@ -217,7 +212,7 @@ onMounted(async () => {
   text-align: center;
 }
 
-.back-button, .refresh-button {
+.back-button {
   background-color: #f5a623;
   color: #1a1a2e;
   border: none;
@@ -246,16 +241,12 @@ button:disabled {
   color: #e0e1dd;
 }
 
-.back-button:hover, .refresh-button:hover, .subscribe-button:hover {
+.back-button:hover, .subscribe-button:hover {
   background-color: #d48821;
 }
 
 .unsubscribe-button:hover {
   background-color: #d9534f;
-}
-
-.refresh-button {
-  float: right;
 }
 
 .leaderboard-list {

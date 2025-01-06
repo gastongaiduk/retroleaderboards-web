@@ -7,9 +7,9 @@ import {usePostStore} from '../stores/postStore';
 import {useUserStore} from '../stores/user';
 import {useGamesStore} from "../stores/games";
 import {GameList, Game} from "../models/RecentlyPlayedGames.ts";
-import BurgerMenu from "./BurgerMenu.vue";
+import BurgerMenu from "./_shared/BurgerMenu.vue";
 import {supabase} from "../utils/supabaseClient.ts";
-import Tooltip from "./Tooltip.vue";
+import RefreshButton from "./_shared/RefreshButton.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -91,12 +91,7 @@ onMounted(async () => {
 <template>
   <div class="retro-container">
     <BurgerMenu :updates-number="updatesNumber ? updatesNumber : 0"></BurgerMenu>
-    <Tooltip text="Refresh content" position="left" style="float: right">
-      <button class="refresh-button" @click="refreshGames" :disabled="loadingRefresh">
-        <i v-if="loadingRefresh" class="fa fa-spinner fa-spin"></i>
-        <i v-else class="fa fa-refresh"></i>
-      </button>
-    </Tooltip>
+    <RefreshButton :loading-state="loadingRefresh" @click="refreshGames"></RefreshButton>
     <h1 class="retro-title">Welcome {{ user.username }}</h1>
     <div v-if="games.lastPlayedGames">
       <ul v-if="games.lastPlayedGames.length" class="game-list">
@@ -126,24 +121,6 @@ onMounted(async () => {
   border-radius: 15px;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
   font-family: 'Press Start 2P', cursive;
-}
-
-.refresh-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
-}
-
-.refresh-button:hover {
-  background-color: #d48821;
-}
-
-.refresh-button {
-  float: right;
 }
 
 .retro-title {
