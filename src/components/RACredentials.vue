@@ -4,7 +4,7 @@ import {useRouter} from "vue-router";
 
 import {useUserStore} from '../stores/user'
 import axios from "axios";
-import BurgerMenu from "./BurgerMenu.vue";
+import BurgerMenu from "./_shared/BurgerMenu.vue";
 
 const router = useRouter();
 const user = useUserStore();
@@ -49,6 +49,9 @@ async function handleSubmit() {
 }
 
 onMounted(() => {
+  if (!user.isLoggedIn()) {
+    router.push("/login");
+  }
   if (user.isSet() && user.username && user.key) {
     usernameInput.value = user.username;
     keyInput.value = user.key;
