@@ -15,7 +15,7 @@ onMounted(async () => {
 
 <template>
   <div class="retro-container">
-    <h1>Welcome to Retro leaderboards</h1>
+    <h1>Welcome to retro leaderboards</h1>
     <div>
       This is a companion website for <a href="https://retroachievements.org" target="_blank">RetroAchievements</a>, where you can compare leaderboards between your scores and those of your friends. You can also receive updates for specific games whenever a friend surpasses you on the leaderboard!
     </div>

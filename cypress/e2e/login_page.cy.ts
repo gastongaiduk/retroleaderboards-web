@@ -4,7 +4,7 @@ describe('login page', () => {
   })
 
   it('unauthorized', () => {
-    cy.visit('/')
+    cy.visit('/#/login')
 
     cy.url().should('include', '/login')
     cy.contains('Login')
@@ -30,7 +30,7 @@ describe('login page', () => {
   })
 
   it('success-without-ra-credentials', () => {
-    cy.visit('/')
+    cy.visit('/#/login')
 
     cy.url().should('include', '/login')
     cy.contains('Login')
@@ -56,7 +56,7 @@ describe('login page', () => {
   })
 
   it('success-with-ra-credentials', () => {
-    cy.visit('/')
+    cy.visit('/#/login')
 
     cy.url().should('include', '/login')
     cy.contains('Login')

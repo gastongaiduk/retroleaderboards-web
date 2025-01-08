@@ -1,7 +1,7 @@
 import {} from 'cypress' 
 
 Cypress.Commands.add('authenticate', (granted = true) => {
-    cy.visit('/login')
+    cy.visit('/#/login')
     cy.get('input[id="email"]').type('user@retroleaderboards.app')
     cy.get('input[id="pass"]').type('user-secret')
     if (granted) {
