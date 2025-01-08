@@ -61,6 +61,6 @@ describe('recently played games page', () => {
 
     cy.getAllLocalStorage().should('be.empty')
 
-    cy.url().should('include', '/login')
+    cy.url().should('include', '/welcome')
   })
 })

@@ -1,6 +1,6 @@
 # Retro leaderboards
 
-Retro leaderboards is a small easy to use [Retroachievements.org](https://retroachievements.org) companion website (mobile first design) that allows you to compare your recently played games leaderboards with your friends.
+Retro leaderboards is a small easy to use [Retroachievements.org](https://retroachievements.org) companion website that allows you to compare your recently played games leaderboards with your friends.
 You only need two things in order to use it: your username and your web api key (which can be gathered from your [setting page](https://retroachievements.org/settings), under the _Keys_ section)
 
 ## What technologies does it use?
@@ -8,6 +8,7 @@ You only need two things in order to use it: your username and your web api key 
 This small webpage is built using [VITE](https://vite.dev) and [VUE](https://vuejs.org). Uses [GitHub Pages](https://pages.github.com) to host.
 It uses local storage to keep track of visited games information (so we don't overwhelm the server each time we navigate through pages).
 Sensitive data is stored using [crypto-js](https://www.npmjs.com/package/crypto-js). Testing aiming for full code coverage with [Cypress](https://www.cypress.io).
+For database and account handling, uses [Supabase](https://supabase.com).
 
 ## Is it safe?
 
@@ -24,12 +25,12 @@ It tries to. Always keeping in mind that is a frontend application running in yo
 
 Create a .env file in your project's root folder.
 ```.env
+VITE_APP_URL=https://retroleaderboards.app
 VITE_API_URL=https://retroachievements.org
-VITE_ENCRYPTION_KEY=example
+VITE_ENCRYPTION_KEY=some-key
+VITE_SUPABASE_URL=some-url
+VITE_SUPABASE_KEY=some-key
 ```
 
 Install node, at least version 18. First run `npm install` and then `npm run dev`.
 The project should be accessible via http://localhost:5173/.
-
-## Screens
-<img src="public/v0.0.4.gif" alt="Screenshots" style="width: 50%;">

@@ -10,7 +10,7 @@ export interface Leaderboard {
     Title: string
     Description: string
     Format: string
-    TopEntry: TopEntry
+    TopEntry: TopEntry|null
 }
 
 export interface TopEntry {

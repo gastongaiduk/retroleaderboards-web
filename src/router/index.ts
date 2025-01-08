@@ -8,9 +8,11 @@ import SingUp from "../components/SingUp.vue";
 import Logout from "../components/Logout.vue";
 import RaCredentials from "../components/RACredentials.vue";
 import AuthCallback from "../components/AuthCallback.vue";
+import Welcome from "../components/Welcome.vue";
 
 const routes: Array<RouteRecordRaw> = [
-    { path: '/', redirect: '/home' },
+    { path: '/', redirect: '/welcome' },
+    { path: '/welcome', name: 'Welcome', component: Welcome },
     { path: '/login', name: 'Login', component: Login },
     { path: '/sign-up', name: 'SignUp', component: SingUp },
     { path: '/logout', name: 'Logout', component: Logout },

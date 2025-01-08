@@ -21,8 +21,6 @@ const games = useGamesStore();
 
 const repository = new GameRepository();
 
-const isSubscribeModalVisible = ref(false);
-
 function showSubscribeModal() {
   isSubscribeModalVisible.value = true;
 }
@@ -118,6 +116,7 @@ const leaderboards = ref<GameLeaderboards | null>(null);
 const subscribedToGame = ref<boolean | null>(null);
 const loadingSubscription = ref<boolean>(false);
 const loadingRefresh = ref<boolean>(false);
+const isSubscribeModalVisible = ref(false);
 
 onMounted(async () => {
   if (!user.isSet()) {
@@ -146,7 +145,7 @@ onMounted(async () => {
     <BackButton></BackButton>
     <RefreshButton :loading-state="loadingRefresh" @click="refreshLeaderboards"></RefreshButton>
     <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
-    <div v-if="leaderboards && leaderboards.Results.length" style="text-align: center">
+    <div v-if="leaderboards && leaderboards.Results.length && subscribedToGame !== null" style="text-align: center">
       <button v-if="!subscribedToGame" class="subscribe-button" @click="showSubscribeModal" :disabled="loadingSubscription">
         <i v-if="loadingSubscription" class="fa fa-spinner fa-spin"></i>
         <span v-else>
@@ -182,7 +181,9 @@ onMounted(async () => {
               {{ leaderboard.Description }}
             </span>
           </span>
-          <span class="top-entry">{{ leaderboard.TopEntry.User }} ({{ leaderboard.TopEntry.FormattedScore }})</span>
+          <span class="top-entry" v-if="leaderboard.TopEntry">
+            {{ leaderboard.TopEntry.User }} ({{ leaderboard.TopEntry.FormattedScore }})
+          </span>
         </li>
       </ul>
       <span v-else>No leaderboards found for this game.</span>
