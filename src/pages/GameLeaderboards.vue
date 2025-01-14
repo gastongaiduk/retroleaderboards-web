@@ -1,18 +1,17 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { GameLeaderboards, Leaderboard } from "../models/GameLeaderboards.ts";
+import GameRepository from "../repositories/GameRepository.ts";
 
-import {onMounted, ref} from "vue";
-import {useRouter} from 'vue-router';
-import {GameLeaderboards, Leaderboard} from "../models/GameLeaderboards";
-import GameRepository from "../repositories/GameRepository";
-
-import {usePostStore} from '../stores/postStore';
-import {useUserStore} from '../stores/user';
-import {useGamesStore} from "../stores/games";
-import {Game} from "../models/RecentlyPlayedGames.ts";
-import {supabase} from "../utils/supabaseClient.ts";
-import ConfirmModal from "./_shared/ConfirmModal.vue";
-import RefreshButton from "./_shared/RefreshButton.vue";
-import BackButton from "./_shared/BackButton.vue";
+import { usePostStore } from "../stores/postStore.ts";
+import { useUserStore } from "../stores/user.ts";
+import { useGamesStore } from "../stores/games.ts";
+import { Game } from "../models/RecentlyPlayedGames.ts";
+import { supabase } from "../utils/supabaseClient.ts";
+import ConfirmModal from "../components/ConfirmModal.vue";
+import RefreshButton from "../components/RefreshButton.vue";
+import BackButton from "../components/BackButton.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -45,61 +44,64 @@ function selectLeaderboard(leaderboard: Leaderboard) {
 
 async function refreshSubscriptionToGame() {
   if (leaderboards.value && leaderboards.value.Total === 0) {
-    return
+    return;
   }
 
-  let {data, error} = await supabase
-      .from('game_subscriptions')
-      .select()
-      .eq('game_id', props.id)
+  let { data, error } = await supabase
+    .from("game_subscriptions")
+    .select()
+    .eq("game_id", props.id);
   if (error) {
-    console.log('Error while fetching subscription status: ', error)
-    return
+    console.log("Error while fetching subscription status: ", error);
+    return;
   }
 
   if (data) {
-    subscribedToGame.value = data.length > 0
+    subscribedToGame.value = data.length > 0;
   }
 }
 
 async function subscribe() {
-  loadingSubscription.value = true
-  let {error} = await supabase
-      .from('game_subscriptions')
-      .insert({game_id: props.id, user_id: user.user_id})
+  loadingSubscription.value = true;
+  let { error } = await supabase
+    .from("game_subscriptions")
+    .insert({ game_id: props.id, user_id: user.user_id });
   if (error) {
-    console.log('Error while updating notification status to read: ', error)
+    console.log("Error while updating notification status to read: ", error);
   }
 
-  await refreshSubscriptionToGame()
-  hideSubscribeModal()
-  loadingSubscription.value = false
+  await refreshSubscriptionToGame();
+  hideSubscribeModal();
+  loadingSubscription.value = false;
 }
 
 async function unsubscribe() {
-  loadingSubscription.value = true
-  let {error} = await supabase
-      .from('game_subscriptions')
-      .delete()
-      .eq('user_id', user.user_id)
-      .eq('game_id', props.id)
+  loadingSubscription.value = true;
+  let { error } = await supabase
+    .from("game_subscriptions")
+    .delete()
+    .eq("user_id", user.user_id)
+    .eq("game_id", props.id);
   if (error) {
-    console.log('Error while updating notification status to read: ', error)
+    console.log("Error while updating notification status to read: ", error);
   }
 
-  await refreshSubscriptionToGame()
-  hideUnsubscribeModal()
-  loadingSubscription.value = false
+  await refreshSubscriptionToGame();
+  hideUnsubscribeModal();
+  loadingSubscription.value = false;
 }
 
 async function refreshLeaderboards() {
   loadingRefresh.value = true;
   try {
     leaderboards.value = null;
-    games.setGameLeaderboards(Number(props.id), await repository.fetchLeaderboards(props.id));
+    games.setGameLeaderboards(
+      Number(props.id),
+      await repository.fetchLeaderboards(props.id),
+    );
     leaderboards.value = games.getGameLeaderboards(Number(props.id));
   } catch (error) {
-    console.error('Error fetching last played games:', error);
+    console.error("Error fetching last played games:", error);
   }
   loadingRefresh.value = false;
 }
@@ -107,9 +109,9 @@ async function refreshLeaderboards() {
 const props = defineProps({
   id: {
     type: String,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 const selectedGame = ref<Game | null>(null);
 const leaderboards = ref<GameLeaderboards | null>(null);
@@ -120,7 +122,7 @@ const isSubscribeModalVisible = ref(false);
 
 onMounted(async () => {
   if (!user.isSet()) {
-    await router.push("/login")
+    await router.push("/login");
     return;
   }
 
@@ -129,13 +131,13 @@ onMounted(async () => {
 
   if (games.hasGameLeaderboard(Number(props.id))) {
     leaderboards.value = games.getGameLeaderboards(Number(props.id));
-    await refreshSubscriptionToGame()
+    await refreshSubscriptionToGame();
     loadingSubscription.value = false;
     return;
   }
 
   await refreshLeaderboards();
-  await refreshSubscriptionToGame()
+  await refreshSubscriptionToGame();
   loadingSubscription.value = false;
 });
 </script>
@@ -143,46 +145,80 @@ onMounted(async () => {
 <template>
   <div class="leaderboard-container">
     <BackButton></BackButton>
-    <RefreshButton :loading-state="loadingRefresh" @click="refreshLeaderboards"></RefreshButton>
+    <RefreshButton
+      :loading-state="loadingRefresh"
+      @click="refreshLeaderboards"
+    ></RefreshButton>
     <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
-    <div v-if="leaderboards && leaderboards.Results.length && subscribedToGame !== null" style="text-align: center">
-      <button v-if="!subscribedToGame" class="subscribe-button" @click="showSubscribeModal" :disabled="loadingSubscription">
+    <div
+      v-if="
+        leaderboards && leaderboards.Results.length && subscribedToGame !== null
+      "
+      style="text-align: center"
+    >
+      <button
+        v-if="!subscribedToGame"
+        class="subscribe-button"
+        @click="showSubscribeModal"
+        :disabled="loadingSubscription"
+      >
         <i v-if="loadingSubscription" class="fa fa-spinner fa-spin"></i>
-        <span v-else>
-          Subscribe
-        </span>
+        <span v-else> Subscribe </span>
       </button>
-      <ConfirmModal :isVisible="isSubscribeModalVisible" @confirm="subscribe" @nope="hideSubscribeModal"
-                    :title="'Subscribe to ' + selectedGame?.Title + '?'"
-                    :text="'Receive updates when a friend beats any of your scores in ' + selectedGame?.Title + '? (no emails or push notifications are sent)'"
+      <ConfirmModal
+        :isVisible="isSubscribeModalVisible"
+        @confirm="subscribe"
+        @nope="hideSubscribeModal"
+        :title="'Subscribe to ' + selectedGame?.Title + '?'"
+        :text="
+          'Receive updates when a friend beats any of your scores in ' +
+          selectedGame?.Title +
+          '? (no emails or push notifications are sent)'
+        "
       />
 
-      <button v-if="subscribedToGame" class="unsubscribe-button" @click="showUnsubscribeModal" :disabled="loadingSubscription">
+      <button
+        v-if="subscribedToGame"
+        class="unsubscribe-button"
+        @click="showUnsubscribeModal"
+        :disabled="loadingSubscription"
+      >
         <i v-if="loadingSubscription" class="fa fa-spinner fa-spin"></i>
-        <span v-else>
-          Unsubscribe
-        </span>
+        <span v-else> Unsubscribe </span>
       </button>
-      <ConfirmModal :isVisible="isUnsubscribeModalVisible" @confirm="unsubscribe" @nope="hideUnsubscribeModal"
-                    :title="'Unsubscribe from ' + selectedGame?.Title + '?'"
-                    :text="'Don\'t receive updates for this game when a friend beats any of your scores in ' + selectedGame?.Title + '?'"
+      <ConfirmModal
+        :isVisible="isUnsubscribeModalVisible"
+        @confirm="unsubscribe"
+        @nope="hideUnsubscribeModal"
+        :title="'Unsubscribe from ' + selectedGame?.Title + '?'"
+        :text="
+          'Don\'t receive updates for this game when a friend beats any of your scores in ' +
+          selectedGame?.Title +
+          '?'
+        "
       />
     </div>
     <div v-if="leaderboards">
       <ul class="leaderboard-list" v-if="leaderboards.Results.length">
         <li
-            v-for="leaderboard in leaderboards.Results"
-            :key="leaderboard.ID"
-            class="leaderboard-item-container"
-            @click="selectLeaderboard(leaderboard)">
+          v-for="leaderboard in leaderboards.Results"
+          :key="leaderboard.ID"
+          class="leaderboard-item-container"
+          @click="selectLeaderboard(leaderboard)"
+        >
           <span class="leaderboard-item">
             {{ leaderboard.Title }}
-            <span v-if="leaderboard.Title.length < 2" class="leaderboard-item-description">
+            <span
+              v-if="leaderboard.Title.length < 2"
+              class="leaderboard-item-description"
+            >
               {{ leaderboard.Description }}
             </span>
           </span>
           <span class="top-entry" v-if="leaderboard.TopEntry">
-            {{ leaderboard.TopEntry.User }} ({{ leaderboard.TopEntry.FormattedScore }})
+            {{ leaderboard.TopEntry.User }} ({{
+              leaderboard.TopEntry.FormattedScore
+            }})
           </span>
         </li>
       </ul>
@@ -193,7 +229,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 .leaderboard-container {
   background-color: #1a1a2e;
@@ -201,7 +237,7 @@ onMounted(async () => {
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
 }
 
 .leaderboard-title {
@@ -210,7 +246,8 @@ onMounted(async () => {
   text-align: center;
 }
 
-.subscribe-button, .unsubscribe-button {
+.subscribe-button,
+.unsubscribe-button {
   background-color: #f5a623;
   color: #1a1a2e;
   border: none;

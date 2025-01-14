@@ -1,72 +1,92 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
-import {supabase} from "../utils/supabaseClient.ts";
-import {useUserStore} from '../stores/user'
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { supabase } from "../utils/supabaseClient.ts";
+import { useUserStore } from "../stores/user.ts";
+import axios from "axios";
 
 const router = useRouter();
 const user = useUserStore();
 
 const emailInput = ref("");
 const passInput = ref("");
-const passConfirmInput = ref("");
 const loading = ref(false);
+
+async function handleRACredentials() {
+  const options = {
+    method: "GET",
+    url: import.meta.env.VITE_SUPABASE_URL + "/functions/v1/get-ra-credentials",
+    headers: {
+      Authorization: "Bearer " + user.token,
+    },
+  };
+
+  try {
+    const { data } = await axios.request(options);
+    if (data.data) {
+      user.set(data.data.username, data.data.api_key);
+    }
+  } catch (error) {
+    console.error("Error while fetching RA credentials:", error);
+  }
+}
 
 async function handleSubmit() {
   loading.value = true;
-  if (passInput.value !== passConfirmInput.value) {
-    alert("Passwords do not match");
-    loading.value = false;
-    return;
-  }
-
-  const {data, error} = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: emailInput.value,
     password: passInput.value,
-    options: {
-      emailRedirectTo: import.meta.env.VITE_APP_URL + '/#/auth-callback'
-    }
-  })
+  });
 
   if (error) {
-    console.log(error);
-    alert("Error, please try again later")
+    alert(error.message);
     loading.value = false;
     return;
   }
 
-  if (data.user?.confirmation_sent_at) {
-    alert("Confirmation email sent, login after confirming your registration")
-  }
+  user.login(data.user.id, data.session.access_token);
 
-  await router.push("/login");
+  await handleRACredentials();
+  await router.push("/");
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (user.isLoggedIn()) {
-    router.push("/")
+    loading.value = true;
+    await handleRACredentials();
+    await router.push("/");
   }
 });
 </script>
 <template>
   <div class="retro-container">
-    <h1 class="retro-title">Sign-up</h1>
+    <h1 class="retro-title">Login</h1>
     <form @submit.prevent="handleSubmit" class="user-form">
       <div class="form-group">
         <label for="email" class="form-label">Email:</label>
-        <input type="text" id="email" v-model="emailInput" class="form-input" required>
+        <input
+          type="text"
+          id="email"
+          v-model="emailInput"
+          class="form-input"
+          required
+        />
       </div>
       <div class="form-group">
         <label for="pass" class="form-label">Password:</label>
-        <input type="password" id="pass" v-model="passInput" class="form-input" required>
-      </div>
-      <div class="form-group">
-        <label for="pass-confirm" class="form-label">Confirm password:</label>
-        <input type="password" id="pass-confirm" v-model="passConfirmInput" class="form-input" required>
+        <input
+          type="password"
+          id="pass"
+          v-model="passInput"
+          class="form-input"
+          required
+        />
       </div>
       <div class="actions">
         <span class="clickable link">
-          <a @click="router.push('login')">Or login <i class="fa fa-arrow-right"></i></a>
+          <a @click="router.push('sign-up')"
+            >Or sign-up <i class="fa fa-arrow-right"></i
+          ></a>
         </span>
         <button type="submit" class="form-button" :disabled="loading">
           <i v-if="loading" class="fa fa-spinner fa-spin"></i>
@@ -78,7 +98,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 .retro-container {
   background-color: #1a1a2e;
@@ -86,7 +106,7 @@ onMounted(() => {
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
 }
 
 .retro-title {

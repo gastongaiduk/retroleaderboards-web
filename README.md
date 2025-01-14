@@ -24,6 +24,7 @@ It tries to. Always keeping in mind that is a frontend application running in yo
 ## How to build
 
 Create a .env file in your project's root folder.
+
 ```.env
 VITE_APP_URL=https://retroleaderboards.app
 VITE_API_URL=https://retroachievements.org

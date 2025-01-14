@@ -1,17 +1,21 @@
 <script lang="ts" setup>
-import { ref, defineProps } from 'vue';
+import { ref } from "vue";
 
 const props = defineProps<{
   text: string;
-  position?: 'top' | 'bottom' | 'left' | 'right';
+  position?: "top" | "bottom" | "left" | "right";
 }>();
 
-const position = props.position ?? 'top';
+const position = props.position ?? "top";
 const show = ref(false);
 </script>
 
 <template>
-  <div class="tooltip-container" @mouseover="show = true" @mouseleave="show = false">
+  <div
+    class="tooltip-container"
+    @mouseover="show = true"
+    @mouseleave="show = false"
+  >
     <slot></slot>
     <div v-if="show" class="tooltip" :class="position">{{ text }}</div>
   </div>
@@ -37,7 +41,7 @@ const show = ref(false);
 }
 
 .tooltip::after {
-  content: '';
+  content: "";
   position: absolute;
   border-width: 5px;
   border-style: solid;

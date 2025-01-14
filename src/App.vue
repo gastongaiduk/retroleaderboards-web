@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {onMounted} from "vue";
-import {useUserStore} from "./stores/user.ts";
+import { onMounted } from "vue";
+import { useUserStore } from "./stores/user.ts";
 
 const user = useUserStore();
 
@@ -10,8 +10,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <router-view></router-view>
+  <router-view v-slot="{ Component, route }">
+    <keep-alive v-if="route.meta.keepAlive">
+      <component :is="Component" />
+    </keep-alive>
+    <component v-else :is="Component" />
+  </router-view>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

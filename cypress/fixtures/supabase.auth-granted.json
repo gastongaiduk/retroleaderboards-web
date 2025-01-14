@@ -15,9 +15,7 @@
     "last_sign_in_at": "2025-01-02T13:48:03.069871615Z",
     "app_metadata": {
       "provider": "email",
-      "providers": [
-        "email"
-      ]
+      "providers": ["email"]
     },
     "user_metadata": {
       "email_verified": true

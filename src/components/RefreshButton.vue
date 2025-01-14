@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import Tooltip from "./Tooltip.vue";
-import {ref} from "vue";
+import { ref } from "vue";
 
-const emit = defineEmits(['click'])
+const emit = defineEmits(["click"]);
 
 const props = defineProps({
   loadingState: {
     type: Boolean,
-    required: true
+    required: true,
   },
-})
+});
 
 const loading = ref<boolean>(false);
 
@@ -17,14 +17,18 @@ function clickAction() {
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
-    emit('click');
+    emit("click");
   }, 1000);
 }
 </script>
 
 <template>
   <Tooltip text="Refresh content" position="left" style="float: right">
-    <button class="refresh-button" @click="clickAction" :disabled="props.loadingState || loading">
+    <button
+      class="refresh-button"
+      @click="clickAction"
+      :disabled="props.loadingState || loading"
+    >
       <i v-if="props.loadingState || loading" class="fa fa-spinner fa-spin"></i>
       <i v-else class="fa fa-refresh"></i>
     </button>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {supabase} from "../utils/supabaseClient.ts";
-import {useRouter} from "vue-router";
-import {usePostStore} from "../stores/postStore.ts";
-import {useUserStore} from "../stores/user.ts";
-import {useGamesStore} from "../stores/games.ts";
-import {useFriendsState} from "../stores/friends.ts";
-import {onMounted} from "vue";
+import { supabase } from "../utils/supabaseClient.ts";
+import { useRouter } from "vue-router";
+import { usePostStore } from "../stores/postStore.ts";
+import { useUserStore } from "../stores/user.ts";
+import { useGamesStore } from "../stores/games.ts";
+import { useFriendsState } from "../stores/friends.ts";
+import { onMounted } from "vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -24,16 +24,12 @@ async function logout() {
 }
 
 onMounted(async () => {
-  await logout()
+  await logout();
 
   await router.push("/");
-})
+});
 </script>
 
-<template>
+<template></template>
 
-</template>
-
-<style scoped>
-
-</style>
+<style scoped></style>

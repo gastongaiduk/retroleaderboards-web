@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 function goBack() {
   router.back();
 }
-
 </script>
 
 <template>
-  <button class="back-button" @click="goBack"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
+  <button class="back-button" @click="goBack">
+    <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+  </button>
 </template>
 
 <style scoped>

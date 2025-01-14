@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
-import {useUserStore} from '../stores/user'
+import { useUserStore } from "../stores/user.ts";
 import axios from "axios";
-import BurgerMenu from "./_shared/BurgerMenu.vue";
+import BurgerMenu from "../components/BurgerMenu.vue";
 
 const router = useRouter();
 const user = useUserStore();
@@ -16,12 +16,12 @@ const loading = ref(false);
 async function handleSubmit() {
   loading.value = true;
   const options = {
-    method: 'POST',
-    url: import.meta.env.VITE_SUPABASE_URL + '/functions/v1/set-ra-credentials',
+    method: "POST",
+    url: import.meta.env.VITE_SUPABASE_URL + "/functions/v1/set-ra-credentials",
     headers: {
-      Authorization: 'Bearer ' + user.token
+      Authorization: "Bearer " + user.token,
     },
-    data: {username: usernameInput.value, api_key: keyInput.value}
+    data: { username: usernameInput.value, api_key: keyInput.value },
   };
 
   try {
@@ -30,12 +30,16 @@ async function handleSubmit() {
   } catch (error) {
     let errorMessage = error.response.data.error;
 
-    if (errorMessage.includes("JWT expired")){
+    if (errorMessage.includes("JWT expired")) {
       await router.push("/logout");
     }
 
-    if (errorMessage.includes("duplicate key value violates unique constraint")) {
-      alert("Username already assigned to a user. Contact the administrator if you need assistance.");
+    if (
+      errorMessage.includes("duplicate key value violates unique constraint")
+    ) {
+      alert(
+        "Username already assigned to a user. Contact the administrator if you need assistance.",
+      );
       loading.value = false;
       return;
     }
@@ -65,16 +69,32 @@ onMounted(() => {
     <form @submit.prevent="handleSubmit" class="user-form">
       <div class="form-group">
         <label for="username" class="form-label">Username:</label>
-        <input type="text" id="username" v-model="usernameInput" class="form-input" required>
+        <input
+          type="text"
+          id="username"
+          v-model="usernameInput"
+          class="form-input"
+          required
+        />
       </div>
       <div class="form-group">
         <label for="key" class="form-label">
-          <a href="https://retroachievements.org/settings" target="_blank" class="link-icon">
+          <a
+            href="https://retroachievements.org/settings"
+            target="_blank"
+            class="link-icon"
+          >
             <i class="fa fa-external-link"></i>
           </a>
           Web API Key:
         </label>
-        <input type="password" id="key" v-model="keyInput" class="form-input" required>
+        <input
+          type="password"
+          id="key"
+          v-model="keyInput"
+          class="form-input"
+          required
+        />
       </div>
       <button type="submit" class="form-button" :disabled="loading">
         <i v-if="loading" class="fa fa-spinner fa-spin"></i>
@@ -85,7 +105,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 .retro-container {
   background-color: #1a1a2e;
@@ -93,7 +113,7 @@ onMounted(() => {
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
 }
 
 .retro-title {

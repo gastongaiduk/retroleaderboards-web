@@ -1,18 +1,17 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import GameRepository from "../repositories/GameRepository.ts";
+import { LeaderboardEntries } from "../models/LeaderboardEntries.ts";
 
-import {computed, onMounted, ref} from "vue";
-import {useRouter} from 'vue-router';
-import GameRepository from "../repositories/GameRepository";
-import {LeaderboardEntries} from "../models/LeaderboardEntries";
-
-import {usePostStore} from '../stores/postStore';
-import {useUserStore} from '../stores/user';
-import {useFriendsState} from "../stores/friends.ts";
-import {Game} from "../models/RecentlyPlayedGames.ts";
-import {Leaderboard} from "../models/GameLeaderboards.ts";
-import {useGamesStore} from "../stores/games.ts";
-import RefreshButton from "./_shared/RefreshButton.vue";
-import BackButton from "./_shared/BackButton.vue";
+import { usePostStore } from "../stores/postStore.ts";
+import { useUserStore } from "../stores/user.ts";
+import { useFriendsState } from "../stores/friends.ts";
+import { Game } from "../models/RecentlyPlayedGames.ts";
+import { Leaderboard } from "../models/GameLeaderboards.ts";
+import { useGamesStore } from "../stores/games.ts";
+import RefreshButton from "../components/RefreshButton.vue";
+import BackButton from "../components/BackButton.vue";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -25,9 +24,9 @@ const repository = new GameRepository();
 const props = defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
-})
+});
 
 const selectedGame = ref<Game | null>(null);
 const selectedLeaderboard = ref<Leaderboard | null>(null);
@@ -38,17 +37,20 @@ async function refreshScores() {
   loadingRefresh.value = true;
   try {
     entries.value = null;
-    games.setLeaderboardEntries(Number(props.id), await repository.fetchLeaderboardEntries(props.id));
+    games.setLeaderboardEntries(
+      Number(props.id),
+      await repository.fetchLeaderboardEntries(props.id),
+    );
     entries.value = games.getLeaderboardEntries(Number(props.id));
   } catch (error) {
-    console.error('Error fetching last played games:', error);
+    console.error("Error fetching last played games:", error);
   }
   loadingRefresh.value = false;
 }
 
 onMounted(async () => {
   if (!user.isSet()) {
-    await router.push("/login")
+    await router.push("/login");
     return;
   }
 
@@ -83,26 +85,26 @@ const sortedEntries = computed(() => {
     const byRank = a.Rank < b.Rank ? -1 : 1;
 
     if (isAMe && isBFriend) {
-      return byRank
+      return byRank;
     }
     if (isBMe && isAFriend) {
-      return byRank
+      return byRank;
     }
 
     if (isAMe || isBMe) {
-      return isAMe ? -1 : 1
+      return isAMe ? -1 : 1;
     }
 
     if (isAFriend && !isBFriend) {
-      return -1
+      return -1;
     }
     if (!isAFriend && isBFriend) {
-      return 1
+      return 1;
     }
 
     return byRank;
   });
-})
+});
 
 function isMe(userToCompare: string) {
   return userToCompare === user.username;
@@ -112,24 +114,27 @@ function isFriend(user: string) {
   if (friends.friends === null) {
     return false;
   }
-  return friends.friends.Results.some((friend) => friend.User === user)
+  return friends.friends.Results.some((friend) => friend.User === user);
 }
-
 </script>
 
 <template>
   <div class="entries-container">
     <BackButton></BackButton>
-    <RefreshButton :loading-state="loadingRefresh" @click="refreshScores"></RefreshButton>
+    <RefreshButton
+      :loading-state="loadingRefresh"
+      @click="refreshScores"
+    ></RefreshButton>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
     <h2 class="entries-title">{{ selectedGame?.Title }}</h2>
     <div v-if="entries">
       <ul class="entries-list" v-if="entries.Results.length">
         <li
-            v-for="entry in sortedEntries"
-            :key="entry.User"
-            class="entry-item"
-            :class="{ isFriend: isFriend(entry.User), isMe: isMe(entry.User) }">
+          v-for="entry in sortedEntries"
+          :key="entry.User"
+          class="entry-item"
+          :class="{ isFriend: isFriend(entry.User), isMe: isMe(entry.User) }"
+        >
           <span class="entry-rank">#{{ entry.Rank }}</span>
           <div class="entry-user-score">{{ entry.FormattedScore }}</div>
           <div class="entry-username">{{ entry.User }}</div>
@@ -142,7 +147,7 @@ function isFriend(user: string) {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 .entries-container {
   background-color: #1a1a2e;
@@ -150,7 +155,7 @@ function isFriend(user: string) {
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
 }
 
 h1.entries-title {
@@ -197,7 +202,7 @@ h2.entries-title {
 }
 
 .isFriend {
-  background-color: rgba(245,166,35,0.2);
+  background-color: rgba(245, 166, 35, 0.2);
 }
 
 .isMe {
