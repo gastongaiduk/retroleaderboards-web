@@ -143,8 +143,8 @@ onMounted(async () => {
     ></RefreshButton>
     <h1 class="retro-title">Welcome {{ user.username }}</h1>
     <div v-if="recentGames">
-      <div v-if="recentGames.games.length" class="game-list">
-        <div
+      <ul v-if="recentGames.games.length" class="game-list">
+        <li
           v-for="game in recentGames.games"
           :key="game.GameID"
           class="game-item"
@@ -165,9 +165,9 @@ onMounted(async () => {
               {{ game.Title }}
             </button>
           </div>
-        </div>
+        </li>
         <div v-if="loadingInfiniteScroll" class="loading-text">Loading...</div>
-      </div>
+      </ul>
       <div v-else>No games played yet</div>
     </div>
     <div v-else class="loading-text">Loading...</div>
