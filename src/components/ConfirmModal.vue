@@ -1,8 +1,8 @@
 <template>
   <div v-if="isVisible" class="modal-overlay">
     <div class="modal-content">
-      <h2 class="modal-title">{{title}}</h2>
-      <p class="modal-text">{{text}}</p>
+      <h2 class="modal-title">{{ title }}</h2>
+      <p class="modal-text">{{ text }}</p>
       <div class="modal-buttons">
         <button @click="confirmAction" class="confirm-button">Confirm</button>
         <button @click="cancelAction" class="cancel-button">Cancel</button>
@@ -13,16 +13,16 @@
 
 <script>
 export default {
-  props: ['isVisible', 'title', 'text'],
+  props: ["isVisible", "title", "text"],
   methods: {
     confirmAction() {
-      this.$emit('confirm');
+      this.$emit("confirm");
     },
     cancelAction() {
-      this.$emit('nope');
-    }
-  }
-}
+      this.$emit("nope");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -37,7 +37,7 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
 }
 
 .modal-content {
@@ -75,7 +75,7 @@ export default {
   cursor: pointer;
   font-size: 16px;
   border-radius: 10px;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   transition: background-color 0.3s ease;
 }
 
