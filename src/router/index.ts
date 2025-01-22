@@ -29,6 +29,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "GameLeaderboards",
     component: GameLeaderboards,
     props: true,
+    meta: { keepAlive: true },
   },
   {
     path: "/leaderboard/:id",

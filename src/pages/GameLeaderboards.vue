@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onActivated, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { GameLeaderboards, Leaderboard } from "../models/GameLeaderboards.ts";
 import GameRepository from "../repositories/GameRepository.ts";
 
 import { usePostStore } from "../stores/postStore.ts";
 import { useUserStore } from "../stores/user.ts";
-import { useGamesStore } from "../stores/games.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
 import { supabase } from "../utils/supabaseClient.ts";
 import ConfirmModal from "../components/ConfirmModal.vue";
 import RefreshButton from "../components/RefreshButton.vue";
 import BackButton from "../components/BackButton.vue";
 
+import { useScrollTracker } from "../composables/useScrollTracker.ts";
+import { useInfiniteScroll } from "@vueuse/core";
+import { useGameLeaderboardsStore } from "../stores/gameLeaderboards.ts";
+import { Leaderboard } from "../models/GameLeaderboards.ts";
+
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
-const games = useGamesStore();
+const gameLeaderboards = useGameLeaderboardsStore();
 
 const repository = new GameRepository();
 
@@ -28,8 +31,6 @@ function hideSubscribeModal() {
   isSubscribeModalVisible.value = false;
 }
 
-const isUnsubscribeModalVisible = ref(false);
-
 function showUnsubscribeModal() {
   isUnsubscribeModalVisible.value = true;
 }
@@ -39,14 +40,26 @@ function hideUnsubscribeModal() {
 }
 
 function selectLeaderboard(leaderboard: Leaderboard) {
+  saveScrollPosition();
   postStore.selectLeaderboard(leaderboard);
 }
 
-async function refreshSubscriptionToGame() {
-  if (leaderboards.value && leaderboards.value.Total === 0) {
-    return;
-  }
+const isUnsubscribeModalVisible = ref(false);
+const selectedGame = ref<Game | null>(null);
+const subscribedToGame = ref<boolean | null>(null);
+const loadingSubscription = ref<boolean>(false);
+const isSubscribeModalVisible = ref(false);
+const loadingRefresh = ref<boolean>(false);
+const loadingInfiniteScroll = ref<boolean>(false);
+const itemsToLoad = 20;
+const gameLeaderboardsElement = ref<HTMLElement | null>(null);
+const { saveScrollPosition, restoreScrollPosition } = useScrollTracker(
+  gameLeaderboardsElement,
+  gameLeaderboards,
+);
+onActivated(async () => restoreScrollPosition());
 
+async function refreshSubscriptionToGame() {
   let { data, error } = await supabase
     .from("game_subscriptions")
     .select()
@@ -93,18 +106,54 @@ async function unsubscribe() {
 
 async function refreshLeaderboards() {
   loadingRefresh.value = true;
+  gameLeaderboards.setHasMoreToLoad(true);
+  gameLeaderboards.resetOffset();
+  gameLeaderboards.resetScrollPosition();
+  if (gameLeaderboardsElement.value) {
+    gameLeaderboardsElement.value.scrollTop = 0;
+  }
+
   try {
-    leaderboards.value = null;
-    games.setGameLeaderboards(
-      Number(props.id),
-      await repository.fetchLeaderboards(props.id),
-    );
-    leaderboards.value = games.getGameLeaderboards(Number(props.id));
+    gameLeaderboards.leaderboards = (
+      await repository.fetchLeaderboards(
+        props.id,
+        itemsToLoad,
+        gameLeaderboards.offset,
+      )
+    ).Results;
   } catch (error) {
     console.error("Error fetching last played games:", error);
   }
+  gameLeaderboards.increaseOffsetIn(itemsToLoad);
+  reset();
   loadingRefresh.value = false;
 }
+
+const { reset } = useInfiniteScroll(
+  gameLeaderboardsElement,
+  async () => {
+    if (loadingInfiniteScroll.value) return;
+    loadingInfiniteScroll.value = true;
+
+    const fetchedResults = await repository.fetchLeaderboards(
+      props.id,
+      itemsToLoad,
+      gameLeaderboards.offset,
+    );
+    if (fetchedResults.Count !== itemsToLoad) {
+      gameLeaderboards.setHasMoreToLoad(false);
+    }
+    gameLeaderboards.addItems(fetchedResults.Results);
+    gameLeaderboards.increaseOffsetIn(itemsToLoad);
+    loadingInfiniteScroll.value = false;
+  },
+  {
+    distance: itemsToLoad,
+    canLoadMore: () => {
+      return gameLeaderboards.hasMoreToLoad;
+    },
+  },
+);
 
 const props = defineProps({
   id: {
@@ -112,13 +161,6 @@ const props = defineProps({
     required: true,
   },
 });
-
-const selectedGame = ref<Game | null>(null);
-const leaderboards = ref<GameLeaderboards | null>(null);
-const subscribedToGame = ref<boolean | null>(null);
-const loadingSubscription = ref<boolean>(false);
-const loadingRefresh = ref<boolean>(false);
-const isSubscribeModalVisible = ref(false);
 
 onMounted(async () => {
   if (!user.isSet()) {
@@ -129,21 +171,17 @@ onMounted(async () => {
   loadingSubscription.value = true;
   selectedGame.value = postStore.getSelectedGameLeaderboards();
 
-  if (games.hasGameLeaderboard(Number(props.id))) {
-    leaderboards.value = games.getGameLeaderboards(Number(props.id));
-    await refreshSubscriptionToGame();
-    loadingSubscription.value = false;
-    return;
+  if (gameLeaderboards.leaderboards.length !== 0) {
+    gameLeaderboards.restoreOffset();
   }
 
-  await refreshLeaderboards();
   await refreshSubscriptionToGame();
   loadingSubscription.value = false;
 });
 </script>
 
 <template>
-  <div class="leaderboard-container">
+  <div class="leaderboard-container" ref="gameLeaderboardsElement">
     <BackButton></BackButton>
     <RefreshButton
       :loading-state="loadingRefresh"
@@ -152,7 +190,9 @@ onMounted(async () => {
     <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
     <div
       v-if="
-        leaderboards && leaderboards.Results.length && subscribedToGame !== null
+        gameLeaderboards.leaderboards &&
+        gameLeaderboards.leaderboards.length &&
+        subscribedToGame !== null
       "
       style="text-align: center"
     >
@@ -198,10 +238,10 @@ onMounted(async () => {
         "
       />
     </div>
-    <div v-if="leaderboards">
-      <ul class="leaderboard-list" v-if="leaderboards.Results.length">
+    <div v-if="gameLeaderboards.leaderboards">
+      <ul class="leaderboard-list" v-if="gameLeaderboards.leaderboards.length">
         <li
-          v-for="leaderboard in leaderboards.Results"
+          v-for="leaderboard in gameLeaderboards.leaderboards"
           :key="leaderboard.ID"
           class="leaderboard-item-container"
           @click="selectLeaderboard(leaderboard)"
@@ -221,6 +261,9 @@ onMounted(async () => {
             }})
           </span>
         </li>
+        <span v-if="loadingInfiniteScroll" class="loading-text"
+          >Loading...</span
+        >
       </ul>
       <span v-else>No leaderboards found for this game.</span>
     </div>
@@ -238,6 +281,9 @@ onMounted(async () => {
   border-radius: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   font-family: "Press Start 2P", cursive;
+  overflow-y: scroll;
+  height: 100vh;
+  margin: 0;
 }
 
 .leaderboard-title {
@@ -311,5 +357,6 @@ button:disabled {
 
 .loading-text {
   text-align: center;
+  padding-bottom: 20px;
 }
 </style>

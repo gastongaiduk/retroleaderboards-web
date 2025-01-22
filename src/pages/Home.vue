@@ -11,15 +11,18 @@ import { supabase } from "../utils/supabaseClient.ts";
 import RefreshButton from "../components/RefreshButton.vue";
 import { useScrollTracker } from "../composables/useScrollTracker.ts";
 import { useInfiniteScroll } from "@vueuse/core";
+import { useGameLeaderboardsStore } from "../stores/gameLeaderboards.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
 const recentGames = useRecentGamesStore();
+const gameLeaderboards = useGameLeaderboardsStore();
 const repository = new GameRepository();
 
 function selectGameLeaderboards(game: Game) {
   saveScrollPosition();
+  gameLeaderboards.$reset();
   postStore.selectGameLeaderboards(game);
 }
 
@@ -57,9 +60,9 @@ async function updatesCount() {
 const loadingRefresh = ref<boolean>(false);
 const loadingInfiniteScroll = ref<boolean>(false);
 const itemsToLoad = 20;
-const el = ref<HTMLElement | null>(null);
+const recentGamesElement = ref<HTMLElement | null>(null);
 const { saveScrollPosition, restoreScrollPosition } = useScrollTracker(
-  el,
+  recentGamesElement,
   recentGames,
 );
 onActivated(() => restoreScrollPosition());
@@ -69,8 +72,8 @@ async function refreshGames() {
   recentGames.setHasMoreToLoad(true);
   recentGames.resetOffset();
   recentGames.resetScrollPosition();
-  if (el.value) {
-    el.value.scrollTop = 0;
+  if (recentGamesElement.value) {
+    recentGamesElement.value.scrollTop = 0;
   }
   try {
     recentGames.games = await repository.fetchLastPlayedGames(
@@ -86,7 +89,7 @@ async function refreshGames() {
 }
 
 const { reset } = useInfiniteScroll(
-  el,
+  recentGamesElement,
   async () => {
     if (loadingInfiniteScroll.value) return;
     loadingInfiniteScroll.value = true;
@@ -125,15 +128,12 @@ onMounted(async () => {
 
   if (recentGames.games.length !== 0) {
     recentGames.restoreOffset();
-    return;
   }
-
-  await refreshGames();
 });
 </script>
 
 <template>
-  <div class="retro-container" ref="el">
+  <div class="retro-container" ref="recentGamesElement">
     <BurgerMenu
       :updates-number="updatesNumber ? updatesNumber : 0"
     ></BurgerMenu>
@@ -166,7 +166,9 @@ onMounted(async () => {
             </button>
           </div>
         </li>
-        <div v-if="loadingInfiniteScroll" class="loading-text">Loading...</div>
+        <span v-if="loadingInfiniteScroll" class="loading-text"
+          >Loading...</span
+        >
       </ul>
       <div v-else>No games played yet</div>
     </div>
