@@ -2,22 +2,22 @@
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameRepository from "../repositories/GameRepository.ts";
-import { LeaderboardEntries } from "../models/LeaderboardEntries.ts";
 
 import { usePostStore } from "../stores/postStore.ts";
 import { useUserStore } from "../stores/user.ts";
 import { useFriendsState } from "../stores/friends.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
 import { Leaderboard } from "../models/GameLeaderboards.ts";
-import { useGamesStore } from "../stores/games.ts";
+import { useLeaderboardEntries } from "../stores/leaderboardEntries.ts";
 import RefreshButton from "../components/RefreshButton.vue";
 import BackButton from "../components/BackButton.vue";
+import { useInfiniteScroll } from "@vueuse/core";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
 const friends = useFriendsState();
-const games = useGamesStore();
+const leaderboardEntries = useLeaderboardEntries();
 
 const repository = new GameRepository();
 
@@ -30,23 +30,57 @@ const props = defineProps({
 
 const selectedGame = ref<Game | null>(null);
 const selectedLeaderboard = ref<Leaderboard | null>(null);
-const entries = ref<LeaderboardEntries | null>(null);
 const loadingRefresh = ref<boolean>(false);
+const itemsToLoad = 200;
+const leaderboardEntriesElement = ref<HTMLElement | null>(null);
+const loadingInfiniteScroll = ref<boolean>(false);
 
 async function refreshScores() {
   loadingRefresh.value = true;
+  leaderboardEntries.setHasMoreToLoad(true);
+  leaderboardEntries.resetOffset();
+
   try {
-    entries.value = null;
-    games.setLeaderboardEntries(
-      Number(props.id),
-      await repository.fetchLeaderboardEntries(props.id),
-    );
-    entries.value = games.getLeaderboardEntries(Number(props.id));
+    leaderboardEntries.entries = (
+      await repository.fetchLeaderboardEntries(
+        props.id,
+        itemsToLoad,
+        leaderboardEntries.offset,
+      )
+    ).Results;
   } catch (error) {
     console.error("Error fetching last played games:", error);
   }
+  leaderboardEntries.increaseOffsetIn(itemsToLoad);
+  reset();
   loadingRefresh.value = false;
 }
+
+const { reset } = useInfiniteScroll(
+  leaderboardEntriesElement,
+  async () => {
+    if (loadingInfiniteScroll.value) return;
+    loadingInfiniteScroll.value = true;
+
+    const fetchedResults = await repository.fetchLeaderboardEntries(
+      props.id,
+      itemsToLoad,
+      leaderboardEntries.offset,
+    );
+    if (fetchedResults.Count !== itemsToLoad) {
+      leaderboardEntries.setHasMoreToLoad(false);
+    }
+    leaderboardEntries.addItems(fetchedResults.Results);
+    leaderboardEntries.increaseOffsetIn(itemsToLoad);
+    loadingInfiniteScroll.value = false;
+  },
+  {
+    distance: itemsToLoad,
+    canLoadMore: () => {
+      return leaderboardEntries.hasMoreToLoad;
+    },
+  },
+);
 
 onMounted(async () => {
   if (!user.isSet()) {
@@ -59,24 +93,21 @@ onMounted(async () => {
   selectedGame.value = postStore.getSelectedGameLeaderboards();
   selectedLeaderboard.value = postStore.getSelectedLeaderboard();
 
-  if (games.hasLeaderboardEntries(Number(props.id))) {
-    entries.value = games.getLeaderboardEntries(Number(props.id));
-    return;
+  if (leaderboardEntries.entries.length !== 0) {
+    leaderboardEntries.restoreOffset();
   }
-
-  await refreshScores();
 });
 
 const sortedEntries = computed(() => {
-  if (entries.value === null) {
+  if (leaderboardEntries.entries.length === 0) {
     return [];
   }
 
   if (friends.friends === null) {
-    return entries.value.Results;
+    return leaderboardEntries.entries;
   }
 
-  return entries.value.Results.sort((a, b) => {
+  return leaderboardEntries.entries.sort((a, b) => {
     const isAMe = isMe(a.User);
     const isBMe = isMe(b.User);
     const isAFriend = isFriend(a.User);
@@ -119,7 +150,7 @@ function isFriend(user: string) {
 </script>
 
 <template>
-  <div class="entries-container">
+  <div class="entries-container" ref="leaderboardEntriesElement">
     <BackButton></BackButton>
     <RefreshButton
       :loading-state="loadingRefresh"
@@ -127,8 +158,8 @@ function isFriend(user: string) {
     ></RefreshButton>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
     <h2 class="entries-title">{{ selectedGame?.Title }}</h2>
-    <div v-if="entries">
-      <ul class="entries-list" v-if="entries.Results.length">
+    <div v-if="leaderboardEntries.entries">
+      <ul class="entries-list" v-if="leaderboardEntries.entries.length">
         <li
           v-for="entry in sortedEntries"
           :key="entry.User"
@@ -139,6 +170,9 @@ function isFriend(user: string) {
           <div class="entry-user-score">{{ entry.FormattedScore }}</div>
           <div class="entry-username">{{ entry.User }}</div>
         </li>
+        <span v-if="loadingInfiniteScroll" class="loading-text"
+          >Loading...</span
+        >
       </ul>
       <span v-else>No entries found for this leaderboard.</span>
     </div>
@@ -156,6 +190,9 @@ function isFriend(user: string) {
   border-radius: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   font-family: "Press Start 2P", cursive;
+  overflow-y: scroll;
+  height: 100vh;
+  margin: 0;
 }
 
 h1.entries-title {

@@ -15,11 +15,13 @@ import { useScrollTracker } from "../composables/useScrollTracker.ts";
 import { useInfiniteScroll } from "@vueuse/core";
 import { useGameLeaderboardsStore } from "../stores/gameLeaderboards.ts";
 import { Leaderboard } from "../models/GameLeaderboards.ts";
+import { useLeaderboardEntries } from "../stores/leaderboardEntries.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
 const user = useUserStore();
 const gameLeaderboards = useGameLeaderboardsStore();
+const leaderboardEntries = useLeaderboardEntries();
 
 const repository = new GameRepository();
 
@@ -41,6 +43,7 @@ function hideUnsubscribeModal() {
 
 function selectLeaderboard(leaderboard: Leaderboard) {
   saveScrollPosition();
+  leaderboardEntries.$reset();
   postStore.selectLeaderboard(leaderboard);
 }
 

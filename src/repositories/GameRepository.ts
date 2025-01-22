@@ -51,12 +51,16 @@ class GameRepository {
     }
   }
 
-  public async fetchLeaderboardEntries(leaderboardId: string) {
+  public async fetchLeaderboardEntries(
+    leaderboardId: string,
+    count: number,
+    offset: number,
+  ) {
     try {
       const response = await axios.get(
         `${this.url}/API/API_GetLeaderboardEntries.php`,
         {
-          params: { y: this.user.key, i: leaderboardId, c: 500 },
+          params: { y: this.user.key, i: leaderboardId, c: count, o: offset },
         },
       );
       return response.data as LeaderboardEntries;
