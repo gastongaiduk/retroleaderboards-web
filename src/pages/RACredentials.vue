@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "../stores/user.ts";
 import axios from "axios";
 import BurgerMenu from "../components/BurgerMenu.vue";
+import { useSubscriptionUpdates } from "../composables/useSubscriptionUpdates.ts";
 
 const router = useRouter();
 const user = useUserStore();
@@ -12,6 +13,8 @@ const user = useUserStore();
 const usernameInput = ref("");
 const keyInput = ref("");
 const loading = ref(false);
+
+const { updatesNumber, fetchUpdates } = useSubscriptionUpdates();
 
 async function handleSubmit() {
   loading.value = true;
@@ -60,11 +63,13 @@ onMounted(() => {
     usernameInput.value = user.username;
     keyInput.value = user.key;
   }
+
+  fetchUpdates();
 });
 </script>
 <template>
   <div class="retro-container">
-    <BurgerMenu :updates-number="0"></BurgerMenu>
+    <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
     <h1 class="retro-title">Set your RA credentials</h1>
     <form @submit.prevent="handleSubmit" class="user-form">
       <div class="form-group">

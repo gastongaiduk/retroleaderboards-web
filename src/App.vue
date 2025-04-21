@@ -11,7 +11,7 @@ onMounted(() => {
 
 <template>
   <router-view v-slot="{ Component, route }">
-    <keep-alive v-if="route.meta.keepAlive">
+    <keep-alive v-if="route.meta.keepAlive" :key="route.fullPath">
       <component :is="Component" />
     </keep-alive>
     <component v-else :is="Component" />

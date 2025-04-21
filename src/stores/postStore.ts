@@ -28,7 +28,7 @@ export const usePostStore = defineStore("post", {
       if (this.selectedGameLeaderboards === null) {
         this.selectedGameLeaderboards = JSON.parse(
           <string>localStorage.getItem("selectedGameLeaderboards"),
-        );
+        ) as Game;
       }
       return this.selectedGameLeaderboards;
     },
@@ -41,7 +41,7 @@ export const usePostStore = defineStore("post", {
       if (this.selectedLeaderboard === null) {
         this.selectedLeaderboard = JSON.parse(
           <string>localStorage.getItem("selectedLeaderboard"),
-        );
+        ) as Leaderboard;
       }
       return this.selectedLeaderboard;
     },

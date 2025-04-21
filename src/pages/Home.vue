@@ -7,11 +7,11 @@ import { useUserStore } from "../stores/user.ts";
 import { useRecentGamesStore } from "../stores/recentGames.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
 import BurgerMenu from "../components/BurgerMenu.vue";
-import { supabase } from "../utils/supabaseClient.ts";
 import RefreshButton from "../components/RefreshButton.vue";
 import { useScrollTracker } from "../composables/useScrollTracker.ts";
 import { useInfiniteScroll } from "@vueuse/core";
 import { useGameLeaderboardsStore } from "../stores/gameLeaderboards.ts";
+import { useSubscriptionUpdates } from "../composables/useSubscriptionUpdates.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -27,35 +27,8 @@ function selectGameLeaderboards(game: Game) {
 }
 
 const apiUrl = import.meta.env.VITE_API_URL;
-const updatesNumber = ref<number | null>(null);
-async function updatesCount() {
-  updatesNumber.value = null;
-  let { data, error } = await supabase
-    .from("leaderboards_updates")
-    .select(
-      `
-        leaderboard_id,
-        friend_name,
-        user_score,
-        friend_score,
-        created_at,
-        read_at,
-        leaderboards (name, description, games (name, image_icon))
-      `,
-    )
-    .is("read_at", null)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching updates:", error);
-    return;
-  }
-
-  if (data) {
-    updatesNumber.value = data?.length;
-  }
-}
+const { updatesNumber, fetchUpdates } = useSubscriptionUpdates();
 
 const loadingRefresh = ref<boolean>(false);
 const loadingInfiniteScroll = ref<boolean>(false);
@@ -124,7 +97,7 @@ onMounted(async () => {
     return;
   }
 
-  await updatesCount();
+  await fetchUpdates();
 
   if (recentGames.games.length !== 0) {
     recentGames.restoreOffset();
@@ -134,9 +107,7 @@ onMounted(async () => {
 
 <template>
   <div class="retro-container" ref="recentGamesElement">
-    <BurgerMenu
-      :updates-number="updatesNumber ? updatesNumber : 0"
-    ></BurgerMenu>
+    <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
     <RefreshButton
       :loading-state="loadingRefresh"
       @click="refreshGames"

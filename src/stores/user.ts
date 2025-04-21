@@ -56,5 +56,9 @@ export const useUserStore = defineStore("user", {
       localStorage.setItem("user_id", user_id);
       localStorage.setItem("token", access_token);
     },
+    getId(): string {
+      this.init();
+      return this.user_id as string;
+    },
   },
 });
