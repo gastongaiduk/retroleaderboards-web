@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "../stores/user.ts";
-import { supabase } from "../utils/supabaseClient.ts";
 import { usePostStore } from "../stores/postStore.ts";
 import { Leaderboard } from "../models/GameLeaderboards.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
 import BurgerMenu from "../components/BurgerMenu.vue";
+import { useSubscriptionUpdates } from "../composables/useSubscriptionUpdates.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -19,17 +19,7 @@ async function selectUpdateLeaderboard(
   description: string,
   friend: string,
 ) {
-  let { error } = await supabase
-    .from("leaderboards_updates")
-    .update({ read_at: new Date() })
-    .eq("leaderboard_id", id)
-    .eq("user_id", user.user_id)
-    .eq("friend_name", friend)
-    .select();
-  if (error) {
-    console.log("Error while changing update status to read: ", error);
-    return;
-  }
+  await markUpdateAsRead(id, user.getId(), friend);
 
   const game = { Title: gameName } as Game;
   const leaderboard = {
@@ -41,50 +31,10 @@ async function selectUpdateLeaderboard(
   postStore.selectLeaderboard(leaderboard);
 }
 
-async function deleteUpdate(id: number, friend: string) {
-  let { error } = await supabase
-    .from("leaderboards_updates")
-    .update({ deleted_at: new Date() })
-    .eq("leaderboard_id", id)
-    .eq("user_id", user.user_id)
-    .eq("friend_name", friend)
-    .select();
-  if (error) {
-    console.log("Error while changing update status to deleted: ", error);
-    return;
-  }
-
-  await refreshUpdates();
-}
-
-async function refreshUpdates() {
-  updates.value = null;
-  let { data, error } = await supabase
-    .from("leaderboards_updates")
-    .select(
-      `
-        leaderboard_id,
-        friend_name,
-        user_score,
-        friend_score,
-        created_at,
-        read_at,
-        leaderboards (name, description, games (name, image_icon))
-      `,
-    )
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching updates:", error);
-    return;
-  }
-
-  updates.value = data;
-}
+const { updates, updatesNumber, fetchUpdates, markUpdateAsRead, deleteUpdate } =
+  useSubscriptionUpdates();
 
 const apiUrl = import.meta.env.VITE_API_URL;
-const updates = ref<Object[] | null>(null);
 
 onMounted(async () => {
   if (!user.isLoggedIn() || !user.isSet()) {
@@ -92,19 +42,19 @@ onMounted(async () => {
     return;
   }
 
-  await refreshUpdates();
+  await fetchUpdates();
 });
 </script>
 
 <template>
   <div class="retro-container">
-    <BurgerMenu :updates-number="0"></BurgerMenu>
+    <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
     <h1 class="retro-title">Updates</h1>
     <div v-if="updates">
       <ul v-if="updates.length" class="game-list">
         <li
           v-for="update in updates"
-          :key="update.leaderboardId"
+          :key="update.leaderboard_id"
           class="game-item"
         >
           <div class="game-container" :class="{ unread: !update.read_at }">
@@ -146,7 +96,13 @@ onMounted(async () => {
               }}</span>
             </div>
             <button
-              @click="deleteUpdate(update.leaderboard_id, update.friend_name)"
+              @click="
+                deleteUpdate(
+                  update.leaderboard_id,
+                  user.getId(),
+                  update.friend_name,
+                )
+              "
               class="delete-button"
             >
               <i class="fa fa-remove" aria-hidden="true"></i>
