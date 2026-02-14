@@ -11,6 +11,7 @@ import { Leaderboard } from "../models/GameLeaderboards.ts";
 import { useLeaderboardEntries } from "../stores/leaderboardEntries.ts";
 import RefreshButton from "../components/RefreshButton.vue";
 import BackButton from "../components/BackButton.vue";
+import { Entry } from "../models/LeaderboardEntries.ts";
 import { useInfiniteScroll } from "@vueuse/core";
 
 const router = useRouter();
@@ -34,11 +35,14 @@ const loadingRefresh = ref<boolean>(false);
 const itemsToLoad = 200;
 const leaderboardEntriesElement = ref<HTMLElement | null>(null);
 const loadingInfiniteScroll = ref<boolean>(false);
+const loadingPriorityEntries = ref<boolean>(false);
+const priorityEntries = ref<Entry[]>([]);
 
 async function refreshScores() {
   loadingRefresh.value = true;
   leaderboardEntries.setHasMoreToLoad(true);
   leaderboardEntries.resetOffset();
+  priorityEntries.value = [];
 
   try {
     leaderboardEntries.entries = (
@@ -48,12 +52,85 @@ async function refreshScores() {
         leaderboardEntries.offset,
       )
     ).Results;
+
+    await fetchPriorityEntries();
   } catch (error) {
     console.error("Error fetching last played games:", error);
   }
   leaderboardEntries.increaseOffsetIn(itemsToLoad);
   reset();
   loadingRefresh.value = false;
+}
+
+async function fetchPriorityEntries() {
+  if (!selectedGame.value || !selectedLeaderboard.value) {
+    return;
+  }
+  if (selectedGame.value.GameID == null) {
+    return;
+  }
+  if (!user.username) {
+    return;
+  }
+
+  loadingPriorityEntries.value = true;
+
+  const usernames: string[] = [user.username];
+  if (friends.friends?.Results?.length) {
+    usernames.push(...friends.friends.Results.map((f) => f.User));
+  }
+
+  const loadedUsernames = new Set(
+    leaderboardEntries.entries.map((entry) => entry.User),
+  );
+  const uniqueUsernames = Array.from(new Set(usernames)).filter(
+    (u) => !loadedUsernames.has(u),
+  );
+
+  try {
+    const results: Entry[] = [];
+    for (const username of uniqueUsernames) {
+      // Add a delay before each request to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      try {
+        const response = await repository.fetchUserGameLeaderboards(
+          selectedGame.value!.GameID,
+          username,
+        );
+        const leaderboard = response.Results.find(
+          (lb) => lb.ID === selectedLeaderboard.value!.ID,
+        );
+
+        if (leaderboard && leaderboard.UserEntry) {
+          results.push({
+            User: leaderboard.UserEntry.User,
+            Rank: Number(leaderboard.UserEntry.Rank),
+            FormattedScore: leaderboard.UserEntry.FormattedScore,
+            Score: leaderboard.UserEntry.Score,
+            DateSubmitted: leaderboard.UserEntry.DateUpdated,
+          });
+        }
+      } catch (error) {
+        console.warn(`Error fetching priority entry for ${username}:`, error);
+      }
+    }
+
+    priorityEntries.value = results.sort((a, b) => {
+      // Ensure we are working with numbers
+      const rankA = parseInt(String(a.Rank), 10);
+      const rankB = parseInt(String(b.Rank), 10);
+
+      const valA = isNaN(rankA) ? Infinity : rankA;
+      const valB = isNaN(rankB) ? Infinity : rankB;
+
+      return valA - valB;
+    });
+  } catch (error) {
+    console.error("Error fetching priority entries:", error);
+  } finally {
+    loadingPriorityEntries.value = false;
+  }
 }
 
 const { reset } = useInfiniteScroll(
@@ -72,6 +149,7 @@ const { reset } = useInfiniteScroll(
     }
     leaderboardEntries.addItems(fetchedResults.Results);
     leaderboardEntries.increaseOffsetIn(itemsToLoad);
+
     loadingInfiniteScroll.value = false;
   },
   {
@@ -83,15 +161,27 @@ const { reset } = useInfiniteScroll(
 );
 
 onMounted(async () => {
-  if (!user.isSet()) {
+  if (!user.isLoggedIn()) {
     await router.push("/login");
+    return;
+  }
+
+  if (!user.isSet()) {
+    await router.push("/ra-credentials");
     return;
   }
 
   await friends.load();
 
+  if (leaderboardEntries.leaderboardId !== props.id) {
+    leaderboardEntries.reset();
+    leaderboardEntries.setLeaderboardId(props.id);
+  }
+
   selectedGame.value = postStore.getSelectedGameLeaderboards();
   selectedLeaderboard.value = postStore.getSelectedLeaderboard();
+
+  await fetchPriorityEntries();
 
   if (leaderboardEntries.entries.length !== 0) {
     leaderboardEntries.restoreOffset();
@@ -99,21 +189,28 @@ onMounted(async () => {
 });
 
 const sortedEntries = computed(() => {
-  if (leaderboardEntries.entries.length === 0) {
+  const allEntries = [...leaderboardEntries.entries];
+  const entriesUsernames = new Set(allEntries.map((e) => e.User));
+
+  priorityEntries.value.forEach((pe) => {
+    if (!entriesUsernames.has(pe.User)) {
+      allEntries.push(pe);
+    }
+  });
+
+  if (allEntries.length === 0) {
     return [];
   }
 
-  if (friends.friends === null) {
-    return leaderboardEntries.entries;
-  }
-
-  return leaderboardEntries.entries.sort((a, b) => {
+  return allEntries.sort((a, b) => {
     const isAMe = isMe(a.User);
     const isBMe = isMe(b.User);
     const isAFriend = isFriend(a.User);
     const isBFriend = isFriend(b.User);
 
-    const byRank = a.Rank < b.Rank ? -1 : 1;
+    const rankA = Number(a.Rank);
+    const rankB = Number(b.Rank);
+    const byRank = (isNaN(rankA) ? Infinity : rankA) - (isNaN(rankB) ? Infinity : rankB);
 
     if (isAMe && isBFriend) {
       return byRank;
@@ -147,6 +244,30 @@ function isFriend(user: string) {
   }
   return friends.friends.Results.some((friend) => friend.User === user);
 }
+
+function shouldShowDivider(index: number) {
+  const currentEntry = sortedEntries.value[index];
+  const nextEntry = sortedEntries.value[index + 1];
+
+  if (!currentEntry || !nextEntry) {
+    return false;
+  }
+
+  const isCurrentMeOrFriend =
+    isMe(currentEntry.User) || isFriend(currentEntry.User);
+  const isNextMeOrFriend = isMe(nextEntry.User) || isFriend(nextEntry.User);
+
+  return isCurrentMeOrFriend && !isNextMeOrFriend;
+}
+
+function goToGameLeaderboards() {
+  if (selectedGame.value?.GameID) {
+    router.push({
+      name: "GameLeaderboards",
+      params: { id: selectedGame.value.GameID },
+    });
+  }
+}
 </script>
 
 <template>
@@ -157,24 +278,34 @@ function isFriend(user: string) {
       @click="refreshScores"
     ></RefreshButton>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
-    <h2 class="entries-title">{{ selectedGame?.Title }}</h2>
-    <div v-if="leaderboardEntries.entries">
-      <ul class="entries-list" v-if="leaderboardEntries.entries.length">
-        <li
-          v-for="entry in sortedEntries"
-          :key="entry.User"
-          class="entry-item"
-          :class="{ isFriend: isFriend(entry.User), isMe: isMe(entry.User) }"
-        >
-          <span class="entry-rank">#{{ entry.Rank }}</span>
-          <div class="entry-user-score">{{ entry.FormattedScore }}</div>
-          <div class="entry-username">{{ entry.User }}</div>
-        </li>
-        <span v-if="loadingInfiniteScroll" class="loading-text"
-          >Loading...</span
-        >
+    <h2 class="entries-title clickable" @click="goToGameLeaderboards">
+      {{ selectedGame?.Title }}
+    </h2>
+
+    <div v-if="loadingPriorityEntries" class="priority-loading loading-text">
+      Loading your position...
+    </div>
+
+    <div v-if="sortedEntries.length">
+      <ul class="entries-list">
+        <template v-for="(entry, index) in sortedEntries" :key="entry.User">
+          <li
+            class="entry-item"
+            :class="{ isFriend: isFriend(entry.User), isMe: isMe(entry.User) }"
+          >
+            <span class="entry-rank">#{{ entry.Rank }}</span>
+            <div class="entry-user-score">{{ entry.FormattedScore }}</div>
+            <div class="entry-username">{{ entry.User }}</div>
+          </li>
+          <li v-if="shouldShowDivider(index)" class="friends-divider">
+            <span class="divider-line"></span>
+          </li>
+        </template>
+        <div v-if="loadingInfiniteScroll" class="loading-text">Loading...</div>
       </ul>
-      <span v-else>No entries found for this leaderboard.</span>
+    </div>
+    <div v-else-if="!loadingRefresh && !loadingPriorityEntries" class="loading-text">
+        No entries found for this leaderboard.
     </div>
     <div v-else class="loading-text">Loading...</div>
   </div>
@@ -210,6 +341,44 @@ h2.entries-title {
 .entries-list {
   list-style-type: none;
   padding: 0;
+}
+
+.priority-entries {
+  margin-bottom: 20px;
+  min-height: 20px; /* Prevent layout shift/collapse artifacts */
+}
+
+.priority-entries-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.priority-loading {
+  font-size: 0.8em;
+  color: #f5a623;
+  padding: 10px 0;
+}
+
+.priority-entry {
+  background-color: #22223b;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.friends-divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  list-style-type: none;
+}
+
+.divider-line {
+  flex-grow: 1;
+  border-bottom: 2px dashed #f5a623;
+  opacity: 0.5;
+  margin: 0 10px;
 }
 
 .entry-item {
@@ -248,5 +417,10 @@ h2.entries-title {
 
 .loading-text {
   text-align: center;
+}
+
+.clickable:hover {
+  cursor: pointer;
+  color: #d48821;
 }
 </style>

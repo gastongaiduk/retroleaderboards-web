@@ -25,7 +25,8 @@ async function selectUpdateLeaderboard(
 ) {
   await markUpdateAsRead(id, user.getId(), friend);
 
-  const game = { Title: gameName } as Game;
+  const gameId = Number(selectedGameId.value);
+  const game = { GameID: gameId, Title: gameName } as Game;
   const leaderboard = {
     ID: id,
     Title: name,

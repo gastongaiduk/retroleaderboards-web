@@ -6,6 +6,7 @@ interface LeaderboardEntriesState {
   scrollPosition: number;
   hasMoreToLoad: boolean;
   offset: number;
+  leaderboardId: string | null;
 }
 
 export const useLeaderboardEntries = defineStore("leaderboardEntries", {
@@ -14,6 +15,7 @@ export const useLeaderboardEntries = defineStore("leaderboardEntries", {
     scrollPosition: 0,
     hasMoreToLoad: true,
     offset: 0,
+    leaderboardId: null,
   }),
   actions: {
     addItems(newEntries: Entry[]) {
@@ -36,6 +38,16 @@ export const useLeaderboardEntries = defineStore("leaderboardEntries", {
     },
     resetOffset() {
       this.offset = 0;
+    },
+    setLeaderboardId(id: string) {
+      this.leaderboardId = id;
+    },
+    reset() {
+      this.entries = [];
+      this.scrollPosition = 0;
+      this.hasMoreToLoad = true;
+      this.offset = 0;
+      this.leaderboardId = null;
     },
   },
 });

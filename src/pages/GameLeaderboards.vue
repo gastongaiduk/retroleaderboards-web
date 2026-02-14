@@ -206,13 +206,13 @@ onMounted(async () => {
         :disabled="loadingSubscription"
       >
         <i v-if="loadingSubscription" class="fa fa-spinner fa-spin"></i>
-        <span v-else> Subscribe </span>
+        <span v-else> Follow </span>
       </button>
       <ConfirmModal
         :isVisible="isSubscribeModalVisible"
         @confirm="subscribe"
         @nope="hideSubscribeModal"
-        :title="'Subscribe to ' + selectedGame?.Title + '?'"
+        :title="'Follow ' + selectedGame?.Title + '?'"
         :text="
           'Stay competitive! Get notified when friends beat your scores in ' +
           selectedGame?.Title +
@@ -227,13 +227,13 @@ onMounted(async () => {
         :disabled="loadingSubscription"
       >
         <i v-if="loadingSubscription" class="fa fa-spinner fa-spin"></i>
-        <span v-else> Unsubscribe </span>
+        <span v-else> Unfollow </span>
       </button>
       <ConfirmModal
         :isVisible="isUnsubscribeModalVisible"
         @confirm="unsubscribe"
         @nope="hideUnsubscribeModal"
-        :title="'Unsubscribe from ' + selectedGame?.Title + '?'"
+        :title="'Unfollow ' + selectedGame?.Title + '?'"
         :text="
           'Are you sure you want to stop receiving notifications for ' +
           selectedGame?.Title +

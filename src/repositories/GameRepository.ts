@@ -2,6 +2,7 @@ import axios from "axios";
 import type { GameList } from "../models/RecentlyPlayedGames";
 import { GameLeaderboards } from "../models/GameLeaderboards.ts";
 import { LeaderboardEntries } from "../models/LeaderboardEntries.ts";
+import { UserGameLeaderboards } from "../models/UserGameLeaderboards.ts";
 
 import { useUserStore } from "../stores/user";
 
@@ -66,6 +67,21 @@ class GameRepository {
       return response.data as LeaderboardEntries;
     } catch (error) {
       console.error("Error fetching request:", error);
+      throw error;
+    }
+  }
+
+  public async fetchUserGameLeaderboards(gameId: number, username: string) {
+    try {
+      const response = await axios.get(
+        `${this.url}/API/API_GetUserGameLeaderboards.php`,
+        {
+          params: { y: this.user.key, i: gameId, u: username },
+        },
+      );
+      return response.data as UserGameLeaderboards;
+    } catch (error) {
+      console.error("Error fetching user game leaderboards:", error);
       throw error;
     }
   }
