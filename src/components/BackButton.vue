@@ -25,16 +25,22 @@ function goBack() {
 
 <style scoped>
 .back-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 10px 20px;
+  background: rgba(203, 163, 78, 0.12);
+  color: #cba34e;
+  border: 1px solid rgba(203, 163, 78, 0.2);
+  padding: 7px 14px;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .back-button:hover {
-  background-color: #d48821;
+  background: rgba(203, 163, 78, 0.2);
+  border-color: rgba(203, 163, 78, 0.35);
 }
 </style>

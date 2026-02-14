@@ -32,55 +32,74 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(26, 26, 46, 0.8);
+  background-color: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  font-family: "Press Start 2P", cursive;
 }
 
 .modal-content {
-  background-color: #1a1a2e;
-  color: #e0e1dd;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  background-color: #1e293b;
+  color: #e2e8f0;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid rgba(203, 163, 78, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   text-align: center;
+  max-width: 360px;
+  width: calc(100% - 40px);
 }
 
 .modal-title {
-  color: #f5a623;
-  margin-bottom: 20px;
-  font-size: 20px;
+  color: #cba34e;
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .modal-text {
-  margin-bottom: 20px;
-  font-size: 16px;
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #94a3b8;
 }
 
 .modal-buttons {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .confirm-button,
 .cancel-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
-  font-family: "Press Start 2P", cursive;
-  transition: background-color 0.3s ease;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.confirm-button:hover,
+.confirm-button {
+  background-color: #cba34e;
+  color: #0f172a;
+}
+
+.confirm-button:hover {
+  background-color: #b8923f;
+}
+
+.cancel-button {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
 .cancel-button:hover {
-  background-color: #d48821;
+  background-color: rgba(148, 163, 184, 0.2);
 }
 </style>

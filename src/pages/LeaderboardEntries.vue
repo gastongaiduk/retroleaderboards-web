@@ -264,18 +264,18 @@ function shouldShowDivider(index: number) {
 </script>
 
 <template>
-  <div class="entries-container" ref="leaderboardEntriesElement">
+  <div class="page-container" ref="leaderboardEntriesElement">
     <BackButton></BackButton>
     <RefreshButton
       :loading-state="loadingRefresh"
       @click="refreshScores"
     ></RefreshButton>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
-    <h2 class="entries-title">
+    <h2 class="entries-subtitle">
       {{ selectedGame?.Title }}
     </h2>
 
-    <div v-if="loadingPriorityEntries" class="priority-loading loading-text">
+    <div v-if="loadingPriorityEntries" class="priority-loading">
       Loading your position...
     </div>
 
@@ -305,13 +305,10 @@ function shouldShowDivider(index: number) {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.entries-container {
-  background-color: #1a1a2e;
-  color: #e0e1dd;
+.page-container {
+  background-color: #0f172a;
+  color: #e2e8f0;
   padding: 16px;
-  font-family: "Press Start 2P", cursive;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   flex: 1;
@@ -319,15 +316,20 @@ function shouldShowDivider(index: number) {
 }
 
 h1.entries-title {
-  font-size: 24px;
-  color: #f5a623;
+  font-size: 17px;
+  font-weight: 600;
+  color: #cba34e;
   text-align: center;
+  margin: 12px 0 4px;
+  letter-spacing: -0.01em;
 }
 
-h2.entries-title {
+h2.entries-subtitle {
   font-size: 12px;
-  color: #f5a623;
+  font-weight: 400;
+  color: #64748b;
   text-align: center;
+  margin: 0 0 16px;
 }
 
 .entries-list {
@@ -335,84 +337,73 @@ h2.entries-title {
   padding: 0;
 }
 
-.priority-entries {
-  margin-bottom: 20px;
-  min-height: 20px; /* Prevent layout shift/collapse artifacts */
-}
-
-.priority-entries-list {
-  list-style-type: none;
-  padding: 0;
-}
-
 .priority-loading {
-  font-size: 0.8em;
-  color: #f5a623;
-  padding: 10px 0;
-}
-
-.priority-entry {
-  background-color: #22223b;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 15px;
+  font-size: 12px;
+  color: #cba34e;
+  padding: 8px 0;
+  text-align: center;
 }
 
 .friends-divider {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: 12px 0;
   list-style-type: none;
 }
 
 .divider-line {
   flex-grow: 1;
-  border-bottom: 2px dashed #f5a623;
-  opacity: 0.5;
+  border-bottom: 1px dashed rgba(203, 163, 78, 0.3);
   margin: 0 10px;
 }
 
 .entry-item {
-  background-color: #22223b;
+  background-color: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.06);
   border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 15px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  transition: background-color 0.15s ease;
 }
 
 .entry-item:hover {
-  background-color: #3a3c58;
+  background-color: rgba(30, 41, 59, 0.8);
 }
 
 .entry-rank {
-  color: #f5a623;
-  font-size: 1.5rem;
+  color: #cba34e;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .entry-username {
-  color: #e0e1dd;
-  margin-top: 5px;
+  color: #94a3b8;
+  margin-top: 2px;
+  font-size: 12px;
 }
 
 .entry-user-score {
-  color: #e0e1dd;
+  color: #e2e8f0;
   float: right;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .isFriend {
-  background-color: rgba(245, 166, 35, 0.2);
+  background-color: rgba(203, 163, 78, 0.08);
+  border-color: rgba(203, 163, 78, 0.12);
 }
 
 .isMe {
-  border: thick solid #f5a623;
+  border: 2px solid rgba(203, 163, 78, 0.4);
+  background-color: rgba(203, 163, 78, 0.06);
 }
 
 .loading-text {
   text-align: center;
-}
-
-.clickable:hover {
-  cursor: pointer;
-  color: #d48821;
+  font-size: 13px;
+  color: #64748b;
+  padding: 16px 0;
 }
 </style>

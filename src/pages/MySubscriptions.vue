@@ -86,8 +86,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="retro-container">
-    <h1 class="retro-title">Games I Follow</h1>
+  <div class="page-container">
+    <h1 class="page-title">Games I Follow</h1>
     <div v-if="subscriptions">
       <ul v-if="subscriptions.length" class="game-list">
         <li
@@ -144,24 +144,24 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.retro-container {
-  background-color: #1a1a2e;
-  color: #e0e1dd;
+.page-container {
+  background-color: #0f172a;
+  color: #e2e8f0;
   padding: 16px;
-  font-family: "Press Start 2P", cursive;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.retro-title {
-  font-size: 14px;
-  color: #f5a623;
+.page-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #cba34e;
   text-align: center;
-  padding: 10px 0;
+  padding: 8px 0;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
 }
 
 .game-list {
@@ -171,7 +171,7 @@ onMounted(async () => {
 }
 
 .game-item {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .game-container {
@@ -180,15 +180,21 @@ onMounted(async () => {
   border-radius: 10px;
   display: flex;
   align-items: center;
-  background-color: rgba(34, 34, 59, 0.5);
+  background-color: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.06);
+  transition: all 0.15s ease;
+}
+
+.game-container:hover {
+  background-color: rgba(30, 41, 59, 0.8);
 }
 
 .game-icon {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   margin-right: 12px;
   z-index: 1;
-  border-radius: 6px;
+  border-radius: 8px;
   flex-shrink: 0;
 }
 
@@ -201,43 +207,47 @@ onMounted(async () => {
 }
 
 .game-name {
-  font-size: 12px;
-  color: #f5a623;
-  line-height: 1.5;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e2e8f0;
+  line-height: 1.4;
   word-break: break-word;
 }
 
 .unsubscribe-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 12px;
+  background: rgba(148, 163, 184, 0.08);
+  color: #64748b;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 8px 10px;
   cursor: pointer;
-  font-size: 14px;
-  border-radius: 10px;
+  font-size: 12px;
+  border-radius: 8px;
   margin-left: auto;
   z-index: 2;
   flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .unsubscribe-button:hover:not(:disabled) {
-  background-color: #d9534f;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
 }
 
 .unsubscribe-button:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .loading-text,
 .empty-message {
   text-align: center;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .empty-message {
-  font-size: 10px;
-  line-height: 1.8;
+  line-height: 1.7;
   padding: 20px;
-  opacity: 0.6;
 }
 </style>

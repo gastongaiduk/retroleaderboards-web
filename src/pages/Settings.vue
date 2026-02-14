@@ -24,8 +24,8 @@ const logout = () => {
 </script>
 
 <template>
-  <div class="retro-container">
-    <h1 class="retro-title">Settings</h1>
+  <div class="page-container">
+    <h1 class="page-title">Settings</h1>
     
     <div class="settings-menu">
       <button class="menu-item" @click="goToCredentials">
@@ -56,78 +56,81 @@ const logout = () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.retro-container {
+.page-container {
   padding: 16px;
-  color: #e0e1dd;
-  font-family: "Press Start 2P", cursive;
+  color: #e2e8f0;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.retro-title {
-  font-size: 20px;
-  color: #f5a623;
-  margin-bottom: 30px;
+.page-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #cba34e;
+  margin-bottom: 24px;
   text-align: center;
+  letter-spacing: -0.01em;
 }
 
 .settings-menu {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
 .menu-item {
-  background-color: #2a2a40;
-  border: 1px solid #3a3a50;
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 10px;
-  padding: 20px;
+  padding: 14px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #e0e1dd;
-  font-family: inherit;
-  font-size: 14px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   width: 100%;
   text-align: left;
 }
 
 .menu-item:hover {
-  background-color: #353550;
+  background-color: rgba(30, 41, 59, 0.9);
+  border-color: rgba(148, 163, 184, 0.15);
 }
 
 .item-content {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .item-icon {
-  width: 20px;
+  width: 18px;
   text-align: center;
-  color: #f5a623;
+  color: #cba34e;
+  font-size: 14px;
 }
 
 .item-arrow {
-  color: #666;
+  color: #475569;
+  font-size: 12px;
 }
 
 .logout {
-  margin-top: 20px;
-  border-color: #ff3b30;
+  margin-top: 12px;
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
 .logout .item-icon {
-  color: #ff3b30;
+  color: #ef4444;
 }
 
 .logout:hover {
-  background-color: rgba(255, 59, 48, 0.1);
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 </style>

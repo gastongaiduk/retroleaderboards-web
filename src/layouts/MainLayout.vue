@@ -29,14 +29,14 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh; /* overrides 100vh on supporting browsers — handles mobile browser chrome */
-  background-color: #1a1a2e;
+  height: 100dvh;
+  background-color: #0f172a;
   overflow: hidden;
 }
 
 .content-area {
   flex: 1;
-  min-height: 0; /* critical: allows flex child to shrink below content size */
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;

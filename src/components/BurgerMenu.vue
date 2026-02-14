@@ -1,235 +1,259 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "../stores/user.ts";
+import { ref, watch } from "vue";
+import { useUpdatesStore } from "../stores/updates.ts";
 import ConfirmModal from "./ConfirmModal.vue";
 
-const router = useRouter();
-const user = useUserStore();
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    required: true,
+  },
+});
+const emit = defineEmits(["update:modelValue"]);
 
-const isMenuVisible = ref(false);
+const router = useRouter();
+const route = useRoute();
+const updateStore = useUpdatesStore();
+
 const isLogoutModalVisible = ref(false);
 
-const toggleMenu = (): void => {
-  isMenuVisible.value = !isMenuVisible.value;
+const goTo = (path: string) => {
+  emit("update:modelValue", false);
+  router.push(path);
 };
 
-const navigate = (route: string): void => {
-  router.push(route);
-};
-
-function showLogoutModal() {
+const showLogoutModal = () => {
   isLogoutModalVisible.value = true;
-}
+};
 
-function hideLogoutModal() {
+const hideLogoutModal = () => {
   isLogoutModalVisible.value = false;
-}
+};
 
-const route = useRoute();
-const currentRouteName = computed(() => route.name);
+const confirmLogout = () => {
+  isLogoutModalVisible.value = false;
+  emit("update:modelValue", false);
+  router.push("/logout");
+};
 
-const props = defineProps<{
-  updatesNumber: number;
-}>();
+watch(
+  () => route.path,
+  () => {
+    emit("update:modelValue", false);
+  },
+);
 </script>
 
 <template>
-  <div class="header-actions">
-    <button
-      v-if="user.isSet()"
-      class="home-button"
-      @click="navigate('/home')"
-      :disabled="currentRouteName == 'Home'"
-      title="Back to Home"
-    >
-      <i class="fa fa-home"></i>
-    </button>
-    <div class="burger-menu">
-      <button class="menu-toggle" @click="toggleMenu">
-        <i class="fa fa-bars"></i>
-      </button>
-    </div>
+  <!-- Overlay -->
+  <div
+    v-if="modelValue"
+    class="menu-overlay"
+    @click="emit('update:modelValue', false)"
+  ></div>
 
-    <Teleport to="body">
-      <div
-        v-if="isMenuVisible"
-        class="modal-overlay burger-menu-overlay"
-        style="position: fixed; inset: 0; z-index: 2147483647; background-color: rgba(0, 0, 0, 0.8);"
-        @click="toggleMenu"
-      >
-        <div class="modal-fullscreen retro-container">
-          <ul class="menu-list">
-            <li v-if="user.isSet()" class="menu-item">
-              <button
-                class="menu-button"
-                @click="navigate('/my-subscriptions')"
-                :disabled="currentRouteName == 'MySubscriptions'"
-              >
-                <i class="fa fa-star"></i>
-                Games I Follow
-                <span v-if="props.updatesNumber > 0">
-                  ({{ props.updatesNumber }})
-                </span>
-              </button>
-            </li>
-            <li class="menu-item">
-              <button
-                class="menu-button"
-                @click="navigate('/ra-credentials')"
-                :disabled="currentRouteName == 'RACredentials'"
-              >
-                <i class="fa fa-gear"></i> RetroAchievements credentials
-              </button>
-            </li>
-            <li class="menu-item">
-              <button class="logout-button" @click="showLogoutModal">
-                <i class="fa fa-sign-out"></i> Logout
-              </button>
-            </li>
-          </ul>
-        </div>
+  <!-- Slide-in Menu -->
+  <transition name="slide">
+    <div v-if="modelValue" class="menu-panel">
+      <div class="menu-header">
+        <h2 class="menu-title">Menu</h2>
+        <button class="close-button" @click="emit('update:modelValue', false)">
+          <i class="fa fa-times"></i>
+        </button>
       </div>
-    </Teleport>
 
-    <ConfirmModal
-      :isVisible="isLogoutModalVisible"
-      title="Logout"
-      text="Are you sure you want to logout?"
-      @confirm="router.push('/logout')"
-      @nope="hideLogoutModal"
-    />
-  </div>
+      <nav class="menu-nav">
+        <button
+          class="menu-item"
+          :class="{ active: route.path === '/home' }"
+          @click="goTo('/home')"
+        >
+          <i class="fa fa-home menu-item-icon"></i>
+          Home
+        </button>
+        <button
+          class="menu-item"
+          :class="{ active: route.path === '/my-subscriptions' }"
+          @click="goTo('/my-subscriptions')"
+        >
+          <i class="fa fa-gamepad menu-item-icon"></i>
+          Games
+        </button>
+        <button
+          class="menu-item"
+          :class="{ active: route.path === '/leaderboards-updates' }"
+          @click="goTo('/leaderboards-updates')"
+        >
+          <i class="fa fa-bell menu-item-icon"></i>
+          Updates
+          <span v-if="updateStore.updatesNumber > 0" class="badge">
+            {{ updateStore.updatesNumber }}
+          </span>
+        </button>
+        <button
+          class="menu-item"
+          :class="{ active: route.path === '/settings' }"
+          @click="goTo('/settings')"
+        >
+          <i class="fa fa-gear menu-item-icon"></i>
+          Settings
+        </button>
+      </nav>
+
+      <div class="menu-footer">
+        <button class="menu-item logout-item" @click="showLogoutModal">
+          <i class="fa fa-sign-out menu-item-icon"></i>
+          Logout
+        </button>
+      </div>
+
+      <ConfirmModal
+        :isVisible="isLogoutModalVisible"
+        title="Logout"
+        text="Are you sure you want to logout?"
+        @confirm="confirmLogout"
+        @nope="hideLogoutModal"
+      />
+    </div>
+  </transition>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-  flex-wrap: nowrap;
-  flex-shrink: 0;
-}
-
-.home-button,
-.menu-toggle {
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: none;
-  cursor: pointer;
-  font-size: 20px;
-  border-radius: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.home-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-}
-
-.home-button:hover:not(:disabled) {
-  background-color: #d48821;
-}
-
-.home-button:disabled {
-  background-color: #e0e1dd;
-  color: #1a1a2e;
-  cursor: not-allowed;
-}
-
-.burger-menu {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.menu-toggle {
-  background-color: #f5a623;
-  color: #1a1a2e;
-}
-
-.menu-toggle:hover {
-  background-color: #d48821;
-}
-
-.modal-overlay {
+.menu-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  z-index: 1000;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998;
 }
 
-.modal-fullscreen {
-  position: absolute;
+.menu-panel {
+  position: fixed;
   top: 0;
-  left: 0;
-  width: calc(100% - 40px);
-  height: calc(100% - 40px);
-
-  margin: auto;
+  right: 0;
+  width: 280px;
+  max-width: 80vw;
+  height: 100%;
+  background: #1e293b;
+  border-left: 1px solid rgba(203, 163, 78, 0.1);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  z-index: 999;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #1a1a2e;
-  color: #e0e1dd;
   padding: 20px;
-  border-radius: 15px;
-  overflow: auto;
+  box-sizing: border-box;
 }
 
-.menu-list {
-  list-style-type: none;
-  padding-left: 0;
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.menu-list {
+.menu-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #cba34e;
+  margin: 0;
+}
+
+.close-button {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: rgba(148, 163, 184, 0.2);
+  color: #e2e8f0;
+}
+
+.menu-nav {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
+  gap: 4px;
+  flex: 1;
 }
 
 .menu-item {
-  width: 100%;
-  max-width: 300px;
-}
-
-.menu-item i {
-  padding-right: 10px;
-}
-
-.menu-button,
-.logout-button {
-  width: 100%;
-  background-color: #f5a623;
-  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
   border: none;
-  padding: 15px;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 18px;
-  border-radius: 10px;
-  transition: background-color 0.3s ease;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s ease;
 }
 
-.menu-button:hover,
-.logout-button:hover {
-  background-color: #d48821;
+.menu-item:hover {
+  background: rgba(148, 163, 184, 0.08);
+  color: #e2e8f0;
 }
 
-.menu-button:disabled {
-  background-color: #e0e1dd;
-  color: #1a1a2e;
-  cursor: not-allowed;
+.menu-item.active {
+  background: rgba(203, 163, 78, 0.1);
+  color: #cba34e;
+}
+
+.menu-item-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.badge {
+  background-color: #ef4444;
+  color: white;
+  border-radius: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.menu-footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  padding-top: 12px;
+}
+
+.logout-item {
+  color: #f87171;
+}
+
+.logout-item:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* slide transition */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.25s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
 }
 </style>

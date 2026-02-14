@@ -100,9 +100,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="retro-container" ref="recentGamesElement">
+  <div class="page-container" ref="recentGamesElement">
     <header class="page-header">
-      <h1 class="retro-title">Welcome {{ user.username }}</h1>
+      <img src="/logo.png" alt="Retro Leaderboards" class="header-logo" />
+      <h1 class="page-title">Welcome {{ user.username }}</h1>
       <RefreshButton
         :loading-state="loadingRefresh"
         @click="refreshGames"
@@ -142,16 +143,13 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.retro-container {
-  background-color: #1a1a2e;
-  color: #e0e1dd;
+.page-container {
+  background-color: #0f172a;
+  color: #e2e8f0;
   padding: 16px;
-  font-family: "Press Start 2P", cursive;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  min-height: 0; /* allow flex shrink */
+  min-height: 0;
   flex: 1;
 }
 
@@ -163,7 +161,13 @@ onMounted(async () => {
   margin-bottom: 16px;
 }
 
-.page-header .retro-title {
+.header-logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.page-header .page-title {
   margin: 0;
   flex: 1;
   min-width: 0;
@@ -171,9 +175,11 @@ onMounted(async () => {
   padding: 0;
 }
 
-.retro-title {
-  font-size: 14px;
-  color: #f5a623;
+.page-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #cba34e;
+  letter-spacing: -0.01em;
 }
 
 .game-list {
@@ -183,25 +189,31 @@ onMounted(async () => {
 }
 
 .game-item {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .game-container {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 10px;
+  border-radius: 12px;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   cursor: pointer;
-  min-height: 60px;
-  transition: transform 0.1s ease;
+  min-height: 54px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .game-container:active {
   transform: scale(0.98);
+}
+
+@media (hover: hover) {
+  .game-container:hover {
+    box-shadow: 0 4px 20px rgba(203, 163, 78, 0.1);
+  }
 }
 
 .background-overlay {
@@ -210,37 +222,40 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(26, 26, 46, 0.6);
-  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.65));
+  border-radius: 12px;
+  border: 1px solid rgba(203, 163, 78, 0.08);
 }
 
 .game-icon {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   margin-right: 12px;
   z-index: 1;
-  border-radius: 6px;
+  border-radius: 8px;
   flex-shrink: 0;
 }
 
 .game-name {
-  color: #f5a623;
-  font-size: 12px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
   z-index: 1;
-  line-height: 1.5;
+  line-height: 1.4;
   word-break: break-word;
 }
 
 .loading-text {
   text-align: center;
   padding: 20px 0;
-  font-size: 12px;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .empty-text {
   text-align: center;
   padding: 40px 0;
-  font-size: 12px;
-  opacity: 0.6;
+  font-size: 13px;
+  color: #64748b;
 }
 </style>

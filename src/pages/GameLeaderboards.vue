@@ -184,13 +184,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="leaderboard-container" ref="gameLeaderboardsElement">
+  <div class="page-container" ref="gameLeaderboardsElement">
     <BackButton></BackButton>
     <RefreshButton
       :loading-state="loadingRefresh"
       @click="refreshLeaderboards"
     ></RefreshButton>
-    <h1 class="leaderboard-title">{{ selectedGame?.Title }}</h1>
+    <h1 class="page-title">{{ selectedGame?.Title }}</h1>
     <div
       v-if="
         gameLeaderboards.leaderboards &&
@@ -268,58 +268,67 @@ onMounted(async () => {
           >Loading...</span
         >
       </ul>
-      <span v-else>No leaderboards found for this game.</span>
+      <span v-else class="empty-text">No leaderboards found for this game.</span>
     </div>
     <div v-else class="loading-text">Loading...</div>
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.leaderboard-container {
-  background-color: #1a1a2e;
-  color: #e0e1dd;
+.page-container {
+  background-color: #0f172a;
+  color: #e2e8f0;
   padding: 16px;
-  font-family: "Press Start 2P", cursive;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   flex: 1;
   min-height: 0;
 }
 
-.leaderboard-title {
-  font-size: 24px;
-  color: #f5a623;
+.page-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #cba34e;
   text-align: center;
+  letter-spacing: -0.01em;
 }
 
 .subscribe-button,
 .unsubscribe-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
   border: none;
-  padding: 10px 20px;
+  padding: 9px 20px;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+}
+
+.subscribe-button {
+  background-color: #cba34e;
+  color: #0f172a;
+}
+
+.subscribe-button:hover:not(:disabled) {
+  background-color: #b8923f;
+}
+
+.unsubscribe-button {
+  background-color: rgba(30, 41, 59, 0.6);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.unsubscribe-button:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
 }
 
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.unsubscribe-button {
-  background-color: #22223b;
-  color: #e0e1dd;
-}
-
-.subscribe-button:hover {
-  background-color: #d48821;
-}
-
-.unsubscribe-button:hover {
-  background-color: #d9534f;
+  opacity: 0.5;
 }
 
 .leaderboard-list {
@@ -328,37 +337,52 @@ button:disabled {
 }
 
 .leaderboard-item-container {
-  background-color: #22223b;
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.06);
   border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 15px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .leaderboard-item-container:hover {
-  background-color: #3a3c58;
+  background-color: rgba(30, 41, 59, 0.9);
+  border-color: rgba(203, 163, 78, 0.1);
 }
 
 .leaderboard-item {
-  color: #f5a623;
-  flex-grow: 1;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .leaderboard-item-description {
-  font-size: 0.7rem;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 400;
 }
 
 .top-entry {
-  color: #e0e1dd;
-  font-size: 12px;
-  opacity: 0.7;
+  color: #64748b;
+  font-size: 11px;
   align-self: flex-end;
-  padding-top: 1rem;
+  padding-top: 6px;
 }
 
 .loading-text {
   text-align: center;
   padding-bottom: 20px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.empty-text {
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+  padding: 20px 0;
 }
 </style>

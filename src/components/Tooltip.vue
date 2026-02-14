@@ -1,105 +1,104 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from "vue";
 
-const props = defineProps<{
-  text: string;
-  position?: "top" | "bottom" | "left" | "right";
-}>();
+defineProps({
+  text: {
+    type: String,
+    required: true,
+  },
+  position: {
+    type: String,
+    default: "top",
+    validator: (val: string) => ["top", "bottom", "left", "right"].includes(val),
+  },
+});
 
-const position = props.position ?? "top";
-const show = ref(false);
+const showTooltip = ref(false);
+let timeout: ReturnType<typeof setTimeout> | null = null;
+
+function onMouseEnter() {
+  timeout = setTimeout(() => {
+    showTooltip.value = true;
+  }, 500);
+}
+
+function onMouseLeave() {
+  if (timeout) clearTimeout(timeout);
+  showTooltip.value = false;
+}
 </script>
 
 <template>
   <div
-    class="tooltip-container"
-    @mouseover="show = true"
-    @mouseleave="show = false"
+    class="tooltip-wrapper"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
   >
-    <slot></slot>
-    <div v-if="show" class="tooltip" :class="position">{{ text }}</div>
+    <slot />
+    <transition name="tooltip-fade">
+      <span v-if="showTooltip" class="tooltip-content" :class="position">{{
+        text
+      }}</span>
+    </transition>
   </div>
 </template>
 
 <style scoped>
-.tooltip-container {
+.tooltip-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
 }
 
-.tooltip {
+.tooltip-content {
   position: absolute;
-  background-color: black;
-  color: white;
-  padding: 8px;
-  border-radius: 4px;
-  z-index: 1000; /* Ensures tooltip is on top */
-  font-size: 12px;
-  text-align: center; /* Center-aligns the text */
-  white-space: normal; /* Allow text to wrap */
-  word-wrap: break-word; /* Break long words if necessary */
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.tooltip::after {
-  content: "";
-  position: absolute;
-  border-width: 5px;
-  border-style: solid;
-}
-
-/* Top position */
-.tooltip.top {
-  bottom: calc(100% + 8px); /* Adds spacing between tooltip and target */
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.tooltip.top::after {
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-color: black transparent transparent transparent; /* Triangle pointing down */
-}
-
-/* Bottom position */
-.tooltip.bottom {
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.tooltip.bottom::after {
+.tooltip-content.top {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border-color: transparent transparent black transparent; /* Triangle pointing up */
+  margin-bottom: 6px;
 }
 
-/* Left position */
-.tooltip.left {
-  right: calc(100% + 8px);
-  top: 50%;
-  transform: translateY(-50%);
+.tooltip-content.bottom {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
 }
 
-.tooltip.left::after {
-  right: -5px;
+.tooltip-content.left {
+  right: 100%;
   top: 50%;
   transform: translateY(-50%);
-  border-color: transparent transparent transparent black; /* Triangle pointing right */
+  margin-right: 6px;
 }
 
-/* Right position */
-.tooltip.right {
-  left: calc(100% + 8px);
+.tooltip-content.right {
+  left: 100%;
   top: 50%;
   transform: translateY(-50%);
+  margin-left: 6px;
 }
 
-.tooltip.right::after {
-  left: -5px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-color: transparent black transparent transparent; /* Triangle pointing left */
+.tooltip-fade-enter-active,
+.tooltip-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.tooltip-fade-enter-from,
+.tooltip-fade-leave-to {
+  opacity: 0;
 }
 </style>
