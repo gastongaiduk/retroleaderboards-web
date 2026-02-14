@@ -32,8 +32,8 @@ onMounted(async () => {
         </div>
         <div class="feature">
           <span class="feature-icon"><i class="fa fa-bell"></i></span>
-          <h3>Game subscriptions</h3>
-          <p>Subscribe to games and get updates when a friend surpasses your score.</p>
+          <h3>Follow games</h3>
+          <p>Follow games and get updates when a friend surpasses your score.</p>
         </div>
         <div class="feature">
           <span class="feature-icon"><i class="fa fa-gamepad"></i></span>

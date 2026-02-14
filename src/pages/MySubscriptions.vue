@@ -118,7 +118,7 @@ onMounted(async () => {
 <template>
   <div class="retro-container">
     <BurgerMenu :updates-number="updatesNumber" />
-    <h1 class="retro-title">My game subscriptions</h1>
+    <h1 class="retro-title">Games I Follow</h1>
     <div v-if="subscriptions">
       <ul v-if="subscriptions.length" class="game-list">
         <li
@@ -144,7 +144,7 @@ onMounted(async () => {
               class="unsubscribe-button"
               :disabled="loadingUnsubscribe"
               @click="showUnsubscribeModal(sub)"
-              title="Remove subscription"
+              title="Unfollow Game"
             >
               <i
                 v-if="loadingUnsubscribe && subscriptionToUnsubscribe?.game_id === sub.game_id"
@@ -157,7 +157,7 @@ onMounted(async () => {
         </li>
       </ul>
       <div v-else class="empty-message">
-        You are not subscribed to any game. Subscribe from a game's page to
+        You are not following any game. Follow a game from its page to
         receive updates when a friend beats your scores.
       </div>
     </div>
@@ -167,8 +167,8 @@ onMounted(async () => {
       :isVisible="unsubscribeModalVisible"
       :title="
         subscriptionToUnsubscribe
-          ? 'Unsubscribe from ' + subscriptionToUnsubscribe.games?.name + '?'
-          : 'Remove subscription'
+          ? 'Unfollow ' + subscriptionToUnsubscribe.games?.name + '?'
+          : 'Unfollow Game'
       "
       text="You will no longer receive updates for this game when a friend beats your scores."
       @confirm="unsubscribe"

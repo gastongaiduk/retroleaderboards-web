@@ -67,7 +67,7 @@ const props = defineProps<{
                 :disabled="currentRouteName == 'MySubscriptions'"
               >
                 <i class="fa fa-star"></i>
-                My game subscriptions
+                Games I Follow
                 <span v-if="props.updatesNumber > 0">
                   ({{ props.updatesNumber }})
                 </span>

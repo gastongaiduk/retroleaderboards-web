@@ -35,6 +35,11 @@ describe("leaderboard entries page", () => {
       fixture: "no-leaderboard-entries.json",
     });
 
+    cy.intercept("GET", "**/API/API_GetUserGameLeaderboards.php*", {
+      body: { Count: 1, Total: 1, Results: [] },
+      statusCode: 200,
+    });
+
     cy.visit("/#/home");
     cy.wait(2000);
 
@@ -83,6 +88,11 @@ describe("leaderboard entries page", () => {
 
     cy.intercept("GET", "**/API/API_GetLeaderboardEntries.php*", {
       fixture: "leaderboard-entries.json",
+    });
+
+    cy.intercept("GET", "**/API/API_GetUserGameLeaderboards.php*", {
+      body: { Count: 1, Total: 1, Results: [] },
+      statusCode: 200,
     });
 
     cy.visit("/#/home");
@@ -145,6 +155,11 @@ describe("leaderboard entries page", () => {
       fixture: "leaderboard-entries.json",
     });
 
+    cy.intercept("GET", "**/API/API_GetUserGameLeaderboards.php*", {
+      body: { Count: 1, Total: 1, Results: [] },
+      statusCode: 200,
+    });
+
     cy.visit("/#/home");
     cy.wait(2000);
 
@@ -197,6 +212,11 @@ describe("leaderboard entries page", () => {
       fixture: "leaderboard-entries.json",
     });
 
+    cy.intercept("GET", "**/API/API_GetUserGameLeaderboards.php*", {
+      body: { Count: 1, Total: 1, Results: [] },
+      statusCode: 200,
+    });
+
     cy.visit("/#/home");
     cy.wait(2000);
 
@@ -247,6 +267,30 @@ describe("leaderboard entries page", () => {
 
     cy.intercept("GET", "**/API/API_GetLeaderboardEntries.php*", {
       fixture: "leaderboard-entries.json",
+    });
+
+    cy.intercept("GET", "**/API/API_GetUserGameLeaderboards.php*", {
+      body: {
+        Count: 1,
+        Total: 1,
+        Results: [
+          {
+            ID: 19063,
+            RankAsc: true,
+            Title: "New Zealand Two",
+            Description: "",
+            Format: "MILLISECS",
+            UserEntry: {
+              User: "Thebpg13",
+              Score: 0,
+              FormattedScore: "2:38.36",
+              Rank: 2,
+              DateUpdated: "2024-12-12T16:40:59+00:00",
+            },
+          },
+        ],
+      },
+      statusCode: 200,
     });
 
     cy.visit("/#/home");
