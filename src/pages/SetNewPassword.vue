@@ -10,6 +10,7 @@ const passwordInput = ref("");
 const passwordConfirmInput = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
+const success = ref(false);
 
 async function handleSubmit() {
   if (passwordInput.value !== passwordConfirmInput.value) {
@@ -32,10 +33,13 @@ async function handleSubmit() {
     errorMessage.value = error.message;
     return;
   }
-  if (data.session && data.user) {
-    user.login(data.user.id, data.session.access_token);
+  if (data.user) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData.session) {
+      user.login(data.user.id, sessionData.session.access_token);
+    }
   }
-  await router.push("/");
+  success.value = true;
 }
 </script>
 
@@ -49,7 +53,7 @@ async function handleSubmit() {
         </p>
       </header>
 
-      <form @submit.prevent="handleSubmit" class="auth-form">
+      <form v-if="!success" @submit.prevent="handleSubmit" class="auth-form">
         <div class="form-group">
           <label for="password" class="form-label">New password</label>
           <input
@@ -80,6 +84,16 @@ async function handleSubmit() {
           <span v-else>Update password</span>
         </button>
       </form>
+
+      <div v-else class="auth-success">
+        <p><i class="fa fa-check-circle"></i> Password updated!</p>
+        <p class="auth-success-text">
+          Your password has been changed successfully. You can now access your account.
+        </p>
+        <button type="button" class="btn btn-submit" @click="router.push('/')">
+          Go to Home
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -191,5 +205,26 @@ async function handleSubmit() {
 .btn-submit:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.auth-success {
+  text-align: center;
+}
+
+.auth-success p:first-child {
+  font-size: 0.7rem;
+  color: #f5a623;
+  margin: 0 0 1rem;
+}
+
+.auth-success p:first-child i {
+  margin-right: 8px;
+}
+
+.auth-success-text {
+  font-size: 0.55rem;
+  color: #b8b9b5;
+  line-height: 1.7;
+  margin: 0 0 1.5rem;
 }
 </style>
