@@ -4,8 +4,7 @@ import { useRouter } from "vue-router";
 
 import { useUserStore } from "../stores/user.ts";
 import axios from "axios";
-import BurgerMenu from "../components/BurgerMenu.vue";
-import { useSubscriptionUpdates } from "../composables/useSubscriptionUpdates.ts";
+
 
 const router = useRouter();
 const user = useUserStore();
@@ -14,7 +13,7 @@ const usernameInput = ref("");
 const keyInput = ref("");
 const loading = ref(false);
 
-const { updatesNumber, fetchUpdates } = useSubscriptionUpdates();
+
 
 async function handleSubmit() {
   loading.value = true;
@@ -64,12 +63,10 @@ onMounted(() => {
     keyInput.value = user.key;
   }
 
-  fetchUpdates();
 });
 </script>
 <template>
   <div class="retro-container">
-    <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
     <h1 class="retro-title">Set your RA credentials</h1>
     <form @submit.prevent="handleSubmit" class="user-form">
       <div class="form-group">
@@ -115,10 +112,12 @@ onMounted(() => {
 .retro-container {
   background-color: #1a1a2e;
   color: #e0e1dd;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  padding: 16px;
   font-family: "Press Start 2P", cursive;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .retro-title {
@@ -174,5 +173,26 @@ onMounted(() => {
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.header-row .back-button {
+  position: absolute;
+  left: 0;
+}
+
+.retro-title {
+  font-size: 24px;
+  color: #f5a623;
+  text-align: center;
+  margin: 0;
+  width: 100%; /* Ensure centering works even with absolute child */
 }
 </style>

@@ -260,14 +260,7 @@ function shouldShowDivider(index: number) {
   return isCurrentMeOrFriend && !isNextMeOrFriend;
 }
 
-function goToGameLeaderboards() {
-  if (selectedGame.value?.GameID) {
-    router.push({
-      name: "GameLeaderboards",
-      params: { id: selectedGame.value.GameID },
-    });
-  }
-}
+
 </script>
 
 <template>
@@ -278,7 +271,7 @@ function goToGameLeaderboards() {
       @click="refreshScores"
     ></RefreshButton>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
-    <h2 class="entries-title clickable" @click="goToGameLeaderboards">
+    <h2 class="entries-title">
       {{ selectedGame?.Title }}
     </h2>
 
@@ -317,13 +310,12 @@ function goToGameLeaderboards() {
 .entries-container {
   background-color: #1a1a2e;
   color: #e0e1dd;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  padding: 16px;
   font-family: "Press Start 2P", cursive;
-  overflow-y: scroll;
-  height: 100vh;
-  margin: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
 h1.entries-title {

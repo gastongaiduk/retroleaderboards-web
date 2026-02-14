@@ -12,6 +12,8 @@ import Welcome from "../pages/Welcome.vue";
 import MySubscriptions from "../pages/MySubscriptions.vue";
 import ForgotPassword from "../pages/ForgotPassword.vue";
 import SetNewPassword from "../pages/SetNewPassword.vue";
+import Settings from "../pages/Settings.vue";
+import MainLayout from "../layouts/MainLayout.vue";
 
 const routes: Array<RouteRecordRaw> = [
   { path: "/", redirect: "/welcome" },
@@ -22,44 +24,49 @@ const routes: Array<RouteRecordRaw> = [
   { path: "/auth-callback", name: "AuthCallback", component: AuthCallback },
   { path: "/forgot-password", name: "ForgotPassword", component: ForgotPassword },
   { path: "/set-new-password", name: "SetNewPassword", component: SetNewPassword },
-  { path: "/home", name: "Home", component: Home, meta: { keepAlive: true } },
-  { path: "/ra-credentials", name: "RACredentials", component: RaCredentials },
   {
-    path: "/leaderboards-updates",
-    name: "LeaderboardsUpdates",
-    component: LeaderboardsUpdates,
-  },
-  {
-    path: "/my-subscriptions",
-    name: "MySubscriptions",
-    component: MySubscriptions,
-  },
-  {
-    path: "/game/:id/leaderboards",
-    name: "GameLeaderboards",
-    component: GameLeaderboards,
-    props: true,
-    meta: { keepAlive: true },
-  },
-  {
-    path: "/leaderboard/:id",
-    name: "Leaderboard",
-    component: Leaderboard,
-    props: true,
+    path: "/",
+    component: MainLayout,
+    children: [
+      { path: "home", name: "Home", component: Home, meta: { keepAlive: true } },
+      { path: "ra-credentials", name: "RACredentials", component: RaCredentials },
+      { path: "settings", name: "Settings", component: Settings },
+      {
+        path: "leaderboards-updates",
+        name: "LeaderboardsUpdates",
+        component: LeaderboardsUpdates,
+      },
+      {
+        path: "my-subscriptions",
+        name: "MySubscriptions",
+        component: MySubscriptions,
+      },
+      {
+        path: "game/:id/leaderboards",
+        name: "GameLeaderboards",
+        component: GameLeaderboards,
+        props: true,
+        meta: { keepAlive: true },
+      },
+      {
+        path: "leaderboard/:id",
+        name: "Leaderboard",
+        component: Leaderboard,
+        props: true,
+      },
+    ],
   },
   // Redirect all other paths to the home page
   {
     path: "/:pathMatch(.*)*",
-    redirect: (to) => {
-      return { path: "/", query: { q: to.params.pathMatch[0] } };
-    },
+    redirect: "/",
   },
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
     }
