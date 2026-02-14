@@ -8,9 +8,9 @@ describe("recently played games page", () => {
       fixture: "no-played-games.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials();
-    cy.authenticate();
+    cy.interceptRACredentials(true, "demo", "demo-key");
     cy.interceptLeaderboardsUpdates();
+    cy.authenticate();
     cy.visit("/");
 
     cy.wait("@getRecentlyPlayedGames")
@@ -26,9 +26,9 @@ describe("recently played games page", () => {
       fixture: "recently-played-games-1.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials();
-    cy.authenticate();
+    cy.interceptRACredentials(true, "demo", "demo-key");
     cy.interceptLeaderboardsUpdates();
+    cy.authenticate();
     cy.visit("/");
 
     cy.wait("@getRecentlyPlayedGames")
@@ -57,9 +57,9 @@ describe("recently played games page", () => {
       fixture: "no-played-games.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials();
-    cy.authenticate();
+    cy.interceptRACredentials(true, "demo", "demo-key");
     cy.interceptLeaderboardsUpdates();
+    cy.authenticate();
     cy.visit("/");
 
     cy.wait("@getRecentlyPlayedGames")

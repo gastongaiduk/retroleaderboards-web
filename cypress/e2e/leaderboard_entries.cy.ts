@@ -8,17 +8,18 @@ describe("leaderboard entries page", () => {
       fixture: "game-list-with-leaderboard.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials();
-    cy.authenticate();
+    cy.interceptRACredentials(true, "demo", "demo-key");
     cy.interceptLeaderboardsUpdates();
     cy.interceptUsersIFollow();
     cy.interceptGameSubscription(false);
+    cy.authenticate();
     cy.visit("/");
 
     cy.intercept("GET", "**/API/API_GetGameLeaderboards.php*", {
       fixture: "leaderboards.json",
     }).as("getLeaderboards");
 
+    cy.wait("@getRecentlyPlayedGames");
     cy.get(".game-button").click();
 
     cy.url().should("include", "/game/16557/leaderboards");
@@ -41,17 +42,18 @@ describe("leaderboard entries page", () => {
       fixture: "game-list-with-leaderboard.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials();
-    cy.authenticate();
+    cy.interceptRACredentials(true, "demo", "demo-key");
     cy.interceptLeaderboardsUpdates();
     cy.interceptUsersIFollow();
     cy.interceptGameSubscription(false);
+    cy.authenticate();
     cy.visit("/");
 
     cy.intercept("GET", "**/API/API_GetGameLeaderboards.php*", {
       fixture: "leaderboards.json",
     }).as("getLeaderboards");
 
+    cy.wait("@getRecentlyPlayedGames");
     cy.get(".game-button").click();
 
     cy.url().should("include", "/game/16557/leaderboards");
@@ -93,17 +95,18 @@ describe("leaderboard entries page", () => {
       fixture: "game-list-with-leaderboard.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials(true, "matias721744");
-    cy.authenticate();
+    cy.interceptRACredentials(true, "matias721744", "demo-key");
     cy.interceptLeaderboardsUpdates();
     cy.interceptUsersIFollow();
     cy.interceptGameSubscription(false);
+    cy.authenticate();
     cy.visit("/");
 
     cy.intercept("GET", "**/API/API_GetGameLeaderboards.php*", {
       fixture: "leaderboards.json",
     }).as("getLeaderboards");
 
+    cy.wait("@getRecentlyPlayedGames");
     cy.get(".game-button").click();
 
     cy.url().should("include", "/game/16557/leaderboards");
@@ -131,19 +134,20 @@ describe("leaderboard entries page", () => {
       fixture: "game-list-with-leaderboard.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials();
-    cy.authenticate();
+    cy.interceptRACredentials(true, "demo", "demo-key");
     cy.interceptLeaderboardsUpdates();
     cy.intercept("GET", "**/API/API_GetUsersIFollow.php*", {
       fixture: "users-i-follow-with-matias.json",
     }).as("getUsersIFollow");
     cy.interceptGameSubscription(false);
+    cy.authenticate();
     cy.visit("/");
 
     cy.intercept("GET", "**/API/API_GetGameLeaderboards.php*", {
       fixture: "leaderboards.json",
     }).as("getLeaderboards");
 
+    cy.wait("@getRecentlyPlayedGames");
     cy.get(".game-button").click();
 
     cy.url().should("include", "/game/16557/leaderboards");
@@ -171,19 +175,20 @@ describe("leaderboard entries page", () => {
       fixture: "game-list-with-leaderboard.json",
     }).as("getRecentlyPlayedGames");
 
-    cy.interceptRACredentials(true, "masakimu");
-    cy.authenticate();
+    cy.interceptRACredentials(true, "masakimu", "demo-key");
     cy.interceptLeaderboardsUpdates();
     cy.intercept("GET", "**/API/API_GetUsersIFollow.php*", {
       fixture: "users-i-follow-with-matias.json",
     }).as("getUsersIFollow");
     cy.interceptGameSubscription(false);
+    cy.authenticate();
     cy.visit("/");
 
     cy.intercept("GET", "**/API/API_GetGameLeaderboards.php*", {
       fixture: "leaderboards.json",
     }).as("getLeaderboards");
 
+    cy.wait("@getRecentlyPlayedGames");
     cy.get(".game-button").click();
 
     cy.url().should("include", "/game/16557/leaderboards");

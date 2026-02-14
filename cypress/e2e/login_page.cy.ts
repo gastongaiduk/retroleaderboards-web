@@ -7,17 +7,17 @@ describe("login page", () => {
     cy.visit("/#/login");
 
     cy.url().should("include", "/login");
-    cy.contains("Login");
+    cy.contains("Log in");
 
     cy.get('input[id="email"]').type("unauthorized");
     cy.get('input[id="pass"]').type("unauthorized-secret");
 
-    cy.intercept("POST", "**/auth/v1/token?grant_type*", {
+    cy.intercept("POST", "**/auth/v1/token?*", {
       body: { message: "Bad credentials" },
       statusCode: 401,
     }).as("auth");
 
-    cy.contains("Submit").click();
+    cy.contains("Log in").click();
 
     cy.wait("@auth").its("response.statusCode").should("equal", 401);
 
@@ -26,29 +26,28 @@ describe("login page", () => {
     });
 
     cy.url().should("include", "/login");
-    cy.contains("Login");
+    cy.contains("Log in");
   });
 
   it("success-without-ra-credentials", () => {
+    cy.interceptRACredentials(false, "demo", "demo-key");
+    cy.interceptLeaderboardsUpdates();
+    
     cy.visit("/#/login");
 
     cy.url().should("include", "/login");
-    cy.contains("Login");
+    cy.contains("Log in");
 
     cy.get('input[id="email"]').type("user@retroleaderboards.app");
     cy.get('input[id="pass"]').type("user-secret");
 
-    cy.intercept("POST", "**/auth/v1/token?grant_type*", {
+    cy.intercept("POST", "**/auth/v1/token?*", {
       fixture: "supabase.auth-granted.json",
     }).as("auth");
 
-    cy.intercept("GET", "**/functions/v1/get-ra-credentials", {
-      fixture: "supabase.ra-credentials-bad.json",
-      statusCode: 400,
-    }).as("raCredentials");
+    cy.contains("Log in").click();
 
-    cy.contains("Submit").click();
-
+    cy.wait("@auth").its("response.statusCode").should("equal", 200);
     cy.wait("@raCredentials").its("response.statusCode").should("equal", 400);
 
     cy.url().should("include", "/ra-credentials");
@@ -56,34 +55,35 @@ describe("login page", () => {
   });
 
   it("success-with-ra-credentials", () => {
-    cy.visit("/#/login");
-
-    cy.url().should("include", "/login");
-    cy.contains("Login");
-
-    cy.get('input[id="email"]').type("user@retroleaderboards.app");
-    cy.get('input[id="pass"]').type("user-secret");
-
-    cy.intercept("POST", "**/auth/v1/token?grant_type*", {
-      fixture: "supabase.auth-granted.json",
-    }).as("auth");
-
-    cy.intercept("GET", "**/functions/v1/get-ra-credentials", {
-      fixture: "supabase.ra-credentials-ok.json",
-      statusCode: 200,
-    }).as("raCredentials");
-
+    cy.interceptRACredentials(true, "demo", "demo-key");
+    cy.interceptLeaderboardsUpdates();
     cy.intercept("GET", "**/rest/v1/leaderboards_updates?*", {
       body: {},
       statusCode: 200,
     }).as("leaderboardsUpdates");
-
     cy.intercept("GET", "**/API/API_GetUserRecentlyPlayedGames.php*", {
       fixture: "no-played-games.json",
       statusCode: 200,
     }).as("getRecentlyPlayedGames");
+    
+    cy.visit("/#/login");
 
-    cy.contains("Submit").click();
+    cy.url().should("include", "/login");
+    cy.contains("Log in");
+
+    cy.get('input[id="email"]').type("user@retroleaderboards.app");
+    cy.get('input[id="pass"]').type("user-secret");
+
+    cy.intercept("POST", "**/auth/v1/token?*", {
+      fixture: "supabase.auth-granted.json",
+    }).as("auth");
+
+    cy.contains("Log in").click();
+
+    cy.wait("@auth").its("response.statusCode").should("equal", 200);
+    cy.wait("@raCredentials").its("response.statusCode").should("equal", 200);
+    cy.wait("@leaderboardsUpdates");
+    cy.wait("@getRecentlyPlayedGames");
 
     cy.url().should("include", "/home");
     cy.contains("Welcome");

@@ -5,16 +5,16 @@ Cypress.Commands.add("authenticate", (granted = true) => {
   cy.get('input[id="email"]').type("user@retroleaderboards.app");
   cy.get('input[id="pass"]').type("user-secret");
   if (granted) {
-    cy.intercept("POST", "**/auth/v1/token?grant_type*", {
+    cy.intercept("POST", "**/auth/v1/token?*", {
       fixture: "supabase.auth-granted.json",
     });
   } else {
-    cy.intercept("POST", "**/auth/v1/token?grant_type*", {
+    cy.intercept("POST", "**/auth/v1/token?*", {
       body: { message: "Bad credentials" },
       statusCode: 401,
     });
   }
-  cy.contains("Submit").click();
+  cy.contains("Log in").click();
 });
 
 Cypress.Commands.add(
@@ -76,7 +76,7 @@ Cypress.Commands.add("interceptUsersIFollow", () => {
 declare global {
   namespace Cypress {
     interface Chainable {
-      authenticate(granted = true): Chainable<void>;
+      authenticate(granted?: boolean): Chainable<void>;
       interceptRACredentials(
         existing: boolean,
         username: string,
