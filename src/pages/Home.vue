@@ -6,12 +6,10 @@ import { usePostStore } from "../stores/postStore.ts";
 import { useUserStore } from "../stores/user.ts";
 import { useRecentGamesStore } from "../stores/recentGames.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
-import BurgerMenu from "../components/BurgerMenu.vue";
 import RefreshButton from "../components/RefreshButton.vue";
 import { useScrollTracker } from "../composables/useScrollTracker.ts";
 import { useInfiniteScroll } from "@vueuse/core";
 import { useGameLeaderboardsStore } from "../stores/gameLeaderboards.ts";
-import { useSubscriptionUpdates } from "../composables/useSubscriptionUpdates.ts";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -27,8 +25,6 @@ function selectGameLeaderboards(game: Game) {
 }
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
-const { updatesNumber, fetchUpdates } = useSubscriptionUpdates();
 
 const loadingRefresh = ref<boolean>(false);
 const loadingInfiniteScroll = ref<boolean>(false);
@@ -97,8 +93,6 @@ onMounted(async () => {
     return;
   }
 
-  await fetchUpdates();
-
   if (recentGames.games.length !== 0) {
     recentGames.restoreOffset();
   }
@@ -108,7 +102,6 @@ onMounted(async () => {
 <template>
   <div class="retro-container" ref="recentGamesElement">
     <header class="page-header">
-      <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
       <h1 class="retro-title">Welcome {{ user.username }}</h1>
       <RefreshButton
         :loading-state="loadingRefresh"
@@ -127,6 +120,7 @@ onMounted(async () => {
             :style="{
               backgroundImage: 'url(' + apiUrl + '\\' + game.ImageIngame + ')',
             }"
+            @click="selectGameLeaderboards(game)"
           >
             <div class="background-overlay"></div>
             <img
@@ -134,16 +128,14 @@ onMounted(async () => {
               :alt="game.Title"
               class="game-icon"
             />
-            <button @click="selectGameLeaderboards(game)" class="game-button">
-              {{ game.Title }}
-            </button>
+            <span class="game-name">{{ game.Title }}</span>
           </div>
         </li>
         <span v-if="loadingInfiniteScroll" class="loading-text"
           >Loading...</span
         >
       </ul>
-      <div v-else>No games played yet</div>
+      <div v-else class="empty-text">No games played yet</div>
     </div>
     <div v-else class="loading-text">Loading...</div>
   </div>
@@ -155,23 +147,20 @@ onMounted(async () => {
 .retro-container {
   background-color: #1a1a2e;
   color: #e0e1dd;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  padding: 16px;
   font-family: "Press Start 2P", cursive;
-  overflow-y: scroll;
-  height: 100vh;
-  margin: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0; /* allow flex shrink */
+  flex: 1;
 }
 
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: nowrap;
   gap: 10px;
-  flex-shrink: 0;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .page-header .retro-title {
@@ -179,33 +168,40 @@ onMounted(async () => {
   flex: 1;
   min-width: 0;
   text-align: center;
-  padding: 10px 0;
+  padding: 0;
 }
 
 .retro-title {
-  font-size: 18px;
+  font-size: 14px;
   color: #f5a623;
-  padding: 10px 0;
 }
 
 .game-list {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
 .game-item {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .game-container {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 12px;
   border-radius: 10px;
-  background-position-y: center;
+  background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  cursor: pointer;
+  min-height: 60px;
+  transition: transform 0.1s ease;
+}
+
+.game-container:active {
+  transform: scale(0.98);
 }
 
 .background-overlay {
@@ -214,41 +210,37 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(34, 34, 59, 0.5);
+  background-color: rgba(26, 26, 46, 0.6);
+  border-radius: 10px;
 }
 
 .game-icon {
-  width: 70px;
-  height: auto;
-  margin-right: 15px;
+  width: 56px;
+  height: 56px;
+  margin-right: 12px;
   z-index: 1;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
-.game-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 15px;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
+.game-name {
+  color: #f5a623;
+  font-size: 12px;
   z-index: 1;
-}
-
-.game-button:hover {
-  background-color: #d48821;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 .loading-text {
   text-align: center;
-  padding-bottom: 20px;
+  padding: 20px 0;
+  font-size: 12px;
 }
 
-@media (min-width: 768px) {
-  .game-container {
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center center;
-  }
+.empty-text {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 12px;
+  opacity: 0.6;
 }
 </style>

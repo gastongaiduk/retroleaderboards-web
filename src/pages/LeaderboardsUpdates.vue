@@ -5,9 +5,8 @@ import { useUserStore } from "../stores/user.ts";
 import { usePostStore } from "../stores/postStore.ts";
 import { Leaderboard } from "../models/GameLeaderboards.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
-import BurgerMenu from "../components/BurgerMenu.vue";
-import BackButton from "../components/BackButton.vue";
-import { useSubscriptionUpdates } from "../composables/useSubscriptionUpdates.ts";
+
+import { useUpdatesStore } from "../stores/updates.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -18,14 +17,14 @@ const selectedGameId = ref<string | null>(null);
 
 async function selectUpdateLeaderboard(
   id: number,
+  gameId: number,
   gameName: string,
   name: string,
   description: string,
   friend: string,
 ) {
-  await markUpdateAsRead(id, user.getId(), friend);
+  await updatesStore.markUpdateAsRead(id, user.getId(), friend);
 
-  const gameId = Number(selectedGameId.value);
   const game = { GameID: gameId, Title: gameName } as Game;
   const leaderboard = {
     ID: id,
@@ -36,15 +35,14 @@ async function selectUpdateLeaderboard(
   postStore.selectLeaderboard(leaderboard);
 }
 
-const { updates, updatesNumber, fetchUpdates, markUpdateAsRead, deleteUpdate } =
-  useSubscriptionUpdates();
+const updatesStore = useUpdatesStore();
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const uniqueGamesFromUpdates = computed(() => {
-  if (!updates.value?.length) return [];
+  if (!updatesStore.updates?.length) return [];
   const seen = new Map<number, { game_id: number; name: string }>();
-  for (const u of updates.value) {
+  for (const u of updatesStore.updates) {
     const lb = u.leaderboards;
     if (lb?.game_id != null && !seen.has(lb.game_id)) {
       seen.set(lb.game_id, {
@@ -57,10 +55,10 @@ const uniqueGamesFromUpdates = computed(() => {
 });
 
 const filteredUpdates = computed(() => {
-  if (!updates.value) return null;
-  if (!selectedGameId.value) return updates.value;
+  if (!updatesStore.updates) return null;
+  if (!selectedGameId.value) return updatesStore.updates;
   const id = Number(selectedGameId.value);
-  return updates.value.filter((u) => u.leaderboards?.game_id === id);
+  return updatesStore.updates.filter((u) => u.leaderboards?.game_id === id);
 });
 
 function onFilterChange(event: Event) {
@@ -87,7 +85,7 @@ onMounted(async () => {
     return;
   }
 
-  await fetchUpdates();
+  // await updatesStore.fetchUpdates(); // Handled by MainLayout
   if (route.query.gameId != null) {
     selectedGameId.value = String(route.query.gameId);
   }
@@ -96,12 +94,8 @@ onMounted(async () => {
 
 <template>
   <div class="retro-container">
-    <header class="page-header">
-      <BackButton to="/my-subscriptions" />
-      <h1 class="retro-title">Updates</h1>
-      <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
-    </header>
-    <div v-if="updates" class="filter-row">
+    <h1 class="retro-title">Updates</h1>
+    <div v-if="updatesStore.updates" class="filter-row">
       <label for="game-filter" class="filter-label">Filter by game</label>
       <select
         id="game-filter"
@@ -119,7 +113,7 @@ onMounted(async () => {
         </option>
       </select>
     </div>
-    <div v-if="updates">
+    <div v-if="updatesStore.updates">
       <ul v-if="filteredUpdates?.length" class="game-list">
         <li
           v-for="update in filteredUpdates"
@@ -134,6 +128,7 @@ onMounted(async () => {
               @click="
                 selectUpdateLeaderboard(
                   update.leaderboard_id,
+                  update.leaderboards.game_id,
                   update.leaderboards.games.name,
                   update.leaderboards.name,
                   update.leaderboards.description,
@@ -146,6 +141,7 @@ onMounted(async () => {
               @click="
                 selectUpdateLeaderboard(
                   update.leaderboard_id,
+                  update.leaderboards.game_id,
                   update.leaderboards.games.name,
                   update.leaderboards.name,
                   update.leaderboards.description,
@@ -166,7 +162,7 @@ onMounted(async () => {
             </div>
             <button
               @click="
-                deleteUpdate(
+                updatesStore.deleteUpdate(
                   update.leaderboard_id,
                   user.getId(),
                   update.friend_name,
@@ -191,10 +187,12 @@ onMounted(async () => {
 .retro-container {
   background-color: #1a1a2e;
   color: #e0e1dd;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  padding: 16px;
   font-family: "Press Start 2P", cursive;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .page-header {

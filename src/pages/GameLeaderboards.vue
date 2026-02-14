@@ -280,13 +280,12 @@ onMounted(async () => {
 .leaderboard-container {
   background-color: #1a1a2e;
   color: #e0e1dd;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  padding: 16px;
   font-family: "Press Start 2P", cursive;
-  overflow-y: scroll;
-  height: 100vh;
-  margin: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
 .leaderboard-title {
