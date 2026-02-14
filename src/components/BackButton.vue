@@ -3,8 +3,17 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
+const props = withDefaults(
+  defineProps<{ to?: string }>(),
+  { to: undefined },
+);
+
 function goBack() {
-  router.back();
+  if (props.to) {
+    router.push(props.to);
+  } else {
+    router.back();
+  }
 }
 </script>
 

@@ -1,7 +1,7 @@
 export interface Subscription {
   game_id: any;
   created_at: any;
-  game: SubscriptionGame;
+  games: SubscriptionGame | null;
 }
 
 export interface SubscriptionGame {

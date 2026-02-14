@@ -214,9 +214,9 @@ onMounted(async () => {
         @nope="hideSubscribeModal"
         :title="'Subscribe to ' + selectedGame?.Title + '?'"
         :text="
-          'Receive updates when a friend beats any of your scores in ' +
+          'Stay competitive! Get notified when friends beat your scores in ' +
           selectedGame?.Title +
-          '? (no emails or push notifications are sent)'
+          '. Never miss a challenge - reclaim your top spot! (in-app notifications only)'
         "
       />
 
@@ -235,9 +235,9 @@ onMounted(async () => {
         @nope="hideUnsubscribeModal"
         :title="'Unsubscribe from ' + selectedGame?.Title + '?'"
         :text="
-          'Don\'t receive updates for this game when a friend beats any of your scores in ' +
+          'Are you sure you want to stop receiving notifications for ' +
           selectedGame?.Title +
-          '?'
+          '? You might miss when friends beat your high scores!'
         "
       />
     </div>

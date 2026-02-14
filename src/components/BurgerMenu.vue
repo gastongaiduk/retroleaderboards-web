@@ -35,61 +35,62 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="burger-menu">
-    <button class="menu-toggle" @click="toggleMenu">
-      <i class="fa fa-bars"></i>
-      <i
-        v-if="props.updatesNumber > 0"
-        class="fa fa-asterisk"
-        style="font-size: 50%; padding-left: 10px; vertical-align: middle"
-      ></i>
+  <div class="header-actions">
+    <button
+      v-if="user.isSet()"
+      class="home-button"
+      @click="navigate('/home')"
+      :disabled="currentRouteName == 'Home'"
+      title="Back to Home"
+    >
+      <i class="fa fa-home"></i>
     </button>
-
-    <div v-if="isMenuVisible" class="modal-overlay" @click.self="toggleMenu">
-      <div class="modal-fullscreen retro-container">
-        <button class="close-menu" @click="toggleMenu">
-          <i class="fa fa-times"></i>
-        </button>
-        <ul class="menu-list">
-          <li v-if="user.isSet()" class="menu-item">
-            <button
-              class="menu-button"
-              @click="navigate('/')"
-              :disabled="currentRouteName == 'Home'"
-            >
-              <i class="fa fa-home"></i> Home
-            </button>
-          </li>
-          <li v-if="user.isSet()" class="menu-item">
-            <button
-              class="menu-button"
-              @click="navigate('/leaderboards-updates')"
-              :disabled="currentRouteName == 'LeaderboardsUpdates'"
-            >
-              <i class="fa fa-gamepad"></i>
-              Leaderboards updates
-              <span v-if="props.updatesNumber > 0">
-                ({{ props.updatesNumber }})
-              </span>
-            </button>
-          </li>
-          <li class="menu-item">
-            <button
-              class="menu-button"
-              @click="navigate('/ra-credentials')"
-              :disabled="currentRouteName == 'RACredentials'"
-            >
-              <i class="fa fa-gear"></i> RetroAchievements credentials
-            </button>
-          </li>
-          <li class="menu-item">
-            <button class="logout-button" @click="showLogoutModal">
-              <i class="fa fa-sign-out"></i> Logout
-            </button>
-          </li>
-        </ul>
-      </div>
+    <div class="burger-menu">
+      <button class="menu-toggle" @click="toggleMenu">
+        <i class="fa fa-bars"></i>
+      </button>
     </div>
+
+    <Teleport to="body">
+      <div
+        v-if="isMenuVisible"
+        class="modal-overlay burger-menu-overlay"
+        style="position: fixed; inset: 0; z-index: 2147483647; background-color: rgba(0, 0, 0, 0.8);"
+        @click="toggleMenu"
+      >
+        <div class="modal-fullscreen retro-container">
+          <ul class="menu-list">
+            <li v-if="user.isSet()" class="menu-item">
+              <button
+                class="menu-button"
+                @click="navigate('/my-subscriptions')"
+                :disabled="currentRouteName == 'MySubscriptions'"
+              >
+                <i class="fa fa-star"></i>
+                My game subscriptions
+                <span v-if="props.updatesNumber > 0">
+                  ({{ props.updatesNumber }})
+                </span>
+              </button>
+            </li>
+            <li class="menu-item">
+              <button
+                class="menu-button"
+                @click="navigate('/ra-credentials')"
+                :disabled="currentRouteName == 'RACredentials'"
+              >
+                <i class="fa fa-gear"></i> RetroAchievements credentials
+              </button>
+            </li>
+            <li class="menu-item">
+              <button class="logout-button" @click="showLogoutModal">
+                <i class="fa fa-sign-out"></i> Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </Teleport>
 
     <ConfirmModal
       :isVisible="isLogoutModalVisible"
@@ -104,20 +105,54 @@ const props = defineProps<{
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.home-button,
+.menu-toggle {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.home-button {
+  background-color: #f5a623;
+  color: #1a1a2e;
+}
+
+.home-button:hover:not(:disabled) {
+  background-color: #d48821;
+}
+
+.home-button:disabled {
+  background-color: #e0e1dd;
+  color: #1a1a2e;
+  cursor: not-allowed;
+}
+
 .burger-menu {
   position: relative;
-  display: contents;
+  flex-shrink: 0;
 }
 
 .menu-toggle {
   background-color: #f5a623;
   color: #1a1a2e;
-  border: none;
-  padding: 12px;
-  cursor: pointer;
-  font-size: 20px;
-  border-radius: 10px;
-  transition: background-color 0.3s ease;
 }
 
 .menu-toggle:hover {
@@ -151,24 +186,6 @@ const props = defineProps<{
   padding: 20px;
   border-radius: 15px;
   overflow: auto;
-}
-
-.close-menu {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 10px;
-  font-size: 20px;
-  transition: background-color 0.3s ease;
-}
-
-.close-menu:hover {
-  background-color: #d48821;
 }
 
 .menu-list {

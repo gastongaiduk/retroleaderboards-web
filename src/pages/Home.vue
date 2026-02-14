@@ -107,12 +107,14 @@ onMounted(async () => {
 
 <template>
   <div class="retro-container" ref="recentGamesElement">
-    <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
-    <RefreshButton
-      :loading-state="loadingRefresh"
-      @click="refreshGames"
-    ></RefreshButton>
-    <h1 class="retro-title">Welcome {{ user.username }}</h1>
+    <header class="page-header">
+      <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
+      <h1 class="retro-title">Welcome {{ user.username }}</h1>
+      <RefreshButton
+        :loading-state="loadingRefresh"
+        @click="refreshGames"
+      ></RefreshButton>
+    </header>
     <div v-if="recentGames">
       <ul v-if="recentGames.games.length" class="game-list">
         <li
@@ -162,10 +164,27 @@ onMounted(async () => {
   margin: 0;
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+
+.page-header .retro-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 10px 0;
+}
+
 .retro-title {
   font-size: 18px;
   color: #f5a623;
-  text-align: center;
   padding: 10px 0;
 }
 

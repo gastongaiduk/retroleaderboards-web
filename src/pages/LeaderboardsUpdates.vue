@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "../stores/user.ts";
 import { usePostStore } from "../stores/postStore.ts";
 import { Leaderboard } from "../models/GameLeaderboards.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
 import BurgerMenu from "../components/BurgerMenu.vue";
+import BackButton from "../components/BackButton.vue";
 import { useSubscriptionUpdates } from "../composables/useSubscriptionUpdates.ts";
 
 const router = useRouter();
+const route = useRoute();
 const postStore = usePostStore();
 const user = useUserStore();
+
+const selectedGameId = ref<string | null>(null);
 
 async function selectUpdateLeaderboard(
   id: number,
@@ -36,6 +40,46 @@ const { updates, updatesNumber, fetchUpdates, markUpdateAsRead, deleteUpdate } =
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+const uniqueGamesFromUpdates = computed(() => {
+  if (!updates.value?.length) return [];
+  const seen = new Map<number, { game_id: number; name: string }>();
+  for (const u of updates.value) {
+    const lb = u.leaderboards;
+    if (lb?.game_id != null && !seen.has(lb.game_id)) {
+      seen.set(lb.game_id, {
+        game_id: lb.game_id,
+        name: lb.games?.name ?? String(lb.game_id),
+      });
+    }
+  }
+  return Array.from(seen.values());
+});
+
+const filteredUpdates = computed(() => {
+  if (!updates.value) return null;
+  if (!selectedGameId.value) return updates.value;
+  const id = Number(selectedGameId.value);
+  return updates.value.filter((u) => u.leaderboards?.game_id === id);
+});
+
+function onFilterChange(event: Event) {
+  const target = event.target as HTMLSelectElement;
+  const value = target.value || null;
+  selectedGameId.value = value;
+  router.replace({
+    path: route.path,
+    query: value ? { gameId: value } : {},
+  });
+}
+
+watch(
+  () => route.query.gameId,
+  (gameId) => {
+    if (gameId != null) selectedGameId.value = String(gameId);
+  },
+  { immediate: true },
+);
+
 onMounted(async () => {
   if (!user.isLoggedIn() || !user.isSet()) {
     await router.push("/login");
@@ -43,17 +87,41 @@ onMounted(async () => {
   }
 
   await fetchUpdates();
+  if (route.query.gameId != null) {
+    selectedGameId.value = String(route.query.gameId);
+  }
 });
 </script>
 
 <template>
   <div class="retro-container">
-    <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
-    <h1 class="retro-title">Updates</h1>
+    <header class="page-header">
+      <BackButton to="/my-subscriptions" />
+      <h1 class="retro-title">Updates</h1>
+      <BurgerMenu :updates-number="updatesNumber"></BurgerMenu>
+    </header>
+    <div v-if="updates" class="filter-row">
+      <label for="game-filter" class="filter-label">Filter by game</label>
+      <select
+        id="game-filter"
+        class="filter-select"
+        :value="selectedGameId ?? ''"
+        @change="onFilterChange"
+      >
+        <option value="">All games</option>
+        <option
+          v-for="g in uniqueGamesFromUpdates"
+          :key="g.game_id"
+          :value="String(g.game_id)"
+        >
+          {{ g.name }}
+        </option>
+      </select>
+    </div>
     <div v-if="updates">
-      <ul v-if="updates.length" class="game-list">
+      <ul v-if="filteredUpdates?.length" class="game-list">
         <li
-          v-for="update in updates"
+          v-for="update in filteredUpdates"
           :key="update.leaderboard_id"
           class="game-item"
         >
@@ -128,11 +196,51 @@ onMounted(async () => {
   font-family: "Press Start 2P", cursive;
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-bottom: 15px;
+}
+
+.page-header .retro-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 10px 0;
+}
+
 .retro-title {
   font-size: 24px;
   color: #f5a623;
-  text-align: center;
   padding: 10px 0;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+}
+
+.filter-select {
+  background-color: #16213e;
+  color: #e0e1dd;
+  border: 1px solid #f5a623;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.7rem;
+  min-width: 180px;
 }
 
 .game-list {
