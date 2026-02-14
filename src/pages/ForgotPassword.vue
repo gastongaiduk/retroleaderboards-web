@@ -37,7 +37,7 @@ async function handleSubmit() {
       <header class="auth-header">
         <h1 class="auth-title">Reset password</h1>
         <p class="auth-subtitle">
-          Enter your email and we’ll send you a link to set a new password.
+          Enter your email and we'll send you a link to set a new password.
         </p>
       </header>
 
@@ -79,16 +79,13 @@ async function handleSubmit() {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
 .auth-page {
   min-height: 100vh;
-  background-color: #1a1a2e;
+  background-color: #0f172a;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 166, 35, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(212, 136, 33, 0.06), transparent);
-  color: #e0e1dd;
-  font-family: "Press Start 2P", cursive;
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 163, 78, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(203, 163, 78, 0.04), transparent);
+  color: #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,43 +95,47 @@ async function handleSubmit() {
 
 .auth-card {
   width: 100%;
-  max-width: 400px;
-  background-color: rgba(34, 34, 59, 0.8);
-  border: 1px solid rgba(245, 166, 35, 0.2);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  max-width: 380px;
+  background-color: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(203, 163, 78, 0.1);
+  border-radius: 14px;
+  padding: 28px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.55rem;
-  color: #d48821;
+  gap: 6px;
+  font-size: 13px;
+  color: #cba34e;
   text-decoration: none;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
 }
 
 .back-link:hover {
-  color: #f5a623;
-  text-decoration: underline;
+  color: #d4b565;
 }
 
 .auth-header {
   text-align: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .auth-title {
-  font-size: 1rem;
-  color: #f5a623;
-  margin: 0 0 0.5rem;
+  font-size: 20px;
+  font-weight: 700;
+  color: #cba34e;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
 }
 
 .auth-subtitle {
-  font-size: 0.55rem;
-  color: #b8b9b5;
+  font-size: 13px;
+  color: #94a3b8;
   margin: 0;
   line-height: 1.6;
 }
@@ -144,65 +145,68 @@ async function handleSubmit() {
 }
 
 .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .form-label {
   display: block;
-  font-size: 0.55rem;
-  color: #e0e1dd;
-  margin-bottom: 0.5rem;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .form-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 12px 14px;
-  font-family: "Press Start 2P", cursive;
-  font-size: 0.6rem;
-  color: #e0e1dd;
-  background-color: #16213e;
-  border: 2px solid rgba(245, 166, 35, 0.25);
-  border-radius: 10px;
-  transition: border-color 0.2s ease;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #e2e8f0;
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-input::placeholder {
-  color: #6b6c68;
+  color: #475569;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #f5a623;
+  border-color: rgba(203, 163, 78, 0.5);
+  box-shadow: 0 0 0 3px rgba(203, 163, 78, 0.08);
 }
 
 .form-error {
-  font-size: 0.5rem;
-  color: #d9534f;
-  margin: 0 0 1rem;
+  font-size: 12px;
+  color: #f87171;
+  margin: 0 0 0.75rem;
   line-height: 1.5;
 }
 
 .btn-submit {
   width: 100%;
-  margin-top: 0.5rem;
-  font-family: "Press Start 2P", cursive;
-  font-size: 0.65rem;
-  padding: 14px 24px;
-  background-color: #f5a623;
-  color: #1a1a2e;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 24px;
+  background-color: #cba34e;
+  color: #0f172a;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .btn-submit:hover:not(:disabled) {
-  background-color: #d48821;
+  background-color: #b8923f;
 }
 
 .btn-submit:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -211,41 +215,42 @@ async function handleSubmit() {
 }
 
 .auth-success p:first-child {
-  font-size: 0.7rem;
-  color: #f5a623;
-  margin: 0 0 1rem;
+  font-size: 15px;
+  font-weight: 600;
+  color: #cba34e;
+  margin: 0 0 12px;
 }
 
 .auth-success p:first-child i {
-  margin-right: 8px;
+  margin-right: 6px;
 }
 
 .auth-success-text {
-  font-size: 0.55rem;
-  color: #b8b9b5;
+  font-size: 13px;
+  color: #94a3b8;
   line-height: 1.7;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
 }
 
 .auth-success-note {
-  font-size: 0.5rem;
-  color: #8a8b87;
+  font-size: 12px;
+  color: #64748b;
   line-height: 1.6;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
 }
 
-.auth-success .link-button {
-  font-family: "Press Start 2P", cursive;
-  font-size: 0.55rem;
-  color: #f5a623;
+.link-button {
+  font-size: 13px;
+  font-weight: 500;
+  color: #cba34e;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0 4px;
+  padding: 0 2px;
 }
 
-.auth-success .link-button:hover {
-  color: #d48821;
+.link-button:hover {
+  color: #d4b565;
   text-decoration: underline;
 }
 </style>

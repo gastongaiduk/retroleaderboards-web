@@ -66,11 +66,11 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div class="retro-container">
-    <h1 class="retro-title">Set your RA credentials</h1>
+  <div class="page-container">
+    <h1 class="page-title">Set your RA credentials</h1>
     <form @submit.prevent="handleSubmit" class="user-form">
       <div class="form-group">
-        <label for="username" class="form-label">Username:</label>
+        <label for="username" class="form-label">Username</label>
         <input
           type="text"
           id="username"
@@ -88,7 +88,7 @@ onMounted(() => {
           >
             <i class="fa fa-external-link"></i>
           </a>
-          Web API Key:
+          Web API Key
         </label>
         <input
           type="password"
@@ -107,92 +107,103 @@ onMounted(() => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.retro-container {
-  background-color: #1a1a2e;
-  color: #e0e1dd;
+.page-container {
+  background-color: #0f172a;
+  color: #e2e8f0;
   padding: 16px;
-  font-family: "Press Start 2P", cursive;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.retro-title {
-  font-size: 24px;
-  color: #f5a623;
+.page-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #cba34e;
   text-align: center;
+  margin: 0 0 24px;
+  letter-spacing: -0.01em;
 }
 
 .user-form {
-  margin-bottom: 20px;
+  max-width: 400px;
+  margin: 0 auto 20px;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 .form-label {
   display: flex;
   align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .form-input {
-  width: calc(100% - 20px);
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #e2e8f0;
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: rgba(203, 163, 78, 0.5);
+  box-shadow: 0 0 0 3px rgba(203, 163, 78, 0.08);
 }
 
 .form-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 24px;
+  background-color: #cba34e;
+  color: #0f172a;
   border: none;
-  padding: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
+  transition: background-color 0.2s ease;
 }
 
-.form-button:hover {
-  background-color: #d48821;
+.form-button:hover:not(:disabled) {
+  background-color: #b8923f;
+}
+
+.form-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .link-icon {
-  color: #e0e1dd;
-  padding-bottom: 5px;
-  padding-right: 10px;
+  color: #cba34e;
+  padding-right: 8px;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.link-icon:hover {
+  color: #d4b565;
 }
 
 @media (min-width: 768px) {
-  .retro-container {
+  .page-container {
     width: calc(100% - 40px);
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
   }
-}
-
-.header-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.header-row .back-button {
-  position: absolute;
-  left: 0;
-}
-
-.retro-title {
-  font-size: 24px;
-  color: #f5a623;
-  text-align: center;
-  margin: 0;
-  width: 100%; /* Ensure centering works even with absolute child */
 }
 </style>

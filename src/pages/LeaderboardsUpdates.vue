@@ -93,8 +93,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="retro-container">
-    <h1 class="retro-title">Updates</h1>
+  <div class="page-container">
+    <h1 class="page-title">Updates</h1>
     <div v-if="updatesStore.updates" class="filter-row">
       <label for="game-filter" class="filter-label">Filter by game</label>
       <select
@@ -137,7 +137,7 @@ onMounted(async () => {
               "
             />
             <div
-              class="clickable"
+              class="clickable update-content"
               @click="
                 selectUpdateLeaderboard(
                   update.leaderboard_id,
@@ -175,71 +175,60 @@ onMounted(async () => {
           </div>
         </li>
       </ul>
-      <div v-else>No updates</div>
+      <div v-else class="empty-text">No updates</div>
     </div>
     <div v-else class="loading-text">Loading...</div>
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
-.retro-container {
-  background-color: #1a1a2e;
-  color: #e0e1dd;
+.page-container {
+  background-color: #0f172a;
+  color: #e2e8f0;
   padding: 16px;
-  font-family: "Press Start 2P", cursive;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 10px;
-  flex-shrink: 0;
-  margin-bottom: 15px;
-}
-
-.page-header .retro-title {
-  margin: 0;
-  flex: 1;
-  min-width: 0;
+.page-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #cba34e;
+  margin: 0 0 16px;
   text-align: center;
-  padding: 10px 0;
-}
-
-.retro-title {
-  font-size: 24px;
-  color: #f5a623;
-  padding: 10px 0;
+  letter-spacing: -0.01em;
 }
 
 .filter-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
 }
 
 .filter-label {
-  font-size: 0.8rem;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
 }
 
 .filter-select {
-  background-color: #16213e;
-  color: #e0e1dd;
-  border: 1px solid #f5a623;
+  background-color: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
+  border: 1px solid rgba(203, 163, 78, 0.2);
   padding: 8px 12px;
   border-radius: 8px;
-  font-family: "Press Start 2P", cursive;
-  font-size: 0.7rem;
-  min-width: 180px;
+  font-size: 12px;
+  min-width: 160px;
+  transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: rgba(203, 163, 78, 0.5);
 }
 
 .game-list {
@@ -248,7 +237,7 @@ onMounted(async () => {
 }
 
 .game-item {
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .game-container {
@@ -257,18 +246,32 @@ onMounted(async () => {
   border-radius: 10px;
   display: flex;
   align-items: flex-start;
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.06);
+  transition: all 0.15s ease;
+}
+
+.game-container:hover {
+  background-color: rgba(30, 41, 59, 0.7);
 }
 
 .game-container.unread {
-  color: #1a1a2e;
-  background-color: #d48821;
+  background-color: rgba(203, 163, 78, 0.1);
+  border-color: rgba(203, 163, 78, 0.2);
 }
 
 .game-icon {
-  width: 70px;
+  width: 48px;
   height: auto;
-  margin-right: 15px;
+  margin-right: 12px;
   z-index: 1;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.update-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .game-container span {
@@ -280,39 +283,51 @@ onMounted(async () => {
 }
 
 .game-name {
-  font-variant: all-petite-caps;
-  font-size: 1.5rem;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
 }
 
 .update-text {
-  padding-top: 10px;
-  font-size: 1rem;
+  padding-top: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.5;
 }
 
 .leaderboard-description {
-  padding-top: 10px;
-  font-size: 0.7rem;
-  font-style: oblique;
+  padding-top: 4px;
+  font-size: 11px;
+  color: #64748b;
+  font-style: italic;
 }
 
 .delete-button {
-  background-color: #f5a623;
-  color: #1a1a2e;
-  border: none;
-  padding: 15px;
+  background: rgba(148, 163, 184, 0.08);
+  color: #64748b;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 8px 10px;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 10px;
+  font-size: 12px;
+  border-radius: 8px;
   margin-left: auto;
   z-index: 2;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .delete-button:hover {
-  background-color: #d9534f;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
 }
 
-.loading-text {
+.loading-text,
+.empty-text {
   text-align: center;
+  font-size: 13px;
+  color: #64748b;
+  padding: 20px 0;
 }
 
 @media (min-width: 768px) {

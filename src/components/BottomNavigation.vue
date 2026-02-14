@@ -56,19 +56,19 @@ const goTo = (path: string) => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
 .bottom-nav {
   flex-shrink: 0;
   width: 100%;
-  height: 64px;
-  min-height: 64px;
-  background-color: #16162a;
+  height: 56px;
+  min-height: 56px;
+  background-color: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 2px solid rgba(245, 166, 35, 0.3);
-  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.6);
+  border-top: 1px solid rgba(203, 163, 78, 0.12);
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.3);
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: content-box;
 }
@@ -77,7 +77,7 @@ const goTo = (path: string) => {
   -webkit-tap-highlight-color: transparent;
   background: none;
   border: none;
-  color: rgba(224, 225, 221, 0.5);
+  color: rgba(148, 163, 184, 0.6);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -85,23 +85,24 @@ const goTo = (path: string) => {
   flex: 1;
   height: 100%;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 6px 0;
   transition: color 0.2s ease;
-  gap: 4px;
+  gap: 3px;
 }
 
 .nav-item.active {
-  color: #f5a623;
+  color: #cba34e;
 }
 
 .nav-icon {
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
 }
 
 .nav-label {
-  font-size: 8px;
-  font-family: "Press Start 2P", cursive;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   line-height: 1;
   white-space: nowrap;
 }
@@ -115,24 +116,23 @@ const goTo = (path: string) => {
 
 .badge {
   position: absolute;
-  top: -6px;
-  right: -10px;
-  background-color: #ff3b30;
+  top: -5px;
+  right: -9px;
+  background-color: #ef4444;
   color: white;
-  border-radius: 10px;
-  padding: 1px 5px;
+  border-radius: 8px;
+  padding: 1px 4px;
   font-size: 9px;
+  font-weight: 600;
   min-width: 14px;
   text-align: center;
-  font-weight: bold;
-  border: 2px solid #16162a;
-  font-family: "Press Start 2P", cursive;
+  border: 1.5px solid #0f172a;
   line-height: 1.2;
 }
 
 @media (hover: hover) {
   .nav-item:hover {
-    color: #ffd700;
+    color: #d4b565;
   }
 }
 </style>

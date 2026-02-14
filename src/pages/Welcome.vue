@@ -17,6 +17,7 @@ onMounted(async () => {
   <div class="welcome-page">
     <div class="welcome-content">
       <header class="hero">
+        <img src="/logo.png" alt="Retro Leaderboards" class="hero-logo" />
         <h1 class="hero-title">Retro Leaderboards</h1>
         <p class="hero-subtitle">
           Compare your RetroAchievements scores with friends. Get notified when
@@ -28,7 +29,7 @@ onMounted(async () => {
         <div class="feature">
           <span class="feature-icon"><i class="fa fa-trophy"></i></span>
           <h3>Compare leaderboards</h3>
-          <p>See your scores next to your friends’ on every game you play.</p>
+          <p>See your scores next to your friends' on every game you play.</p>
         </div>
         <div class="feature">
           <span class="feature-icon"><i class="fa fa-bell"></i></span>
@@ -75,16 +76,13 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-
 .welcome-page {
   min-height: 100vh;
-  background-color: #1a1a2e;
+  background-color: #0f172a;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 166, 35, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(212, 136, 33, 0.06), transparent);
-  color: #e0e1dd;
-  font-family: "Press Start 2P", cursive;
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 163, 78, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(203, 163, 78, 0.04), transparent);
+  color: #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,75 +91,91 @@ onMounted(async () => {
 }
 
 .welcome-content {
-  max-width: 720px;
+  max-width: 640px;
   width: 100%;
 }
 
 .hero {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
+}
+
+.hero-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 0;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 20px rgba(203, 163, 78, 0.15));
 }
 
 .hero-title {
-  font-size: clamp(1.25rem, 4vw, 1.75rem);
-  color: #f5a623;
-  margin: 0 0 1.5rem;
-  line-height: 1.5;
-  text-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  color: #cba34e;
+  margin: 0 0 1rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 0.65rem;
-  line-height: 1.8;
-  color: #b8b9b5;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #94a3b8;
   margin: 0;
-  max-width: 480px;
+  max-width: 420px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .features {
   display: grid;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  gap: 12px;
+  margin-bottom: 2rem;
 }
 
 .feature {
-  background-color: rgba(34, 34, 59, 0.6);
-  border: 1px solid rgba(245, 166, 35, 0.2);
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(203, 163, 78, 0.1);
   border-radius: 12px;
   padding: 1.25rem;
   text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.feature:hover {
+  border-color: rgba(203, 163, 78, 0.2);
 }
 
 .feature-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  background-color: rgba(245, 166, 35, 0.15);
-  color: #f5a623;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(203, 163, 78, 0.1);
+  color: #cba34e;
   border-radius: 10px;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
 }
 
 .feature h3 {
-  font-size: 0.65rem;
-  color: #f5a623;
-  margin: 0 0 0.75rem;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0 0 0.5rem;
 }
 
 .feature p {
-  font-size: 0.6rem;
+  font-size: 12px;
   line-height: 1.7;
-  color: #e0e1dd;
+  color: #94a3b8;
   margin: 0;
 }
 
 .feature a {
-  color: #d48821;
+  color: #cba34e;
   text-decoration: none;
 }
 
@@ -175,26 +189,28 @@ onMounted(async () => {
 }
 
 .cta-text {
-  font-size: 0.7rem;
-  color: #e0e1dd;
-  margin: 0 0 1.25rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: #e2e8f0;
+  margin: 0 0 1rem;
 }
 
 .cta-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 10px;
   justify-content: center;
 }
 
 .btn {
-  font-family: "Press Start 2P", cursive;
-  font-size: 0.65rem;
-  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 28px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
 }
 
 .btn:active {
@@ -202,39 +218,39 @@ onMounted(async () => {
 }
 
 .btn-primary {
-  background-color: #f5a623;
-  color: #1a1a2e;
+  background-color: #cba34e;
+  color: #0f172a;
 }
 
 .btn-primary:hover {
-  background-color: #d48821;
+  background-color: #b8923f;
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: #f5a623;
-  border: 2px solid #f5a623;
+  color: #cba34e;
+  border: 1.5px solid rgba(203, 163, 78, 0.4);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(245, 166, 35, 0.15);
+  background-color: rgba(203, 163, 78, 0.1);
 }
 
 .footer {
   text-align: center;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(245, 166, 35, 0.15);
+  border-top: 1px solid rgba(203, 163, 78, 0.08);
 }
 
 .footer p {
-  font-size: 0.55rem;
-  line-height: 1.8;
-  color: #8a8b87;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #64748b;
   margin: 0;
 }
 
 .footer a {
-  color: #d48821;
+  color: #cba34e;
   text-decoration: none;
 }
 
