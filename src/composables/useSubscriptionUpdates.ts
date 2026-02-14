@@ -18,7 +18,7 @@ export function useSubscriptionUpdates() {
         friend_score,
         created_at,
         read_at,
-        leaderboards (name, description, games (name, image_icon))
+        leaderboards (name, description, game_id, games (name, image_icon))
       `,
       )
       .is("deleted_at", null)

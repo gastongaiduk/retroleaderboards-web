@@ -5,13 +5,14 @@ export interface Update {
   friend_score: any;
   created_at: any;
   read_at: any;
-  leaderboards: UpdateLeaderboard[];
+  leaderboards: UpdateLeaderboard;
 }
 
 export interface UpdateLeaderboard {
   name: any;
   description: any;
-  games: UpdateGame[];
+  game_id: any;
+  games: UpdateGame;
 }
 
 export interface UpdateGame {

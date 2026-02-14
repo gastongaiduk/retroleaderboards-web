@@ -1,76 +1,47 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../utils/supabaseClient.ts";
-import { useUserStore } from "../stores/user.ts";
-import axios from "axios";
 
 const router = useRouter();
-const user = useUserStore();
-
 const emailInput = ref("");
-const passInput = ref("");
 const loading = ref(false);
-
-async function handleRACredentials() {
-  const options = {
-    method: "GET",
-    url: import.meta.env.VITE_SUPABASE_URL + "/functions/v1/get-ra-credentials",
-    headers: {
-      Authorization: "Bearer " + user.token,
-    },
-  };
-
-  try {
-    const { data } = await axios.request(options);
-    if (data.data) {
-      user.set(data.data.username, data.data.api_key);
-    }
-  } catch (error) {
-    console.error("Error while fetching RA credentials:", error);
-  }
-}
+const sent = ref(false);
+const errorMessage = ref("");
 
 async function handleSubmit() {
+  if (!emailInput.value.trim()) return;
   loading.value = true;
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: emailInput.value,
-    password: passInput.value,
+  errorMessage.value = "";
+  const redirectTo = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/auth-callback`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(emailInput.value.trim(), {
+    redirectTo,
   });
 
+  loading.value = false;
   if (error) {
-    alert(error.message);
-    loading.value = false;
+    errorMessage.value = error.message;
     return;
   }
-
-  user.login(data.user.id, data.session.access_token);
-
-  await handleRACredentials();
-  await router.push("/");
+  sent.value = true;
 }
-
-onMounted(async () => {
-  if (user.isLoggedIn()) {
-    loading.value = true;
-    await handleRACredentials();
-    await router.push("/");
-  }
-});
 </script>
 
 <template>
   <div class="auth-page">
     <div class="auth-card">
-      <a href="#/welcome" class="back-link">
+      <a href="#/login" class="back-link">
         <i class="fa fa-arrow-left"></i> Back
       </a>
       <header class="auth-header">
-        <h1 class="auth-title">Log in</h1>
-        <p class="auth-subtitle">Welcome back to Retro Leaderboards</p>
+        <h1 class="auth-title">Reset password</h1>
+        <p class="auth-subtitle">
+          Enter your email and we’ll send you a link to set a new password.
+        </p>
       </header>
 
-      <form @submit.prevent="handleSubmit" class="auth-form">
+      <form v-if="!sent" @submit.prevent="handleSubmit" class="auth-form">
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
           <input
@@ -83,34 +54,26 @@ onMounted(async () => {
             autocomplete="email"
           />
         </div>
-        <div class="form-group">
-          <label for="pass" class="form-label">Password</label>
-          <input
-            type="password"
-            id="pass"
-            v-model="passInput"
-            class="form-input"
-            required
-            autocomplete="current-password"
-          />
-        </div>
+        <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
         <button type="submit" class="btn btn-submit" :disabled="loading">
           <i v-if="loading" class="fa fa-spinner fa-spin"></i>
-          <span v-else>Log in</span>
+          <span v-else>Send reset link</span>
         </button>
       </form>
 
-      <p class="auth-extra">
-        <button type="button" class="link-button" @click="router.push('/forgot-password')">
-          Forgot password?
+      <div v-else class="auth-success">
+        <p><i class="fa fa-check-circle"></i> Check your email</p>
+        <p class="auth-success-text">
+          If an account exists for <strong>{{ emailInput }}</strong>, we've sent a password reset link. 
+          Please check your inbox and spam folder.
+        </p>
+        <p class="auth-success-note">
+          Didn't receive an email? Make sure the email address is correct or try again.
+        </p>
+        <button type="button" class="link-button" @click="router.push('/login')">
+          Back to log in
         </button>
-      </p>
-      <p class="auth-footer">
-        Don’t have an account?
-        <button type="button" class="link-button" @click="router.push('/sign-up')">
-          Sign up
-        </button>
-      </p>
+      </div>
     </div>
   </div>
 </template>
@@ -177,7 +140,7 @@ onMounted(async () => {
 }
 
 .auth-form {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .form-group {
@@ -213,6 +176,13 @@ onMounted(async () => {
   border-color: #f5a623;
 }
 
+.form-error {
+  font-size: 0.5rem;
+  color: #d9534f;
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
 .btn-submit {
   width: 100%;
   margin-top: 0.5rem;
@@ -236,21 +206,35 @@ onMounted(async () => {
   cursor: not-allowed;
 }
 
-.auth-extra {
+.auth-success {
   text-align: center;
-  margin: 0 0 0.75rem;
 }
 
-.auth-footer {
-  text-align: center;
+.auth-success p:first-child {
+  font-size: 0.7rem;
+  color: #f5a623;
+  margin: 0 0 1rem;
+}
+
+.auth-success p:first-child i {
+  margin-right: 8px;
+}
+
+.auth-success-text {
   font-size: 0.55rem;
   color: #b8b9b5;
-  margin: 0;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(245, 166, 35, 0.15);
+  line-height: 1.7;
+  margin: 0 0 1.25rem;
 }
 
-.link-button {
+.auth-success-note {
+  font-size: 0.5rem;
+  color: #8a8b87;
+  line-height: 1.6;
+  margin: 0 0 1.25rem;
+}
+
+.auth-success .link-button {
   font-family: "Press Start 2P", cursive;
   font-size: 0.55rem;
   color: #f5a623;
@@ -260,7 +244,7 @@ onMounted(async () => {
   padding: 0 4px;
 }
 
-.link-button:hover {
+.auth-success .link-button:hover {
   color: #d48821;
   text-decoration: underline;
 }

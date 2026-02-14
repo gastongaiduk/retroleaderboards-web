@@ -1,116 +1,85 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../utils/supabaseClient.ts";
 import { useUserStore } from "../stores/user.ts";
-import axios from "axios";
 
 const router = useRouter();
 const user = useUserStore();
-
-const emailInput = ref("");
-const passInput = ref("");
+const passwordInput = ref("");
+const passwordConfirmInput = ref("");
 const loading = ref(false);
-
-async function handleRACredentials() {
-  const options = {
-    method: "GET",
-    url: import.meta.env.VITE_SUPABASE_URL + "/functions/v1/get-ra-credentials",
-    headers: {
-      Authorization: "Bearer " + user.token,
-    },
-  };
-
-  try {
-    const { data } = await axios.request(options);
-    if (data.data) {
-      user.set(data.data.username, data.data.api_key);
-    }
-  } catch (error) {
-    console.error("Error while fetching RA credentials:", error);
-  }
-}
+const errorMessage = ref("");
 
 async function handleSubmit() {
-  loading.value = true;
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: emailInput.value,
-    password: passInput.value,
-  });
-
-  if (error) {
-    alert(error.message);
-    loading.value = false;
+  if (passwordInput.value !== passwordConfirmInput.value) {
+    errorMessage.value = "Passwords do not match";
     return;
   }
+  if (passwordInput.value.length < 6) {
+    errorMessage.value = "Password must be at least 6 characters";
+    return;
+  }
+  loading.value = true;
+  errorMessage.value = "";
 
-  user.login(data.user.id, data.session.access_token);
+  const { data, error } = await supabase.auth.updateUser({
+    password: passwordInput.value,
+  });
 
-  await handleRACredentials();
+  loading.value = false;
+  if (error) {
+    errorMessage.value = error.message;
+    return;
+  }
+  if (data.session && data.user) {
+    user.login(data.user.id, data.session.access_token);
+  }
   await router.push("/");
 }
-
-onMounted(async () => {
-  if (user.isLoggedIn()) {
-    loading.value = true;
-    await handleRACredentials();
-    await router.push("/");
-  }
-});
 </script>
 
 <template>
   <div class="auth-page">
     <div class="auth-card">
-      <a href="#/welcome" class="back-link">
-        <i class="fa fa-arrow-left"></i> Back
-      </a>
       <header class="auth-header">
-        <h1 class="auth-title">Log in</h1>
-        <p class="auth-subtitle">Welcome back to Retro Leaderboards</p>
+        <h1 class="auth-title">Set new password</h1>
+        <p class="auth-subtitle">
+          Choose a new password for your account.
+        </p>
       </header>
 
       <form @submit.prevent="handleSubmit" class="auth-form">
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="password" class="form-label">New password</label>
           <input
-            type="email"
-            id="email"
-            v-model="emailInput"
+            type="password"
+            id="password"
+            v-model="passwordInput"
             class="form-input"
-            placeholder="you@example.com"
             required
-            autocomplete="email"
+            autocomplete="new-password"
+            minlength="6"
           />
         </div>
         <div class="form-group">
-          <label for="pass" class="form-label">Password</label>
+          <label for="password-confirm" class="form-label">Confirm new password</label>
           <input
             type="password"
-            id="pass"
-            v-model="passInput"
+            id="password-confirm"
+            v-model="passwordConfirmInput"
             class="form-input"
             required
-            autocomplete="current-password"
+            autocomplete="new-password"
+            minlength="6"
           />
         </div>
+        <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
         <button type="submit" class="btn btn-submit" :disabled="loading">
           <i v-if="loading" class="fa fa-spinner fa-spin"></i>
-          <span v-else>Log in</span>
+          <span v-else>Update password</span>
         </button>
       </form>
-
-      <p class="auth-extra">
-        <button type="button" class="link-button" @click="router.push('/forgot-password')">
-          Forgot password?
-        </button>
-      </p>
-      <p class="auth-footer">
-        Don’t have an account?
-        <button type="button" class="link-button" @click="router.push('/sign-up')">
-          Sign up
-        </button>
-      </p>
     </div>
   </div>
 </template>
@@ -143,21 +112,6 @@ onMounted(async () => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.55rem;
-  color: #d48821;
-  text-decoration: none;
-  margin-bottom: 1.5rem;
-}
-
-.back-link:hover {
-  color: #f5a623;
-  text-decoration: underline;
-}
-
 .auth-header {
   text-align: center;
   margin-bottom: 1.75rem;
@@ -177,7 +131,7 @@ onMounted(async () => {
 }
 
 .auth-form {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .form-group {
@@ -204,13 +158,16 @@ onMounted(async () => {
   transition: border-color 0.2s ease;
 }
 
-.form-input::placeholder {
-  color: #6b6c68;
-}
-
 .form-input:focus {
   outline: none;
   border-color: #f5a623;
+}
+
+.form-error {
+  font-size: 0.5rem;
+  color: #d9534f;
+  margin: 0 0 1rem;
+  line-height: 1.5;
 }
 
 .btn-submit {
@@ -234,34 +191,5 @@ onMounted(async () => {
 .btn-submit:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.auth-extra {
-  text-align: center;
-  margin: 0 0 0.75rem;
-}
-
-.auth-footer {
-  text-align: center;
-  font-size: 0.55rem;
-  color: #b8b9b5;
-  margin: 0;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(245, 166, 35, 0.15);
-}
-
-.link-button {
-  font-family: "Press Start 2P", cursive;
-  font-size: 0.55rem;
-  color: #f5a623;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0 4px;
-}
-
-.link-button:hover {
-  color: #d48821;
-  text-decoration: underline;
 }
 </style>

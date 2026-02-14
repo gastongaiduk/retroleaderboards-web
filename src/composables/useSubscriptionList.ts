@@ -1,12 +1,17 @@
 import { ref } from "vue";
 import { supabase } from "../utils/supabaseClient.ts";
 import { Subscription } from "../models/Subscription.ts";
+import { useUserStore } from "../stores/user.ts";
 
 export function useSubscriptionList() {
   const subscriptions = ref<Subscription[] | null>(null);
+  const user = useUserStore();
 
   const fetchSubscriptions = async (): Promise<void> => {
     subscriptions.value = null;
+    const userId = user.isLoggedIn() ? user.getId() : null;
+    if (!userId) return;
+
     let { data, error } = await supabase
       .from("game_subscriptions")
       .select(
@@ -16,6 +21,7 @@ export function useSubscriptionList() {
         games (name, image_icon)
       `,
       )
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) {

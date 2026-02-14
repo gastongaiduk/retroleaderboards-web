@@ -9,6 +9,9 @@ import Logout from "../pages/Logout.vue";
 import RaCredentials from "../pages/RACredentials.vue";
 import AuthCallback from "../pages/AuthCallback.vue";
 import Welcome from "../pages/Welcome.vue";
+import MySubscriptions from "../pages/MySubscriptions.vue";
+import ForgotPassword from "../pages/ForgotPassword.vue";
+import SetNewPassword from "../pages/SetNewPassword.vue";
 
 const routes: Array<RouteRecordRaw> = [
   { path: "/", redirect: "/welcome" },
@@ -17,12 +20,19 @@ const routes: Array<RouteRecordRaw> = [
   { path: "/sign-up", name: "SignUp", component: SingUp },
   { path: "/logout", name: "Logout", component: Logout },
   { path: "/auth-callback", name: "AuthCallback", component: AuthCallback },
+  { path: "/forgot-password", name: "ForgotPassword", component: ForgotPassword },
+  { path: "/set-new-password", name: "SetNewPassword", component: SetNewPassword },
   { path: "/home", name: "Home", component: Home, meta: { keepAlive: true } },
   { path: "/ra-credentials", name: "RACredentials", component: RaCredentials },
   {
     path: "/leaderboards-updates",
     name: "LeaderboardsUpdates",
     component: LeaderboardsUpdates,
+  },
+  {
+    path: "/my-subscriptions",
+    name: "MySubscriptions",
+    component: MySubscriptions,
   },
   {
     path: "/game/:id/leaderboards",
