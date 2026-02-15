@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onActivated, onMounted, ref } from "vue";
+import { onActivated, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameRepository from "../repositories/GameRepository.ts";
 import { usePostStore } from "../stores/postStore.ts";
@@ -97,6 +97,18 @@ onMounted(async () => {
     recentGames.restoreOffset();
   }
 });
+
+watch(
+  () => recentGames.shouldScrollToTop,
+  (shouldScroll) => {
+    if (shouldScroll) {
+      if (recentGamesElement.value) {
+        recentGamesElement.value.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      recentGames.consumeScrollToTop();
+    }
+  },
+);
 </script>
 
 <template>
