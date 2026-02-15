@@ -6,6 +6,7 @@ interface GamesState {
   scrollPosition: number;
   hasMoreToLoad: boolean;
   offset: number;
+  shouldScrollToTop: boolean;
 }
 
 export const useRecentGamesStore = defineStore("recentGames", {
@@ -14,6 +15,7 @@ export const useRecentGamesStore = defineStore("recentGames", {
     scrollPosition: 0,
     hasMoreToLoad: true,
     offset: 0,
+    shouldScrollToTop: false,
   }),
   actions: {
     addItems(newGames: Game[]) {
@@ -36,6 +38,12 @@ export const useRecentGamesStore = defineStore("recentGames", {
     },
     resetOffset() {
       this.offset = 0;
+    },
+    useScrollToTop() {
+      this.shouldScrollToTop = true;
+    },
+    consumeScrollToTop() {
+      this.shouldScrollToTop = false;
     },
   },
 });

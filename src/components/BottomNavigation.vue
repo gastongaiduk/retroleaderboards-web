@@ -2,13 +2,20 @@
 import { useRoute, useRouter } from "vue-router";
 import { useUpdatesStore } from "../stores/updates.ts";
 
+import { useRecentGamesStore } from "../stores/recentGames.ts";
+
 const router = useRouter();
 const route = useRoute();
 const updateStore = useUpdatesStore();
+const recentGamesStore = useRecentGamesStore();
 
 const isActive = (path: string) => route.path === path;
 
 const goTo = (path: string) => {
+  if (route.path === path && path === "/home") {
+    recentGamesStore.useScrollToTop();
+    return;
+  }
   router.push(path);
 };
 </script>
@@ -30,6 +37,14 @@ const goTo = (path: string) => {
     >
       <i class="fa fa-gamepad nav-icon"></i>
       <span class="nav-label">Games</span>
+    </button>
+    <button
+      class="nav-item"
+      :class="{ active: isActive('/rivals') }"
+      @click="goTo('/rivals')"
+    >
+      <i class="fa fa-trophy nav-icon"></i>
+      <span class="nav-label">Rivals</span>
     </button>
     <button
       class="nav-item"

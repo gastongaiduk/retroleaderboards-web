@@ -10,6 +10,7 @@ import RaCredentials from "../pages/RACredentials.vue";
 import AuthCallback from "../pages/AuthCallback.vue";
 import Welcome from "../pages/Welcome.vue";
 import MySubscriptions from "../pages/MySubscriptions.vue";
+import Rivals from "../pages/Rivals.vue";
 import ForgotPassword from "../pages/ForgotPassword.vue";
 import SetNewPassword from "../pages/SetNewPassword.vue";
 import Settings from "../pages/Settings.vue";
@@ -40,6 +41,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "my-subscriptions",
         name: "MySubscriptions",
         component: MySubscriptions,
+      },
+      {
+        path: "rivals",
+        name: "Rivals",
+        component: Rivals,
       },
       {
         path: "game/:id/leaderboards",
