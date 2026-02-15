@@ -19,32 +19,29 @@ const gameLeaderboards = useGameLeaderboardsStore();
 const leaderboardEntries = useLeaderboardEntries();
 
 const apiUrl = import.meta.env.VITE_API_URL;
-const expandedGameIds = ref<Set<number>>(new Set());
-const expandedRivals = ref<Set<string>>(new Set());
+const expandedGameId = ref<number | null>(null);
+const expandedRivalKey = ref<string | null>(null);
 
 function toggleGame(gameId: number) {
-  const next = new Set(expandedGameIds.value);
-  if (next.has(gameId)) {
-    next.delete(gameId);
+  if (expandedGameId.value === gameId) {
+    expandedGameId.value = null;
   } else {
-    next.add(gameId);
+    expandedGameId.value = gameId;
+    expandedRivalKey.value = null;
   }
-  expandedGameIds.value = next;
 }
 
 function toggleRival(gameId: number, username: string) {
   const key = `${gameId}::${username}`;
-  const next = new Set(expandedRivals.value);
-  if (next.has(key)) {
-    next.delete(key);
+  if (expandedRivalKey.value === key) {
+    expandedRivalKey.value = null;
   } else {
-    next.add(key);
+    expandedRivalKey.value = key;
   }
-  expandedRivals.value = next;
 }
 
 function isRivalExpanded(gameId: number, username: string): boolean {
-  return expandedRivals.value.has(`${gameId}::${username}`);
+  return expandedRivalKey.value === `${gameId}::${username}`;
 }
 
 function buildGameShell(rivalryGame: RivalryGame): Game {
@@ -120,38 +117,14 @@ onMounted(async () => {
       />
     </header>
 
-    <div v-if="rivalsStore.loading" class="loading-section">
+    <div v-if="rivalsStore.loading" class="loading-banner">
+      <i class="fa fa-refresh fa-spin loading-spinner" />
       <span class="loading-text">
         Loading {{ rivalsStore.loadingGameName ?? "..." }}
       </span>
-      <ul v-if="rivalsStore.rivalryGames.length" class="game-list">
-        <li
-          v-for="game in rivalsStore.rivalryGames"
-          :key="game.gameId"
-          class="game-card"
-        >
-          <div class="game-header" @click="toggleGame(game.gameId)">
-            <img
-              :src="apiUrl + '\\' + game.imageIcon"
-              :alt="game.gameName"
-              class="game-icon"
-            />
-            <div class="game-info">
-              <span class="game-name">{{ game.gameName }}</span>
-              <span class="game-meta">
-                {{ game.totalLeaderboards }} leaderboards · {{ game.rivals.length }} rival{{ game.rivals.length !== 1 ? 's' : '' }}
-              </span>
-            </div>
-            <i
-              class="fa chevron-icon"
-              :class="expandedGameIds.has(game.gameId) ? 'fa-chevron-up' : 'fa-chevron-down'"
-            />
-          </div>
-        </li>
-      </ul>
     </div>
 
-    <div v-else-if="rivalsStore.rivalryGames.length">
+    <div v-if="rivalsStore.rivalryGames.length">
       <ul class="game-list">
         <li
           v-for="game in rivalsStore.rivalryGames"
@@ -172,11 +145,11 @@ onMounted(async () => {
             </div>
             <i
               class="fa chevron-icon"
-              :class="expandedGameIds.has(game.gameId) ? 'fa-chevron-up' : 'fa-chevron-down'"
+              :class="expandedGameId === game.gameId ? 'fa-chevron-up' : 'fa-chevron-down'"
             />
           </div>
 
-          <div v-if="expandedGameIds.has(game.gameId)" class="game-details">
+          <div v-if="expandedGameId === game.gameId" class="game-details">
             <div
               v-for="rival in game.rivals"
               :key="rival.username"
@@ -249,7 +222,7 @@ onMounted(async () => {
       </ul>
     </div>
 
-    <div v-else class="empty-text">
+    <div v-else-if="!rivalsStore.loading" class="empty-text">
       No rivalry data yet. Follow some games and press refresh to see how you
       compare with your friends.
     </div>
@@ -526,13 +499,24 @@ onMounted(async () => {
   background-color: rgba(203, 163, 78, 0.15);
 }
 
-.loading-section {
-  text-align: center;
+.loading-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background-color: rgba(203, 163, 78, 0.06);
+  border: 1px solid rgba(203, 163, 78, 0.1);
+  border-radius: 10px;
+}
+
+.loading-spinner {
+  color: #cba34e;
+  font-size: 13px;
 }
 
 .loading-text {
-  display: block;
-  padding: 16px 0;
   font-size: 13px;
   color: #cba34e;
 }
