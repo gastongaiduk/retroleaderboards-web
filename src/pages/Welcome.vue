@@ -77,22 +77,24 @@ onMounted(async () => {
 
 <style scoped>
 .welcome-page {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   background-color: #0f172a;
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 163, 78, 0.06), transparent),
     radial-gradient(ellipse 60% 40% at 80% 100%, rgba(203, 163, 78, 0.04), transparent);
   color: #e2e8f0;
   display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 24px 16px;
   box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .welcome-content {
   max-width: 640px;
   width: 100%;
+  margin: auto;
 }
 
 .hero {
