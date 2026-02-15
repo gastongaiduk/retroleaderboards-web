@@ -20,30 +20,50 @@ onMounted(async () => {
         <img src="/logo.png" alt="Retro Leaderboards" class="hero-logo" />
         <h1 class="hero-title">Retro Leaderboards</h1>
         <p class="hero-subtitle">
-          Compare your RetroAchievements scores with friends. Get notified when
-          someone beats you.
+          The competitive companion for RetroAchievements.<br />
+          Track your rank, challenge your friends, and never let a rival beat
+          you quietly.
         </p>
       </header>
 
       <section class="features">
+        <div class="feature feature-highlight">
+          <span class="feature-icon highlight"
+            ><i class="fa fa-trophy"></i
+          ></span>
+          <h3>Rivalry Dashboard</h3>
+          <p>
+            See exactly who's beating you — and where. Expand any friend to
+            get a full breakdown of wins and losses across every leaderboard.
+          </p>
+        </div>
         <div class="feature">
-          <span class="feature-icon"><i class="fa fa-trophy"></i></span>
-          <h3>Compare leaderboards</h3>
-          <p>See your scores next to your friends' on every game you play.</p>
+          <span class="feature-icon"><i class="fa fa-bar-chart"></i></span>
+          <h3>Leaderboard comparison</h3>
+          <p>
+            Your scores side by side with your friends' — highlighted so you
+            instantly know where you stand.
+          </p>
         </div>
         <div class="feature">
           <span class="feature-icon"><i class="fa fa-bell"></i></span>
-          <h3>Follow games</h3>
-          <p>Follow games and get updates when a friend surpasses your score.</p>
+          <h3>Score alerts</h3>
+          <p>
+            Follow the games you care about. Get notified the moment a friend
+            surpasses your score.
+          </p>
         </div>
         <div class="feature">
           <span class="feature-icon"><i class="fa fa-gamepad"></i></span>
           <h3>Powered by RA</h3>
           <p>
             Companion for
-            <a href="https://retroachievements.org" target="_blank" rel="noopener"
+            <a
+              href="https://retroachievements.org"
+              target="_blank"
+              rel="noopener"
               >RetroAchievements</a
-            >. Connect with your username and API key—stored encrypted.
+            >. Connect with your username and API key — stored encrypted.
           </p>
         </div>
       </section>
@@ -51,11 +71,19 @@ onMounted(async () => {
       <section class="cta">
         <p class="cta-text">Ready to compete?</p>
         <div class="cta-buttons">
-          <button type="button" class="btn btn-primary" @click="router.push('/login')">
-            Log in
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="router.push('/sign-up')"
+          >
+            Create account
           </button>
-          <button type="button" class="btn btn-secondary" @click="router.push('/sign-up')">
-            Sign up
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="router.push('/login')"
+          >
+            Log in
           </button>
         </div>
       </section>
@@ -81,8 +109,16 @@ onMounted(async () => {
   height: 100dvh;
   background-color: #0f172a;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 163, 78, 0.06), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(203, 163, 78, 0.04), transparent);
+    radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(203, 163, 78, 0.06),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 100%,
+      rgba(203, 163, 78, 0.04),
+      transparent
+    );
   color: #e2e8f0;
   display: flex;
   padding: 24px 16px;
@@ -99,7 +135,7 @@ onMounted(async () => {
 
 .hero {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .hero-logo {
@@ -124,10 +160,8 @@ onMounted(async () => {
   font-size: 14px;
   line-height: 1.7;
   color: #94a3b8;
-  margin: 0;
+  margin: 0 auto;
   max-width: 420px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .features {
@@ -149,6 +183,15 @@ onMounted(async () => {
   border-color: rgba(203, 163, 78, 0.2);
 }
 
+.feature-highlight {
+  border-color: rgba(203, 163, 78, 0.25);
+  background-image: linear-gradient(
+    135deg,
+    rgba(203, 163, 78, 0.06) 0%,
+    rgba(30, 41, 59, 0.6) 60%
+  );
+}
+
 .feature-icon {
   display: inline-flex;
   align-items: center;
@@ -160,6 +203,11 @@ onMounted(async () => {
   border-radius: 10px;
   margin-bottom: 0.75rem;
   font-size: 1rem;
+}
+
+.feature-icon.highlight {
+  background-color: rgba(203, 163, 78, 0.18);
+  box-shadow: 0 0 12px rgba(203, 163, 78, 0.12);
 }
 
 .feature h3 {
@@ -262,7 +310,11 @@ onMounted(async () => {
 
 @media (min-width: 600px) {
   .features {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .feature-highlight {
+    grid-column: 1 / -1;
   }
 
   .feature {
