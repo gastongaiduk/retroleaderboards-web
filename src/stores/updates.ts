@@ -21,7 +21,7 @@ export const useUpdatesStore = defineStore("updates", () => {
         friend_score,
         created_at,
         read_at,
-        leaderboards (name, description, game_id, games (name, image_icon))
+        leaderboards (name, description, game_id, format, rank_asc, games (name, image_icon))
       `
             )
             .is("deleted_at", null)

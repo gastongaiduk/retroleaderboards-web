@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { UserSummary } from "../models/UserSummary";
 import { GameList, Game } from "../models/RecentlyPlayedGames";
 import { UserGameLeaderboard } from "../models/UserGameLeaderboards";
@@ -28,6 +28,42 @@ const loadingMore = ref(false);
 const expandedGameId = ref<number | null>(null);
 const leaderboardsCache = ref<Record<number, UserGameLeaderboard[]>>({});
 const loadingLeaderboards = ref<number | null>(null);
+
+const isOnline = computed(() => {
+    if (!props.summary) return false;
+    
+    const status = props.summary.Status.toLowerCase();
+    // Trust explicit active statuses from API
+    if (status === 'online' || status === 'in-game') return true;
+
+    // Check if Rich Presence was updated in the last 10 minutes
+    if (props.summary.RichPresenceMsg && props.summary.RichPresenceMsgDate) {
+        const lastUpdate = new Date(props.summary.RichPresenceMsgDate + " UTC").getTime();
+        const now = new Date().getTime();
+        const diffMinutes = (now - lastUpdate) / (1000 * 60);
+        
+        if (diffMinutes >= 0 && diffMinutes <= 10) return true;
+    }
+
+    return false;
+});
+
+const displayStatus = computed(() => {
+    if (!props.summary) return '';
+    
+    // If Rich Presence is fresh, show as 'Playing'
+    if (props.summary.RichPresenceMsg && props.summary.RichPresenceMsgDate) {
+        const lastUpdate = new Date(props.summary.RichPresenceMsgDate + " UTC").getTime();
+        const now = new Date().getTime();
+        const diffMinutes = (now - lastUpdate) / (1000 * 60);
+        
+        if (diffMinutes >= 0 && diffMinutes <= 10) return 'Playing';
+    }
+    
+    const status = props.summary.Status;
+    if (status.toLowerCase() === 'in-game') return 'Playing';
+    return status;
+});
 
 watch([() => props.isVisible, () => props.summary], async ([visible, summary]) => {
     if (visible && summary && games.value.length === 0) {
@@ -128,9 +164,9 @@ function getFullImageUrl(path: string) {
                     <img :src="'https://retroachievements.org' + summary.UserPic" class="user-avatar" />
                     <div class="user-main-info">
                         <h2 class="user-name">{{ summary.User }}</h2>
-                        <div class="user-status" :class="summary.Status.toLowerCase()">
+                        <div class="user-status" :class="{ online: isOnline }">
                             <span class="status-dot"></span>
-                            {{ summary.Status }}
+                            {{ displayStatus }}
                         </div>
                     </div>
                 </div>
@@ -299,12 +335,12 @@ function getFullImageUrl(path: string) {
     background-color: #64748b;
 }
 
-.online .status-dot {
+.user-status.online .status-dot {
     background-color: #22c55e;
     box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
 }
 
-.online { color: #22c55e; }
+.user-status.online { color: #22c55e; }
 
 .rich-presence {
     background-color: rgba(30, 41, 59, 0.6);

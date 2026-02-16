@@ -65,6 +65,66 @@ const uniqueGamesFromUpdates = computed(() => {
   return Array.from(seen.values());
 });
 
+const groupedUpdates = computed(() => {
+  if (!filteredUpdates.value) return [];
+  
+  const groups = filteredUpdates.value.reduce((acc, update) => {
+    const gameId = update.leaderboards.game_id;
+    if (!acc[gameId]) {
+      acc[gameId] = {
+        gameId,
+        gameName: update.leaderboards.games.name,
+        gameIcon: update.leaderboards.games.image_icon,
+        updates: []
+      };
+    }
+    acc[gameId].updates.push(update);
+    return acc;
+  }, {} as Record<number, any>);
+
+  return Object.values(groups).sort((a, b) => a.gameName.localeCompare(b.gameName));
+});
+
+function formatValue(value: number, format: string): string {
+  if (!value && value !== 0) return "";
+  
+  const fmt = format?.toUpperCase() || "SCORE";
+  
+  if (fmt === "SCORE" || fmt === "POINTS" || fmt === "VALUE") {
+    return value.toLocaleString();
+  }
+  
+  if (fmt === "TIME" || fmt === "FRAMES") {
+    // RA TIME is usually frames (60 fps)
+    const hours = Math.floor(value / 216000);
+    const minutes = Math.floor((value % 216000) / 3600);
+    const seconds = Math.floor((value % 3600) / 60);
+    const centiseconds = Math.floor(((value % 60) / 60) * 100);
+    
+    let res = "";
+    if (hours > 0) res += `${hours}:`;
+    res += `${String(minutes).padStart(2, "0")}:`;
+    res += `${String(seconds).padStart(2, "0")}.`;
+    res += String(centiseconds).padStart(2, "0");
+    return res;
+  }
+  
+  if (fmt === "MILLISECS") {
+    const seconds = Math.floor(value / 1000);
+    const ms = value % 1000;
+    const minutes = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${minutes}:${String(s).padStart(2, "0")}.${String(Math.floor(ms/10)).padStart(2, "0")}`;
+  }
+  
+  return value.toLocaleString();
+}
+
+function getFormattedDifference(update: any) {
+  const diff = Math.abs(update.friend_score - update.user_score);
+  return formatValue(diff, update.leaderboards.format);
+}
+
 const filteredUpdates = computed(() => {
   if (!updatesStore.updates) return null;
   if (!selectedGameId.value) return updatesStore.updates;
@@ -207,67 +267,63 @@ onMounted(async () => {
       </select>
     </div>
     <div v-if="updatesStore.updates">
-      <ul v-if="filteredUpdates?.length" class="game-list">
-        <li
-          v-for="update in filteredUpdates"
-          :key="update.leaderboard_id"
-          class="game-item"
-        >
-          <div class="game-container" :class="{ unread: !update.read_at }">
+      <div v-if="groupedUpdates.length" class="grouped-updates">
+        <div v-for="group in groupedUpdates" :key="group.gameId" class="game-group">
+          <div class="game-group-header">
             <img
-              :src="apiUrl + '\\' + update.leaderboards.games.image_icon"
-              :alt="update.leaderboards.games.name"
-              class="game-icon clickable"
-              @click="
-                selectUpdateLeaderboard(
-                  update.leaderboard_id,
-                  update.leaderboards.game_id,
-                  update.leaderboards.games.name,
-                  update.leaderboards.name,
-                  update.leaderboards.description,
-                  update.friend_name,
-                )
-              "
+              :src="apiUrl + '\\' + group.gameIcon"
+              :alt="group.gameName"
+              class="game-group-icon"
             />
-            <div
-              class="clickable update-content"
-              @click="
-                selectUpdateLeaderboard(
-                  update.leaderboard_id,
-                  update.leaderboards.game_id,
-                  update.leaderboards.games.name,
-                  update.leaderboards.name,
-                  update.leaderboards.description,
-                  update.friend_name,
-                )
-              "
-            >
-              <span class="game-name">{{
-                update.leaderboards.games.name
-              }}</span>
-              <span class="update-text"
-                >{{ update.friend_name }} has beaten you on
-                {{ update.leaderboards.name }}</span
-              >
-              <span class="leaderboard-description">{{
-                update.leaderboards.description
-              }}</span>
-            </div>
-            <button
-              @click="
-                updatesStore.deleteUpdate(
-                  update.leaderboard_id,
-                  user.getId(),
-                  update.friend_name,
-                )
-              "
-              class="delete-button"
-            >
-              <i class="fa fa-remove" aria-hidden="true"></i>
-            </button>
+            <h2 class="game-group-title">{{ group.gameName }}</h2>
           </div>
-        </li>
-      </ul>
+          <ul class="game-list">
+            <li
+              v-for="update in group.updates"
+              :key="update.leaderboard_id + update.friend_name"
+              class="game-item"
+            >
+              <div class="game-container" :class="{ unread: !update.read_at }">
+                <div
+                  class="clickable update-content"
+                  @click="
+                    selectUpdateLeaderboard(
+                      update.leaderboard_id,
+                      update.leaderboards.game_id,
+                      update.leaderboards.games.name,
+                      update.leaderboards.name,
+                      update.leaderboards.description,
+                      update.friend_name,
+                    )
+                  "
+                >
+                  <span class="update-text">
+                    <strong>{{ update.friend_name }}</strong> beat you on
+                    <span class="leaderboard-name">{{ update.leaderboards.name }}</span>
+                  </span>
+                  <span class="difference-text">
+                    By {{ getFormattedDifference(update) }}
+                    <span class="format-label" v-if="update.leaderboards.format">({{ update.leaderboards.format.toLowerCase() }})</span>
+                  </span>
+                </div>
+                <button
+                  @click="
+                    updatesStore.deleteUpdate(
+                      update.leaderboard_id,
+                      user.getId(),
+                      update.friend_name,
+                    )
+                  "
+                  class="delete-button"
+                  title="Remove notification"
+                >
+                  <i class="fa fa-remove" aria-hidden="true"></i>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
       <div v-else class="empty-text">No updates</div>
     </div>
     <div v-else class="loading-text">Loading...</div>
@@ -493,6 +549,53 @@ onMounted(async () => {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
   color: #f87171;
+}
+
+/* Grouped Updates Styles */
+.game-group {
+  margin-bottom: 24px;
+}
+
+.game-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.game-group-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.game-group-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #cba34e;
+  margin: 0;
+}
+
+.leaderboard-name {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.difference-text {
+  display: block;
+  font-size: 12px;
+  color: #f87171;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.format-label {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 400;
+  margin-left: 4px;
 }
 
 .loading-text,

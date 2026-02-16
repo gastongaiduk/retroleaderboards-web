@@ -66,7 +66,7 @@ function buildRivalryFriend(
             friendScore: friendLb.UserEntry.FormattedScore,
         };
 
-        const iAmBetter = myLb.RankAsc ? myRank < friendRank : myRank > friendRank;
+        const iAmBetter = myRank < friendRank;
 
         if (iAmBetter) {
             wins.push(battle);
