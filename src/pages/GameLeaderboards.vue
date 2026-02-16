@@ -66,7 +66,8 @@ async function refreshSubscriptionToGame() {
   let { data, error } = await supabase
     .from("game_subscriptions")
     .select()
-    .eq("game_id", props.id);
+    .eq("game_id", props.id)
+    .eq("user_id", user.getId());
   if (error) {
     console.log("Error while fetching subscription status: ", error);
     return;
@@ -79,11 +80,38 @@ async function refreshSubscriptionToGame() {
 
 async function subscribe() {
   loadingSubscription.value = true;
-  let { error } = await supabase
-    .from("game_subscriptions")
-    .insert({ game_id: props.id, user_id: user.user_id });
-  if (error) {
-    console.log("Error while updating notification status to read: ", error);
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) {
+      console.log("No active session found");
+      loadingSubscription.value = false;
+      return;
+    }
+
+    const response = await fetch(
+      import.meta.env.VITE_SUPABASE_URL + "/functions/v1/subscribe-game",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + accessToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          game_id: Number(props.id),
+          game_name: selectedGame.value?.Title ?? "",
+          image_icon: selectedGame.value?.ImageIcon ?? "",
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log("Error while subscribing: ", errorData.error);
+    }
+  } catch (error) {
+    console.log("Error while subscribing: ", error);
   }
 
   await refreshSubscriptionToGame();
@@ -93,13 +121,34 @@ async function subscribe() {
 
 async function unsubscribe() {
   loadingSubscription.value = true;
-  let { error } = await supabase
-    .from("game_subscriptions")
-    .delete()
-    .eq("user_id", user.user_id)
-    .eq("game_id", props.id);
-  if (error) {
-    console.log("Error while updating notification status to read: ", error);
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) {
+      console.log("No active session found");
+      loadingSubscription.value = false;
+      return;
+    }
+
+    const response = await fetch(
+      import.meta.env.VITE_SUPABASE_URL + "/functions/v1/unsubscribe-game",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + accessToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ game_id: Number(props.id) }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log("Error while unsubscribing: ", errorData.error);
+    }
+  } catch (error) {
+    console.log("Error while unsubscribing: ", error);
   }
 
   await refreshSubscriptionToGame();
@@ -210,6 +259,7 @@ onMounted(async () => {
       </button>
       <ConfirmModal
         :isVisible="isSubscribeModalVisible"
+        :loading="loadingSubscription"
         @confirm="subscribe"
         @nope="hideSubscribeModal"
         :title="'Follow ' + selectedGame?.Title + '?'"
@@ -231,6 +281,7 @@ onMounted(async () => {
       </button>
       <ConfirmModal
         :isVisible="isUnsubscribeModalVisible"
+        :loading="loadingSubscription"
         @confirm="unsubscribe"
         @nope="hideUnsubscribeModal"
         :title="'Unfollow ' + selectedGame?.Title + '?'"

@@ -13,6 +13,7 @@ class GameRepository {
   public async fetchLastPlayedGames(
     count: number,
     offset: number,
+    username?: string,
   ): Promise<GameList> {
     try {
       const response = await axios.get(
@@ -20,7 +21,7 @@ class GameRepository {
         {
           params: {
             y: this.user.key,
-            u: this.user.username,
+            u: username ?? this.user.username,
             c: count,
             o: offset,
           },

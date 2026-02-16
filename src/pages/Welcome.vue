@@ -17,7 +17,7 @@ onMounted(async () => {
   <div class="welcome-page">
     <div class="welcome-content">
       <header class="hero">
-        <img src="/logo.png" alt="Retro Leaderboards" class="hero-logo" />
+        <img src="/logo.svg" alt="Retro Leaderboards" class="hero-logo" />
         <h1 class="hero-title">Retro Leaderboards</h1>
         <p class="hero-subtitle">
           The competitive companion for RetroAchievements.<br />

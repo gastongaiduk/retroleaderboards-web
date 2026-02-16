@@ -32,7 +32,7 @@ const props = defineProps({
 const selectedGame = ref<Game | null>(null);
 const selectedLeaderboard = ref<Leaderboard | null>(null);
 const loadingRefresh = ref<boolean>(false);
-const itemsToLoad = 200;
+const itemsToLoad = 50;
 const leaderboardEntriesElement = ref<HTMLElement | null>(null);
 const loadingInfiniteScroll = ref<boolean>(false);
 const loadingPriorityEntries = ref<boolean>(false);
@@ -45,13 +45,13 @@ async function refreshScores() {
   priorityEntries.value = [];
 
   try {
-    leaderboardEntries.entries = (
-      await repository.fetchLeaderboardEntries(
-        props.id,
-        itemsToLoad,
-        leaderboardEntries.offset,
-      )
-    ).Results;
+    const response = await repository.fetchLeaderboardEntries(
+      props.id,
+      itemsToLoad,
+      leaderboardEntries.offset,
+    );
+    leaderboardEntries.entries = response.Results;
+    leaderboardEntries.setTotalEntries(response.Total);
 
     await fetchPriorityEntries();
   } catch (error) {
@@ -148,6 +148,7 @@ const { reset } = useInfiniteScroll(
       leaderboardEntries.setHasMoreToLoad(false);
     }
     leaderboardEntries.addItems(fetchedResults.Results);
+    leaderboardEntries.setTotalEntries(fetchedResults.Total);
     leaderboardEntries.increaseOffsetIn(itemsToLoad);
 
     loadingInfiniteScroll.value = false;
@@ -184,7 +185,11 @@ onMounted(async () => {
   await fetchPriorityEntries();
 
   if (leaderboardEntries.entries.length !== 0) {
-    leaderboardEntries.restoreOffset();
+    if (leaderboardEntries.totalEntries === 0) {
+      await refreshScores();
+    } else {
+      leaderboardEntries.restoreOffset();
+    }
   }
 });
 
@@ -260,6 +265,29 @@ function shouldShowDivider(index: number) {
   return isCurrentMeOrFriend && !isNextMeOrFriend;
 }
 
+const userStats = computed(() => {
+  const total = leaderboardEntries.totalEntries;
+  if (total === 0) return null;
+
+  const myEntry = sortedEntries.value.find((entry) => isMe(entry.User));
+  
+  if (!myEntry) {
+    return {
+      total,
+      rank: null,
+      topPercent: null,
+    };
+  }
+
+  const rank = Number(myEntry.Rank);
+  const topPercent = Math.max(1, Math.round((rank / total) * 100));
+
+  return {
+    total,
+    rank,
+    topPercent,
+  };
+});
 
 </script>
 
@@ -275,8 +303,16 @@ function shouldShowDivider(index: number) {
       {{ selectedGame?.Title }}
     </h2>
 
+    <div v-if="userStats" class="stats-container">
+      <span class="stat-item">Total Players: {{ userStats.total }}</span>
+      <span v-if="userStats.rank" class="stat-separator">•</span>
+      <span v-if="userStats.rank" class="stat-item highlight">
+        You are top {{ userStats.topPercent }}% (#{{ userStats.rank }})
+      </span>
+    </div>
+
     <div v-if="loadingPriorityEntries" class="priority-loading">
-      Loading your position...
+      Finding your rivalry scores...
     </div>
 
     <div v-if="sortedEntries.length">
@@ -329,7 +365,26 @@ h2.entries-subtitle {
   font-weight: 400;
   color: #64748b;
   text-align: center;
-  margin: 0 0 16px;
+  margin: 0 0 8px;
+}
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.stat-separator {
+  color: #475569;
+}
+
+.stat-item.highlight {
+  color: #cba34e;
+  font-weight: 500;
 }
 
 .entries-list {

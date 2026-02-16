@@ -117,6 +117,10 @@ onMounted(async () => {
       />
     </header>
 
+    <p class="info-hint">
+      Only followed games where you and a friend have scores in the same leaderboards will appear here.
+    </p>
+
     <div v-if="rivalsStore.loading" class="loading-banner">
       <i class="fa fa-refresh fa-spin loading-spinner" />
       <span class="loading-text">
@@ -140,7 +144,7 @@ onMounted(async () => {
             <div class="game-info">
               <span class="game-name">{{ game.gameName }}</span>
               <span class="game-meta">
-                {{ game.totalLeaderboards }} leaderboards · {{ game.rivals.length }} rival{{ game.rivals.length !== 1 ? 's' : '' }}
+                {{ game.rivals.length }} rival{{ game.rivals.length !== 1 ? 's' : '' }} · {{ game.totalLeaderboards }} leaderboards
               </span>
             </div>
             <i
@@ -153,63 +157,75 @@ onMounted(async () => {
             <div
               v-for="rival in game.rivals"
               :key="rival.username"
-              class="rival-row"
+              class="rival-item"
             >
               <div
-                class="rival-summary"
+                class="rival-header"
                 @click="toggleRival(game.gameId, rival.username)"
               >
-                <div class="rival-left">
-                  <i
-                    class="fa rival-chevron"
-                    :class="isRivalExpanded(game.gameId, rival.username) ? 'fa-chevron-up' : 'fa-chevron-down'"
-                  />
-                  <span class="rival-name">{{ rival.username }}</span>
-                </div>
-                <div class="rival-score">
-                  <span class="score-label" :class="getRivalryLabel(rival.wins.length, rival.losses.length)">
-                    {{ rival.wins.length }}W · {{ rival.losses.length }}L
+                <div class="rival-info">
+                  <span class="rival-username">{{ rival.username }}</span>
+                  <span
+                    class="rival-status"
+                    :class="getRivalryLabel(rival.wins.length, rival.losses.length)"
+                  >
+                    {{ rival.wins.length }}W - {{ rival.losses.length }}L
                   </span>
                 </div>
+                <i
+                  class="fa"
+                  :class="isRivalExpanded(game.gameId, rival.username) ? 'fa-minus' : 'fa-plus'"
+                />
               </div>
 
-              <div v-if="isRivalExpanded(game.gameId, rival.username)" class="rival-details">
-                <div v-if="rival.wins.length" class="battle-section">
-                  <span class="section-title winning">Your wins</span>
-                  <ul class="battle-list">
-                    <li
-                      v-for="battle in rival.wins"
-                      :key="battle.leaderboardId"
-                      class="battle-item"
-                      @click="navigateToBattle(game, battle)"
-                    >
-                      <span class="battle-title">{{ battle.leaderboardTitle }}</span>
-                      <div class="battle-ranks">
-                        <span class="rank-you">You #{{ battle.myRank }} · {{ battle.myScore }}</span>
-                        <span class="vs">vs</span>
-                        <span class="rank-friend">#{{ battle.friendRank }} · {{ battle.friendScore }}</span>
+              <div
+                v-if="isRivalExpanded(game.gameId, rival.username)"
+                class="rival-battles"
+              >
+                <div v-if="rival.losses.length > 0" class="battle-section">
+                  <h4 class="section-title losing">They are beating you</h4>
+                  <div
+                    v-for="battle in rival.losses"
+                    :key="battle.leaderboardId"
+                    class="battle-item"
+                    @click="navigateToBattle(game, battle)"
+                  >
+                    <span class="battle-name">{{ battle.leaderboardTitle }}</span>
+                    <div class="battle-stats">
+                      <div class="stat left">
+                        <span class="stat-rank">#{{ battle.myRank }}</span>
+                        <span class="stat-value">{{ battle.myScore }}</span>
                       </div>
-                    </li>
-                  </ul>
+                      <div class="stat-divider">vs</div>
+                      <div class="stat right">
+                        <span class="stat-value winner">{{ battle.friendScore }}</span>
+                        <span class="stat-rank winner">#{{ battle.friendRank }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div v-if="rival.losses.length" class="battle-section">
-                  <span class="section-title losing">Your losses</span>
-                  <ul class="battle-list">
-                    <li
-                      v-for="battle in rival.losses"
-                      :key="battle.leaderboardId"
-                      class="battle-item"
-                      @click="navigateToBattle(game, battle)"
-                    >
-                      <span class="battle-title">{{ battle.leaderboardTitle }}</span>
-                      <div class="battle-ranks">
-                        <span class="rank-you">You #{{ battle.myRank }} · {{ battle.myScore }}</span>
-                        <span class="vs">vs</span>
-                        <span class="rank-friend">#{{ battle.friendRank }} · {{ battle.friendScore }}</span>
+                <div v-if="rival.wins.length > 0" class="battle-section">
+                  <h4 class="section-title winning">You are winning</h4>
+                  <div
+                    v-for="battle in rival.wins"
+                    :key="battle.leaderboardId"
+                    class="battle-item"
+                    @click="navigateToBattle(game, battle)"
+                  >
+                    <span class="battle-name">{{ battle.leaderboardTitle }}</span>
+                    <div class="battle-stats">
+                      <div class="stat left">
+                        <span class="stat-rank winner">#{{ battle.myRank }}</span>
+                        <span class="stat-value winner">{{ battle.myScore }}</span>
                       </div>
-                    </li>
-                  </ul>
+                      <div class="stat-divider">vs</div>
+                      <div class="stat right">
+                        <span class="stat-value">{{ battle.friendScore }}</span>
+                        <span class="stat-rank">#{{ battle.friendRank }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -223,8 +239,7 @@ onMounted(async () => {
     </div>
 
     <div v-else-if="!rivalsStore.loading" class="empty-text">
-      No rivalry data yet. Follow some games and press refresh to see how you
-      compare with your friends.
+      No active rivalries found with your friends.
     </div>
   </div>
 </template>
@@ -331,87 +346,83 @@ onMounted(async () => {
   border-top: 1px solid rgba(148, 163, 184, 0.06);
 }
 
-.rival-row {
-  padding: 10px 0;
+.rival-item {
+  padding: 4px 0;
 }
 
-.rival-row + .rival-row {
+.rival-item + .rival-item {
   border-top: 1px solid rgba(148, 163, 184, 0.04);
 }
 
-.rival-summary {
+.rival-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 10px 0;
+  transition: opacity 0.2s ease;
 }
 
-.rival-summary:active {
+.rival-header:active {
   opacity: 0.7;
 }
 
-.rival-left {
+.rival-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.rival-chevron {
-  font-size: 10px;
-  color: #64748b;
-  width: 12px;
-  text-align: center;
-}
-
-.rival-name {
+.rival-username {
   font-size: 13px;
   font-weight: 500;
   color: #e2e8f0;
 }
 
-.rival-score {
-  display: flex;
-  gap: 6px;
-}
-
-.score-label {
-  font-size: 12px;
+.rival-status {
+  font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
+  letter-spacing: 0.02em;
 }
 
-.score-label.winning {
+.rival-status.winning {
   background-color: rgba(34, 197, 94, 0.12);
   color: #4ade80;
 }
 
-.score-label.losing {
+.rival-status.losing {
   background-color: rgba(239, 68, 68, 0.12);
   color: #f87171;
 }
 
-.score-label.tied {
-  background-color: rgba(148, 163, 184, 0.1);
-  color: #94a3b8;
+.rival-header .fa {
+  font-size: 10px;
+  color: #64748b;
 }
 
-.rival-details {
-  padding: 6px 0 2px 20px;
+.rival-battles {
+  padding: 4px 0 10px 0;
 }
 
 .battle-section {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.battle-section:last-child {
+  margin-bottom: 0;
 }
 
 .section-title {
   display: block;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   margin-bottom: 6px;
+  padding-left: 2px;
+  opacity: 0.8;
 }
 
 .section-title.winning {
@@ -422,93 +433,113 @@ onMounted(async () => {
   color: #f87171;
 }
 
-.battle-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
 .battle-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
-  margin-bottom: 4px;
-  background-color: rgba(203, 163, 78, 0.05);
-  border: 1px solid rgba(203, 163, 78, 0.1);
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
-.battle-item:active {
-  transform: scale(0.98);
+.battle-item:hover {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-color: rgba(203, 163, 78, 0.3);
 }
 
-@media (hover: hover) {
-  .battle-item:hover {
-    background-color: rgba(203, 163, 78, 0.1);
-    border-color: rgba(203, 163, 78, 0.2);
-  }
-}
-
-.battle-title {
-  font-size: 12px;
+.battle-name {
+  display: block;
+  font-size: 11px;
   font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.battle-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.stat.left {
+  flex: 1;
+}
+
+.stat.right {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.stat-rank {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  min-width: 24px;
+}
+
+.stat-rank.winner {
   color: #cba34e;
 }
 
-.battle-ranks {
-  font-size: 11px;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-wrap: wrap;
-}
-
-.rank-you {
-  color: #94a3b8;
-}
-
-.rank-friend {
-  color: #94a3b8;
-}
-
-.vs {
+.stat-value {
+  font-size: 12px;
+  font-weight: 600;
   color: #64748b;
-  padding: 0 3px;
+}
+
+.stat-value.winner {
+  color: #e2e8f0;
+}
+
+.stat-divider {
+  font-size: 9px;
+  font-weight: 800;
+  color: #334155;
+  text-transform: uppercase;
 }
 
 .view-game-button {
   display: block;
   width: 100%;
-  margin-top: 10px;
-  padding: 9px;
+  margin-top: 16px;
+  padding: 11px;
   background-color: rgba(203, 163, 78, 0.1);
   border: 1px solid rgba(203, 163, 78, 0.2);
-  border-radius: 8px;
+  border-radius: 10px;
   color: #cba34e;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .view-game-button:hover {
   background-color: rgba(203, 163, 78, 0.15);
+  border-color: rgba(203, 163, 78, 0.3);
 }
 
 .loading-banner {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
   background-color: rgba(203, 163, 78, 0.06);
   border: 1px solid rgba(203, 163, 78, 0.1);
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .loading-spinner {
@@ -521,11 +552,24 @@ onMounted(async () => {
   color: #cba34e;
 }
 
+.info-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #64748b;
+  margin: 0 0 16px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.5;
+}
+
 .empty-text {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 24px;
   font-size: 13px;
   color: #64748b;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 </style>

@@ -61,17 +61,40 @@ function hideUnsubscribeModal() {
 async function unsubscribe() {
   if (!subscriptionToUnsubscribe.value) return;
   loadingUnsubscribe.value = true;
-  const { error } = await supabase
-    .from("game_subscriptions")
-    .delete()
-    .eq("user_id", user.getId())
-    .eq("game_id", subscriptionToUnsubscribe.value.game_id);
 
-  if (error) {
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) {
+      console.log("No active session found");
+      loadingUnsubscribe.value = false;
+      return;
+    }
+
+    const response = await fetch(
+      import.meta.env.VITE_SUPABASE_URL + "/functions/v1/unsubscribe-game",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + accessToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          game_id: Number(subscriptionToUnsubscribe.value.game_id),
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error removing subscription:", errorData.error);
+    } else {
+      await fetchSubscriptions();
+    }
+  } catch (error) {
     console.error("Error removing subscription:", error);
-  } else {
-    await fetchSubscriptions();
   }
+
   hideUnsubscribeModal();
   loadingUnsubscribe.value = false;
 }
@@ -131,6 +154,7 @@ onMounted(async () => {
 
     <ConfirmModal
       :isVisible="unsubscribeModalVisible"
+      :loading="loadingUnsubscribe"
       :title="
         subscriptionToUnsubscribe
           ? 'Unfollow ' + subscriptionToUnsubscribe.games?.name + '?'
