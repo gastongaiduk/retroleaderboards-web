@@ -5,22 +5,21 @@ import { useUserStore } from "../stores/user";
 import { useFriendsState } from "../stores/friends";
 import { useRivalsStore } from "../stores/rivals";
 import UserRepository from "../repositories/UserRepository";
-import GameRepository from "../repositories/GameRepository";
+
 import FriendDetailsModal from "../components/FriendDetailsModal.vue";
 import { UserSummary } from "../models/UserSummary";
-import { GameList } from "../models/RecentlyPlayedGames";
+
 
 const router = useRouter();
 const user = useUserStore();
 const friendsStore = useFriendsState();
 const rivalsStore = useRivalsStore();
 const userRepo = new UserRepository();
-const gameRepo = new GameRepository();
+
 
 const isModalVisible = ref(false);
 const isModalLoading = ref(false);
 const selectedUserSummary = ref<UserSummary | null>(null);
-const selectedUserRecentGames = ref<GameList | null>(null);
 
 interface RankingMember {
     username: string;
@@ -95,15 +94,10 @@ async function openFriendDetails(username: string) {
     isModalVisible.value = true;
     isModalLoading.value = true;
     selectedUserSummary.value = null;
-    selectedUserRecentGames.value = null;
 
     try {
-        const [summary, recent] = await Promise.all([
-            userRepo.fetchUserSummary(username),
-            gameRepo.fetchLastPlayedGames(5, 0, username)
-        ]);
+        const summary = await userRepo.fetchUserSummary(username);
         selectedUserSummary.value = summary;
-        selectedUserRecentGames.value = recent;
     } catch (error) {
         console.error("Error loading friend details:", error);
     } finally {
@@ -194,7 +188,6 @@ async function openFriendDetails(username: string) {
             :is-visible="isModalVisible"
             :loading="isModalLoading"
             :summary="selectedUserSummary"
-            :recent-games="selectedUserRecentGames"
             @close="isModalVisible = false"
         />
     </div>
