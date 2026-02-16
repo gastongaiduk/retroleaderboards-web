@@ -1,21 +1,23 @@
 export interface Update {
-  leaderboard_id: any;
-  friend_name: any;
-  user_score: any;
-  friend_score: any;
-  created_at: any;
-  read_at: any;
+  leaderboard_id: number;
+  friend_name: string;
+  user_score: number;
+  friend_score: number;
+  created_at: string;
+  read_at: string | null;
   leaderboards: UpdateLeaderboard;
 }
 
 export interface UpdateLeaderboard {
-  name: any;
-  description: any;
-  game_id: any;
+  name: string;
+  description: string;
+  game_id: number;
+  format: string;
+  rank_asc: boolean;
   games: UpdateGame;
 }
 
 export interface UpdateGame {
-  name: any;
-  image_icon: any;
+  name: string;
+  image_icon: string;
 }
