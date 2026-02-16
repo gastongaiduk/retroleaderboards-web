@@ -13,6 +13,7 @@ import MySubscriptions from "../pages/MySubscriptions.vue";
 import Rivals from "../pages/Rivals.vue";
 import ForgotPassword from "../pages/ForgotPassword.vue";
 import SetNewPassword from "../pages/SetNewPassword.vue";
+import Friends from "../pages/Friends.vue";
 import Settings from "../pages/Settings.vue";
 import MainLayout from "../layouts/MainLayout.vue";
 
@@ -30,6 +31,7 @@ const routes: Array<RouteRecordRaw> = [
     component: MainLayout,
     children: [
       { path: "home", name: "Home", component: Home, meta: { keepAlive: true } },
+      { path: "friends", name: "Friends", component: Friends },
       { path: "ra-credentials", name: "RACredentials", component: RaCredentials },
       { path: "settings", name: "Settings", component: Settings },
       {

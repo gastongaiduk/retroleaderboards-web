@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#0f172a"/>
+  <!-- Crown Base -->
+  <rect x="96" y="352" width="320" height="64" fill="#cba34e"/>
+  <rect x="96" y="288" width="320" height="64" fill="#cba34e"/>
+  
+  <!-- Left Prong -->
+  <rect x="96" y="160" width="64" height="128" fill="#cba34e"/>
+  <rect x="96" y="96" width="64" height="64" fill="#e6c87a"/> <!-- Bright tip -->
+  
+  <!-- Center Prong -->
+  <rect x="224" y="128" width="64" height="160" fill="#cba34e"/>
+  <rect x="224" y="64" width="64" height="64" fill="#e6c87a"/> <!-- Bright tip -->
+
+  <!-- Right Prong -->
+  <rect x="352" y="160" width="64" height="128" fill="#cba34e"/>
+  <rect x="352" y="96" width="64" height="64" fill="#e6c87a"/> <!-- Bright tip -->
+  
+  <!-- Decorative Gems/Details -->
+  <rect x="112" y="304" width="32" height="32" fill="#a68233"/>
+  <rect x="240" y="304" width="32" height="32" fill="#a68233"/>
+  <rect x="368" y="304" width="32" height="32" fill="#a68233"/>
+  
+  <!-- Bottom Shadow Line -->
+  <rect x="96" y="416" width="320" height="16" fill="#a68233"/>
+</svg>

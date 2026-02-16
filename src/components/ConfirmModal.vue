@@ -4,8 +4,21 @@
       <h2 class="modal-title">{{ title }}</h2>
       <p class="modal-text">{{ text }}</p>
       <div class="modal-buttons">
-        <button @click="confirmAction" class="confirm-button">Confirm</button>
-        <button @click="cancelAction" class="cancel-button">Cancel</button>
+        <button
+          @click="confirmAction"
+          class="confirm-button"
+          :disabled="loading"
+        >
+          <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+          <span v-else>Confirm</span>
+        </button>
+        <button
+          @click="cancelAction"
+          class="cancel-button"
+          :disabled="loading"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -13,7 +26,7 @@
 
 <script>
 export default {
-  props: ["isVisible", "title", "text"],
+  props: ["isVisible", "title", "text", "loading"],
   methods: {
     confirmAction() {
       this.$emit("confirm");
@@ -87,10 +100,16 @@ export default {
 .confirm-button {
   background-color: #cba34e;
   color: #0f172a;
+  min-width: 90px;
 }
 
-.confirm-button:hover {
+.confirm-button:hover:not(:disabled) {
   background-color: #b8923f;
+}
+
+.confirm-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .cancel-button {
@@ -99,7 +118,12 @@ export default {
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
-.cancel-button:hover {
+.cancel-button:hover:not(:disabled) {
   background-color: rgba(148, 163, 184, 0.2);
+}
+
+.cancel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

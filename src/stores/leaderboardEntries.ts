@@ -7,6 +7,7 @@ interface LeaderboardEntriesState {
   hasMoreToLoad: boolean;
   offset: number;
   leaderboardId: string | null;
+  totalEntries: number;
 }
 
 export const useLeaderboardEntries = defineStore("leaderboardEntries", {
@@ -16,8 +17,12 @@ export const useLeaderboardEntries = defineStore("leaderboardEntries", {
     hasMoreToLoad: true,
     offset: 0,
     leaderboardId: null,
+    totalEntries: 0,
   }),
   actions: {
+    setTotalEntries(total: number) {
+      this.totalEntries = total;
+    },
     addItems(newEntries: Entry[]) {
       this.entries.push(...newEntries);
     },

@@ -32,11 +32,11 @@ const goTo = (path: string) => {
     </button>
     <button
       class="nav-item"
-      :class="{ active: isActive('/my-subscriptions') }"
-      @click="goTo('/my-subscriptions')"
+      :class="{ active: isActive('/friends') }"
+      @click="goTo('/friends')"
     >
-      <i class="fa fa-gamepad nav-icon"></i>
-      <span class="nav-label">Games</span>
+      <i class="fa fa-users nav-icon"></i>
+      <span class="nav-label">Friends</span>
     </button>
     <button
       class="nav-item"

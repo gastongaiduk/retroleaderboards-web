@@ -114,13 +114,16 @@ watch(
 <template>
   <div class="page-container" ref="recentGamesElement">
     <header class="page-header">
-      <img src="/logo.png" alt="Retro Leaderboards" class="header-logo" />
+      <img src="/logo.svg" alt="Retro Leaderboards" class="header-logo" />
       <h1 class="page-title">Welcome {{ user.username }}</h1>
       <RefreshButton
         :loading-state="loadingRefresh"
         @click="refreshGames"
       ></RefreshButton>
     </header>
+
+    <h2 class="section-subtitle">Recently Played Games</h2>
+
     <div v-if="recentGames">
       <ul v-if="recentGames.games.length" class="game-list">
         <li
@@ -192,6 +195,15 @@ watch(
   font-weight: 600;
   color: #cba34e;
   letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #cba24d;
+  margin: 0 0 16px;
+  text-align: center;
+  opacity: 0.9;
 }
 
 .game-list {

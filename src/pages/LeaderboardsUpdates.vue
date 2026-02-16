@@ -7,11 +7,22 @@ import { Leaderboard } from "../models/GameLeaderboards.ts";
 import { Game } from "../models/RecentlyPlayedGames.ts";
 
 import { useUpdatesStore } from "../stores/updates.ts";
+import { useSubscriptionList } from "../composables/useSubscriptionList";
+import { supabase } from "../utils/supabaseClient";
+import { Subscription } from "../models/Subscription";
+import ConfirmModal from "../components/ConfirmModal.vue";
+import { useGameLeaderboardsStore } from "../stores/gameLeaderboards";
 
 const router = useRouter();
 const route = useRoute();
 const postStore = usePostStore();
 const user = useUserStore();
+const gameLeaderboards = useGameLeaderboardsStore();
+
+const { subscriptions, fetchSubscriptions } = useSubscriptionList();
+const unsubscribeModalVisible = ref(false);
+const subscriptionToUnsubscribe = ref<Subscription | null>(null);
+const loadingUnsubscribe = ref(false);
 
 const selectedGameId = ref<string | null>(null);
 
@@ -71,6 +82,83 @@ function onFilterChange(event: Event) {
   });
 }
 
+function subscriptionToGame(sub: Subscription): Game {
+  return {
+    GameID: sub.game_id,
+    ConsoleID: 0,
+    ConsoleName: "",
+    Title: sub.games?.name ?? "",
+    ImageIcon: sub.games?.image_icon ?? "",
+    ImageTitle: "",
+    ImageIngame: "",
+    ImageBoxArt: "",
+    LastPlayed: "",
+    AchievementsTotal: 0,
+    NumPossibleAchievements: 0,
+    PossibleScore: 0,
+    NumAchieved: 0,
+    ScoreAchieved: 0,
+    NumAchievedHardcore: 0,
+    ScoreAchievedHardcore: 0,
+  };
+}
+
+function onFollowedGameClick(sub: Subscription) {
+  gameLeaderboards.$reset();
+  postStore.selectGameLeaderboards(subscriptionToGame(sub));
+}
+
+function showUnsubscribeModal(sub: Subscription) {
+  subscriptionToUnsubscribe.value = sub;
+  unsubscribeModalVisible.value = true;
+}
+
+function hideUnsubscribeModal() {
+  subscriptionToUnsubscribe.value = null;
+  unsubscribeModalVisible.value = false;
+}
+
+async function unsubscribe() {
+  if (!subscriptionToUnsubscribe.value) return;
+  loadingUnsubscribe.value = true;
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) {
+      console.log("No active session found");
+      loadingUnsubscribe.value = false;
+      return;
+    }
+
+    const response = await fetch(
+      import.meta.env.VITE_SUPABASE_URL + "/functions/v1/unsubscribe-game",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + accessToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          game_id: Number(subscriptionToUnsubscribe.value.game_id),
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error removing subscription:", errorData.error);
+    } else {
+      await fetchSubscriptions();
+    }
+  } catch (error) {
+    console.error("Error removing subscription:", error);
+  }
+
+  hideUnsubscribeModal();
+  loadingUnsubscribe.value = false;
+}
+
 watch(
   () => route.query.gameId,
   (gameId) => {
@@ -89,13 +177,18 @@ onMounted(async () => {
   if (route.query.gameId != null) {
     selectedGameId.value = String(route.query.gameId);
   }
+  await fetchSubscriptions();
 });
 </script>
 
 <template>
   <div class="page-container">
     <h1 class="page-title">Updates</h1>
-    <div v-if="updatesStore.updates" class="filter-row">
+    <p class="info-hint">
+      <i class="fa fa-info-circle" aria-hidden="true"></i>
+      Updates are refreshed every hour.
+    </p>
+    <div v-if="updatesStore.updates && uniqueGamesFromUpdates.length > 1" class="filter-row">
       <label for="game-filter" class="filter-label">Filter by game</label>
       <select
         id="game-filter"
@@ -178,6 +271,70 @@ onMounted(async () => {
       <div v-else class="empty-text">No updates</div>
     </div>
     <div v-else class="loading-text">Loading...</div>
+
+    <!-- Games I Follow Section -->
+    <div class="followed-games-section">
+      <div class="section-divider">
+        <span class="divider-line"></span>
+        <h2 class="section-subtitle">Games I Follow</h2>
+        <span class="divider-line"></span>
+      </div>
+      
+      <p class="section-info">Receive alerts when friends beat your scores in these games.</p>
+
+      <div v-if="subscriptions">
+        <ul v-if="subscriptions.length" class="followed-game-list">
+          <li
+            v-for="sub in subscriptions"
+            :key="sub.game_id"
+            class="followed-game-item"
+          >
+            <div class="followed-game-container">
+              <img
+                :src="apiUrl + '\\' + sub.games?.image_icon"
+                :alt="sub.games?.name"
+                class="followed-game-icon clickable"
+                @click="onFollowedGameClick(sub)"
+              />
+              <div class="clickable followed-game-info" @click="onFollowedGameClick(sub)">
+                <span class="followed-game-name">{{ sub.games?.name }}</span>
+              </div>
+              <button
+                type="button"
+                class="unsubscribe-button"
+                :disabled="loadingUnsubscribe"
+                @click="showUnsubscribeModal(sub)"
+                title="Unfollow Game"
+              >
+                <i
+                  v-if="loadingUnsubscribe && subscriptionToUnsubscribe?.game_id === sub.game_id"
+                  class="fa fa-spinner fa-spin"
+                  aria-hidden="true"
+                />
+                <i v-else class="fa fa-remove" aria-hidden="true" />
+              </button>
+            </div>
+          </li>
+        </ul>
+        <div v-else class="empty-text small">
+          You are not following any game yet.
+        </div>
+      </div>
+      <div v-else class="loading-text">Loading followed games...</div>
+    </div>
+
+    <ConfirmModal
+      :isVisible="unsubscribeModalVisible"
+      :loading="loadingUnsubscribe"
+      :title="
+        subscriptionToUnsubscribe
+          ? 'Unfollow ' + subscriptionToUnsubscribe.games?.name + '?'
+          : 'Unfollow Game'
+      "
+      text="You will no longer receive updates for this game when a friend beats your scores."
+      @confirm="unsubscribe"
+      @nope="hideUnsubscribeModal"
+    />
   </div>
 </template>
 
@@ -196,9 +353,25 @@ onMounted(async () => {
   font-size: 17px;
   font-weight: 600;
   color: #cba34e;
-  margin: 0 0 16px;
+  margin: 0 0 6px;
   text-align: center;
   letter-spacing: -0.01em;
+}
+
+.info-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #64748b;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.info-hint .fa {
+  color: #94a3b8;
+  font-size: 12px;
 }
 
 .filter-row {
@@ -336,5 +509,112 @@ onMounted(async () => {
     background-size: cover;
     background-position: center center;
   }
+}
+
+/* Followed Games Styles */
+.followed-games-section {
+  margin-top: 40px;
+  padding-bottom: 20px;
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.section-divider .divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(203, 163, 78, 0.2), transparent);
+}
+
+.section-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cba34e;
+  white-space: nowrap;
+}
+
+.section-info {
+  font-size: 11px;
+  color: #64748b;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.followed-game-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.followed-game-item {
+  margin-bottom: 8px;
+}
+
+.followed-game-container {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.04);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.followed-game-container:hover {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-color: rgba(203, 163, 78, 0.1);
+}
+
+.followed-game-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.followed-game-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.followed-game-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unsubscribe-button {
+  background: rgba(148, 163, 184, 0.08);
+  color: #64748b;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 8px;
+  margin-left: 10px;
+  transition: all 0.2s ease;
+}
+
+.unsubscribe-button:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.unsubscribe-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empty-text.small {
+  padding: 20px;
 }
 </style>
