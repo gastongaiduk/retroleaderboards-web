@@ -21,6 +21,12 @@ const friends = useFriendsState();
 const leaderboardEntries = useLeaderboardEntries();
 
 const repository = new GameRepository();
+const apiUrl = import.meta.env.VITE_API_URL;
+
+function getFullImageUrl(path: string | undefined) {
+    if (!path) return "";
+    return apiUrl + '/' + path.replace(/\\/g, '/');
+}
 
 const props = defineProps({
   id: {
@@ -289,6 +295,12 @@ const userStats = computed(() => {
   };
 });
 
+function goToGameLeaderboards() {
+  if (selectedGame.value) {
+    postStore.selectGameLeaderboards(selectedGame.value);
+  }
+}
+
 </script>
 
 <template>
@@ -298,10 +310,13 @@ const userStats = computed(() => {
       :loading-state="loadingRefresh"
       @click="refreshScores"
     ></RefreshButton>
+    <div class="game-header-section">
+      <div class="game-pill" @click="goToGameLeaderboards">
+        <img v-if="selectedGame?.ImageIcon" :src="getFullImageUrl(selectedGame?.ImageIcon)" class="game-pill-icon" />
+        <span class="game-pill-title">{{ selectedGame?.Title }}</span>
+      </div>
+    </div>
     <h1 class="entries-title">{{ selectedLeaderboard?.Title }}</h1>
-    <h2 class="entries-subtitle">
-      {{ selectedGame?.Title }}
-    </h2>
 
     <div v-if="userStats" class="stats-container">
       <span class="stat-item">Total Players: {{ userStats.total }}</span>
@@ -354,18 +369,50 @@ const userStats = computed(() => {
 h1.entries-title {
   font-size: 17px;
   font-weight: 600;
-  color: #cba34e;
+  color: #e2e8f0;
   text-align: center;
-  margin: 12px 0 4px;
+  margin: 12px 0 20px;
   letter-spacing: -0.01em;
 }
 
-h2.entries-subtitle {
-  font-size: 12px;
-  font-weight: 400;
-  color: #64748b;
-  text-align: center;
-  margin: 0 0 8px;
+.game-header-section {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.game-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(203, 163, 78, 0.15);
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-pill:hover {
+  background-color: rgba(30, 41, 59, 0.8);
+  border-color: rgba(203, 163, 78, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(203, 163, 78, 0.1);
+}
+
+.game-pill-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.game-pill-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cba34e;
+  letter-spacing: 0.02em;
 }
 
 .stats-container {

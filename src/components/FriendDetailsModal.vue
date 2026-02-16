@@ -1,17 +1,105 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import { UserSummary } from "../models/UserSummary";
-import { GameList } from "../models/RecentlyPlayedGames";
+import { GameList, Game } from "../models/RecentlyPlayedGames";
+import { UserGameLeaderboard } from "../models/UserGameLeaderboards";
+import { usePostStore } from "../stores/postStore";
+import { Leaderboard } from "../models/GameLeaderboards";
+import GameRepository from "../repositories/GameRepository";
 
 const props = defineProps<{
     isVisible: boolean;
     loading: boolean;
     summary: UserSummary | null;
-    recentGames: GameList | null;
 }>();
 
 const emit = defineEmits(["close"]);
 
+const postStore = usePostStore();
+const gameRepo = new GameRepository();
 const apiUrl = import.meta.env.VITE_API_URL;
+
+const games = ref<GameList>([]);
+const offset = ref(0);
+const pageSize = 5;
+const hasMore = ref(true);
+const loadingMore = ref(false);
+
+const expandedGameId = ref<number | null>(null);
+const leaderboardsCache = ref<Record<number, UserGameLeaderboard[]>>({});
+const loadingLeaderboards = ref<number | null>(null);
+
+watch([() => props.isVisible, () => props.summary], async ([visible, summary]) => {
+    if (visible && summary && games.value.length === 0) {
+        await fetchGames();
+    } else if (!visible) {
+        resetGames();
+    }
+});
+
+function resetGames() {
+    games.value = [];
+    offset.value = 0;
+    hasMore.value = true;
+    expandedGameId.value = null;
+    leaderboardsCache.value = {};
+}
+
+async function fetchGames() {
+    if (!props.summary || loadingMore.value) return;
+
+    loadingMore.value = true;
+    try {
+        const result = await gameRepo.fetchLastPlayedGames(pageSize, offset.value, props.summary.User);
+        if (result.length < pageSize) {
+            hasMore.value = false;
+        }
+        games.value.push(...result);
+        offset.value += pageSize;
+    } catch (error) {
+        console.error("Error fetching games:", error);
+    } finally {
+        loadingMore.value = false;
+    }
+}
+
+async function toggleGame(game: Game) {
+    if (expandedGameId.value === game.GameID) {
+        expandedGameId.value = null;
+        return;
+    }
+
+    expandedGameId.value = game.GameID;
+
+    if (!leaderboardsCache.value[game.GameID]) {
+        loadingLeaderboards.value = game.GameID;
+        try {
+            const response = await gameRepo.fetchUserGameLeaderboards(game.GameID, props.summary!.User);
+            // Filter only results that have a user entry (friend's score)
+            leaderboardsCache.value[game.GameID] = response.Results.filter(lb => lb.UserEntry !== null);
+        } catch (error) {
+            console.error("Error fetching leaderboards:", error);
+        } finally {
+            loadingLeaderboards.value = null;
+        }
+    }
+}
+
+function navigateToLeaderboard(game: Game, lb: UserGameLeaderboard) {
+    // Construct a Leaderboard model from UserGameLeaderboard
+    const leaderboardModel: Leaderboard = {
+        ID: lb.ID,
+        Title: lb.Title,
+        Description: lb.Description,
+        Format: lb.Format,
+        RankAsc: lb.RankAsc,
+        TopEntry: null // We don't have this info here, but the entries page will fetch its own data
+    };
+    
+    postStore.selectGameLeaderboards(game, false);
+    postStore.selectLeaderboard(leaderboardModel);
+    close();
+}
 
 function close() {
     emit("close");
@@ -63,16 +151,42 @@ function getFullImageUrl(path: string) {
                     </div>
                 </div>
 
-                <div v-if="recentGames && recentGames.length" class="recent-games">
-                    <h3 class="section-title">Last 5 Games</h3>
+                <div class="recent-games">
+                    <h3 class="section-title">Recently Played</h3>
                     <div class="games-list">
-                        <div v-for="game in recentGames" :key="game.GameID" class="game-item">
-                            <img :src="getFullImageUrl(game.ImageIcon)" class="game-icon" />
-                            <div class="game-info">
-                                <span class="game-title">{{ game.Title }}</span>
-                                <span class="game-console">{{ game.ConsoleName }}</span>
+                        <div v-for="game in games" :key="game.GameID" class="game-container">
+                            <div class="game-item" @click="toggleGame(game)" :class="{ active: expandedGameId === game.GameID }">
+                                <img :src="getFullImageUrl(game.ImageIcon)" class="game-icon" />
+                                <div class="game-info">
+                                    <span class="game-title">{{ game.Title }}</span>
+                                    <span class="game-console">{{ game.ConsoleName }}</span>
+                                </div>
+                                <i class="fa" :class="expandedGameId === game.GameID ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </div>
+
+                            <div v-if="expandedGameId === game.GameID" class="leaderboards-section">
+                                <div v-if="loadingLeaderboards === game.GameID" class="lb-loading">
+                                    <i class="fa fa-refresh fa-spin"></i> Loading scores...
+                                </div>
+                                <div v-else-if="leaderboardsCache[game.GameID]?.length" class="lb-list">
+                                    <div v-for="lb in leaderboardsCache[game.GameID]" :key="lb.ID" class="lb-item" @click="navigateToLeaderboard(game, lb)">
+                                        <div class="lb-info">
+                                            <span class="lb-title">{{ lb.Title }}</span>
+                                            <span class="lb-rank">Rank: #{{ lb.UserEntry?.Rank }}</span>
+                                        </div>
+                                        <div class="lb-score">{{ lb.UserEntry?.FormattedScore }}</div>
+                                    </div>
+                                </div>
+                                <div v-else class="lb-empty">
+                                    No leaderboard entries found for this friend.
+                                </div>
                             </div>
                         </div>
+
+                        <button v-if="hasMore" class="load-more-button" @click="fetchGames" :disabled="loadingMore">
+                            <span v-if="loadingMore"><i class="fa fa-refresh fa-spin"></i> Loading...</span>
+                            <span v-else>Load More</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -257,30 +371,50 @@ function getFullImageUrl(path: string) {
     gap: 8px;
 }
 
+.game-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 .game-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px;
+    padding: 10px;
     background-color: rgba(30, 41, 59, 0.3);
     border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.game-item:hover {
+    background-color: rgba(30, 41, 59, 0.5);
+    border-color: rgba(203, 163, 78, 0.1);
+}
+
+.game-item.active {
+    background-color: rgba(30, 41, 59, 0.6);
+    border-color: rgba(203, 163, 78, 0.2);
 }
 
 .game-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
 }
 
 .game-info {
     display: flex;
     flex-direction: column;
+    flex: 1;
     min-width: 0;
 }
 
 .game-title {
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     color: #e2e8f0;
     white-space: nowrap;
     overflow: hidden;
@@ -288,7 +422,107 @@ function getFullImageUrl(path: string) {
 }
 
 .game-console {
-    font-size: 10px;
+    font-size: 11px;
     color: #64748b;
+}
+
+.fa-chevron-up, .fa-chevron-down {
+    font-size: 12px;
+    color: #475569;
+}
+
+.leaderboards-section {
+    background-color: rgba(15, 23, 42, 0.3);
+    border-radius: 0 0 8px 8px;
+    padding: 8px 12px 12px;
+    margin-top: -4px;
+    border: 1px solid rgba(203, 163, 78, 0.1);
+    border-top: none;
+}
+
+.lb-loading, .lb-empty {
+    padding: 12px;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.lb-loading i {
+    color: #cba34e;
+    margin-right: 6px;
+}
+
+.lb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lb-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: rgba(30, 41, 59, 0.4);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.lb-item:hover {
+    background-color: rgba(30, 41, 59, 0.8);
+    transform: translateX(4px);
+    border-color: rgba(203, 163, 78, 0.3);
+}
+
+.lb-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.lb-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #cba34e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lb-rank {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.lb-score {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-left: 12px;
+}
+
+.load-more-button {
+    margin-top: 8px;
+    padding: 10px;
+    background-color: transparent;
+    border: 1px dashed rgba(148, 163, 184, 0.2);
+    color: #94a3b8;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.load-more-button:hover:not(:disabled) {
+    background-color: rgba(148, 163, 184, 0.05);
+    border-color: rgba(148, 163, 184, 0.4);
+    color: #e2e8f0;
+}
+
+.load-more-button:disabled {
+    opacity: 0.5;
+    cursor: wait;
 }
 </style>
