@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 import { useUpdatesStore } from "../stores/updates.ts";
-
 import { useRecentGamesStore } from "../stores/recentGames.ts";
 
 const router = useRouter();
@@ -76,14 +75,11 @@ const goTo = (path: string) => {
   width: 100%;
   height: 56px;
   min-height: 56px;
-  background-color: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-default);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1px solid rgba(203, 163, 78, 0.12);
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.3);
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: content-box;
 }
@@ -92,7 +88,7 @@ const goTo = (path: string) => {
   -webkit-tap-highlight-color: transparent;
   background: none;
   border: none;
-  color: rgba(148, 163, 184, 0.6);
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -101,12 +97,12 @@ const goTo = (path: string) => {
   height: 100%;
   cursor: pointer;
   padding: 6px 0;
-  transition: color 0.2s ease;
+  transition: color var(--transition-normal);
   gap: 3px;
 }
 
 .nav-item.active {
-  color: #cba34e;
+  color: var(--accent-primary);
 }
 
 .nav-icon {
@@ -133,21 +129,21 @@ const goTo = (path: string) => {
   position: absolute;
   top: -5px;
   right: -9px;
-  background-color: #ef4444;
+  background-color: var(--accent-primary);
   color: white;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 1px 4px;
   font-size: 9px;
   font-weight: 600;
   min-width: 14px;
   text-align: center;
-  border: 1.5px solid #0f172a;
+  border: 1.5px solid var(--bg-surface);
   line-height: 1.2;
 }
 
 @media (hover: hover) {
   .nav-item:hover {
-    color: #d4b565;
+    color: var(--text-secondary);
   }
 }
 </style>

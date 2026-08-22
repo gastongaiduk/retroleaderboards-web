@@ -4,6 +4,7 @@ import App from "./App.vue";
 import router from "./router/index";
 import { markRaw } from "vue";
 import { initPostHog } from "./utils/posthog";
+import "./styles/base.css";
 
 initPostHog();
 

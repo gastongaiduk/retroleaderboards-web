@@ -9,7 +9,8 @@ defineProps({
   position: {
     type: String,
     default: "top",
-    validator: (val: string) => ["top", "bottom", "left", "right"].includes(val),
+    validator: (val: string) =>
+      ["top", "bottom", "left", "right"].includes(val),
   },
 });
 
@@ -51,17 +52,17 @@ function onMouseLeave() {
 
 .tooltip-content {
   position: absolute;
-  background: #1e293b;
-  color: #e2e8f0;
+  background: var(--bg-surface);
+  color: var(--text-primary);
   padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 11px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
   font-weight: 500;
   white-space: nowrap;
   z-index: 100;
   pointer-events: none;
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-md);
 }
 
 .tooltip-content.top {
@@ -94,7 +95,7 @@ function onMouseLeave() {
 
 .tooltip-fade-enter-active,
 .tooltip-fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity var(--transition-fast);
 }
 
 .tooltip-fade-enter-from,

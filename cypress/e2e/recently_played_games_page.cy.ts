@@ -1,10 +1,10 @@
 describe("recently played games page", () => {
   beforeEach(() => {
     cy.clearAllLocalStorage();
-    // Set up basic authenticated state 
+    // Set up basic authenticated state
     cy.window().then((win) => {
-      win.localStorage.setItem('user_id', 'fake-user-id');
-      win.localStorage.setItem('token', 'fake-token');
+      win.localStorage.setItem("user_id", "fake-user-id");
+      win.localStorage.setItem("token", "fake-token");
     });
   });
 
@@ -35,7 +35,7 @@ describe("recently played games page", () => {
     cy.url().should("satisfy", (url) => {
       return url.includes("/home") || url.includes("/ra-credentials");
     });
-    
+
     // Check for either no games message or game list
     cy.get("body").then(($body) => {
       if ($body.find(":contains('No games played yet')").length > 0) {
@@ -113,8 +113,8 @@ describe("recently played games page", () => {
 
     // Set up auth without encrypted values to avoid decryption errors
     cy.window().then((win) => {
-      win.localStorage.setItem('user_id', 'fake-user-id');
-      win.localStorage.setItem('token', 'fake-token');
+      win.localStorage.setItem("user_id", "fake-user-id");
+      win.localStorage.setItem("token", "fake-token");
     });
 
     // Visit home page directly
@@ -128,15 +128,15 @@ describe("recently played games page", () => {
       if ($body.find(".menu-toggle").length > 0) {
         cy.get(".menu-toggle").click();
         cy.wait(500);
-        
+
         if ($body.find(":contains('Logout')").length > 0) {
           cy.contains("Logout").click();
           cy.wait(500);
-          
+
           if ($body.find(".confirm-button").length > 0) {
             cy.get(".confirm-button").click();
             cy.wait(1000);
-            
+
             // Verify logout
             cy.getAllLocalStorage().should("be.empty");
             cy.url().should("include", "/welcome");

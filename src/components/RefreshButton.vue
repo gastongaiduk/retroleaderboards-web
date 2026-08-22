@@ -23,7 +23,7 @@ function clickAction() {
 </script>
 
 <template>
-  <Tooltip text="Refresh content" position="left" style="float: right">
+  <Tooltip text="Refresh content" position="left">
     <button
       class="refresh-button"
       @click="clickAction"
@@ -37,20 +37,19 @@ function clickAction() {
 
 <style scoped>
 .refresh-button {
-  background: rgba(203, 163, 78, 0.12);
-  color: #cba34e;
-  border: 1px solid rgba(203, 163, 78, 0.2);
+  background: rgba(233, 69, 96, 0.1);
+  color: var(--accent-primary);
+  border: 1px solid var(--border-accent);
   padding: 7px 14px;
   cursor: pointer;
-  font-size: 14px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  float: right;
+  font-size: var(--text-base);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
 }
 
 .refresh-button:hover:not(:disabled) {
-  background: rgba(203, 163, 78, 0.2);
-  border-color: rgba(203, 163, 78, 0.35);
+  background: rgba(233, 69, 96, 0.15);
+  border-color: var(--accent-primary);
 }
 
 .refresh-button:disabled {
