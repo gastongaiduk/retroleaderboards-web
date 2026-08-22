@@ -83,10 +83,10 @@ import BackButton from "../components/BackButton.vue";
 .privacy-page {
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   display: flex;
-  padding: 24px 16px;
+  padding: var(--space-6) var(--space-4);
   box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -101,30 +101,30 @@ import BackButton from "../components/BackButton.vue";
 .privacy-title {
   font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: 700;
-  color: #cba34e;
+  color: var(--accent-primary);
   margin: 1.5rem 0;
   letter-spacing: -0.02em;
 }
 
 .privacy-section {
-  background-color: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(203, 163, 78, 0.1);
-  border-radius: 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .section-title {
-  font-size: 14px;
+  font-size: var(--text-base);
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
   margin: 0 0 0.5rem;
 }
 
 .section-text {
-  font-size: 13px;
+  font-size: var(--text-sm);
   line-height: 1.7;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0 0 0.75rem;
 }
 
@@ -133,15 +133,15 @@ import BackButton from "../components/BackButton.vue";
 }
 
 .section-list {
-  font-size: 13px;
+  font-size: var(--text-sm);
   line-height: 1.7;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0 0 0.75rem;
   padding-left: 1.25rem;
 }
 
 .privacy-content a {
-  color: #cba34e;
+  color: var(--accent-primary);
   text-decoration: none;
 }
 

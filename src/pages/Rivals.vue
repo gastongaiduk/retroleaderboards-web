@@ -129,7 +129,8 @@ onMounted(async () => {
     </header>
 
     <p class="info-hint">
-      Only followed games where you and a friend have scores in the same leaderboards will appear here.
+      Only followed games where you and a friend have scores in the same
+      leaderboards will appear here.
     </p>
 
     <div v-if="rivalsStore.loading" class="loading-banner">
@@ -155,12 +156,19 @@ onMounted(async () => {
             <div class="game-info">
               <span class="game-name">{{ game.gameName }}</span>
               <span class="game-meta">
-                {{ game.rivals.length }} rival{{ game.rivals.length !== 1 ? 's' : '' }} · {{ game.totalLeaderboards }} leaderboards
+                {{ game.rivals.length }} rival{{
+                  game.rivals.length !== 1 ? "s" : ""
+                }}
+                · {{ game.totalLeaderboards }} leaderboards
               </span>
             </div>
             <i
               class="fa chevron-icon"
-              :class="expandedGameId === game.gameId ? 'fa-chevron-up' : 'fa-chevron-down'"
+              :class="
+                expandedGameId === game.gameId
+                  ? 'fa-chevron-up'
+                  : 'fa-chevron-down'
+              "
             />
           </div>
 
@@ -178,14 +186,20 @@ onMounted(async () => {
                   <span class="rival-username">{{ rival.username }}</span>
                   <span
                     class="rival-status"
-                    :class="getRivalryLabel(rival.wins.length, rival.losses.length)"
+                    :class="
+                      getRivalryLabel(rival.wins.length, rival.losses.length)
+                    "
                   >
                     {{ rival.wins.length }}W - {{ rival.losses.length }}L
                   </span>
                 </div>
                 <i
                   class="fa"
-                  :class="isRivalExpanded(game.gameId, rival.username) ? 'fa-minus' : 'fa-plus'"
+                  :class="
+                    isRivalExpanded(game.gameId, rival.username)
+                      ? 'fa-minus'
+                      : 'fa-plus'
+                  "
                 />
               </div>
 
@@ -201,7 +215,9 @@ onMounted(async () => {
                     class="battle-item"
                     @click="navigateToBattle(game, battle)"
                   >
-                    <span class="battle-name">{{ battle.leaderboardTitle }}</span>
+                    <span class="battle-name">{{
+                      battle.leaderboardTitle
+                    }}</span>
                     <div class="battle-stats">
                       <div class="stat left">
                         <span class="stat-rank">#{{ battle.myRank }}</span>
@@ -209,8 +225,12 @@ onMounted(async () => {
                       </div>
                       <div class="stat-divider">vs</div>
                       <div class="stat right">
-                        <span class="stat-value winner">{{ battle.friendScore }}</span>
-                        <span class="stat-rank winner">#{{ battle.friendRank }}</span>
+                        <span class="stat-value winner">{{
+                          battle.friendScore
+                        }}</span>
+                        <span class="stat-rank winner"
+                          >#{{ battle.friendRank }}</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -224,11 +244,17 @@ onMounted(async () => {
                     class="battle-item"
                     @click="navigateToBattle(game, battle)"
                   >
-                    <span class="battle-name">{{ battle.leaderboardTitle }}</span>
+                    <span class="battle-name">{{
+                      battle.leaderboardTitle
+                    }}</span>
                     <div class="battle-stats">
                       <div class="stat left">
-                        <span class="stat-rank winner">#{{ battle.myRank }}</span>
-                        <span class="stat-value winner">{{ battle.myScore }}</span>
+                        <span class="stat-rank winner"
+                          >#{{ battle.myRank }}</span
+                        >
+                        <span class="stat-value winner">{{
+                          battle.myScore
+                        }}</span>
                       </div>
                       <div class="stat-divider">vs</div>
                       <div class="stat right">
@@ -257,8 +283,8 @@ onMounted(async () => {
 
 <style scoped>
 .page-container {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   padding: 16px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -279,7 +305,7 @@ onMounted(async () => {
   flex: 1;
   font-size: 17px;
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   text-align: center;
   letter-spacing: -0.01em;
 }
@@ -291,9 +317,9 @@ onMounted(async () => {
 }
 
 .game-card {
-  background-color: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.06);
-  border-radius: 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   margin-bottom: 10px;
   overflow: hidden;
 }
@@ -307,19 +333,19 @@ onMounted(async () => {
 }
 
 .game-header:active {
-  background-color: rgba(30, 41, 59, 0.9);
+  background-color: var(--bg-surface-hover);
 }
 
 @media (hover: hover) {
   .game-header:hover {
-    background-color: rgba(30, 41, 59, 0.9);
+    background-color: var(--bg-surface-hover);
   }
 }
 
 .game-icon {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin-right: 12px;
   flex-shrink: 0;
 }
@@ -333,20 +359,20 @@ onMounted(async () => {
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
   line-height: 1.4;
   word-break: break-word;
 }
 
 .game-meta {
   display: block;
-  font-size: 11px;
-  color: #64748b;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .chevron-icon {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   flex-shrink: 0;
   margin-left: 8px;
@@ -354,7 +380,7 @@ onMounted(async () => {
 
 .game-details {
   padding: 0 14px 14px;
-  border-top: 1px solid rgba(148, 163, 184, 0.06);
+  border-top: 1px solid var(--border-default);
 }
 
 .rival-item {
@@ -362,7 +388,7 @@ onMounted(async () => {
 }
 
 .rival-item + .rival-item {
-  border-top: 1px solid rgba(148, 163, 184, 0.04);
+  border-top: 1px solid var(--border-default);
 }
 
 .rival-header {
@@ -385,9 +411,9 @@ onMounted(async () => {
 }
 
 .rival-username {
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .rival-status {
@@ -400,17 +426,17 @@ onMounted(async () => {
 
 .rival-status.winning {
   background-color: rgba(34, 197, 94, 0.12);
-  color: #4ade80;
+  color: var(--accent-green);
 }
 
 .rival-status.losing {
   background-color: rgba(239, 68, 68, 0.12);
-  color: #f87171;
+  color: var(--accent-red);
 }
 
 .rival-header .fa {
   font-size: 10px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .rival-battles {
@@ -437,17 +463,17 @@ onMounted(async () => {
 }
 
 .section-title.winning {
-  color: #4ade80;
+  color: var(--accent-green);
 }
 
 .section-title.losing {
-  color: #f87171;
+  color: var(--accent-red);
 }
 
 .battle-item {
-  background-color: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(148, 163, 184, 0.08);
-  border-radius: 8px;
+  background-color: var(--bg-body);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   padding: 8px 10px;
   margin-bottom: 6px;
   cursor: pointer;
@@ -455,15 +481,15 @@ onMounted(async () => {
 }
 
 .battle-item:hover {
-  background-color: rgba(30, 41, 59, 0.6);
-  border-color: rgba(203, 163, 78, 0.3);
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-accent);
 }
 
 .battle-name {
   display: block;
-  font-size: 11px;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -496,22 +522,22 @@ onMounted(async () => {
 .stat-rank {
   font-size: 10px;
   font-weight: 700;
-  color: #475569;
+  color: var(--text-muted);
   min-width: 24px;
 }
 
 .stat-rank.winner {
-  color: #cba34e;
+  color: var(--accent-gold);
 }
 
 .stat-value {
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .stat-value.winner {
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .stat-divider {
@@ -526,10 +552,10 @@ onMounted(async () => {
   width: 100%;
   margin-top: 16px;
   padding: 11px;
-  background-color: rgba(203, 163, 78, 0.1);
-  border: 1px solid rgba(203, 163, 78, 0.2);
-  border-radius: 10px;
-  color: #cba34e;
+  background-color: rgba(233, 69, 96, 0.1);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-lg);
+  color: var(--accent-primary);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -537,8 +563,8 @@ onMounted(async () => {
 }
 
 .view-game-button:hover {
-  background-color: rgba(203, 163, 78, 0.15);
-  border-color: rgba(203, 163, 78, 0.3);
+  background-color: rgba(233, 69, 96, 0.15);
+  border-color: var(--accent-primary);
 }
 
 .loading-banner {
@@ -550,23 +576,23 @@ onMounted(async () => {
   margin-bottom: 16px;
   background-color: rgba(203, 163, 78, 0.06);
   border: 1px solid rgba(203, 163, 78, 0.1);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 
 .loading-spinner {
-  color: #cba34e;
+  color: var(--accent-gold);
   font-size: 13px;
 }
 
 .loading-text {
   font-size: 13px;
-  color: #cba34e;
+  color: var(--accent-gold);
 }
 
 .info-hint {
   text-align: center;
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   margin: 0 0 16px;
   padding: 0 10px;
   display: flex;
@@ -580,7 +606,42 @@ onMounted(async () => {
   text-align: center;
   padding: 60px 24px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
   line-height: 1.8;
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6);
+  }
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+  .game-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  .game-card {
+    margin-bottom: 0;
+  }
+  .game-header {
+    padding: var(--space-5);
+  }
+  .game-icon {
+    width: 56px;
+    height: 56px;
+  }
+  .game-name {
+    font-size: var(--text-lg);
+  }
+}
+
+@media (min-width: 1280px) {
+  .game-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 </style>

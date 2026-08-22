@@ -12,11 +12,7 @@
           <i v-if="loading" class="fa fa-spinner fa-spin"></i>
           <span v-else>Confirm</span>
         </button>
-        <button
-          @click="cancelAction"
-          class="cancel-button"
-          :disabled="loading"
-        >
+        <button @click="cancelAction" class="cancel-button" :disabled="loading">
           Cancel
         </button>
       </div>
@@ -45,9 +41,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(2, 6, 23, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: var(--bg-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,35 +49,35 @@ export default {
 }
 
 .modal-content {
-  background-color: #1e293b;
-  color: #e2e8f0;
-  padding: 24px;
-  border-radius: 14px;
-  border: 1px solid rgba(203, 163, 78, 0.15);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
   text-align: center;
   max-width: 360px;
   width: calc(100% - 40px);
 }
 
 .modal-title {
-  color: #cba34e;
-  margin: 0 0 12px;
-  font-size: 16px;
+  color: var(--accent-primary);
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-lg);
   font-weight: 600;
 }
 
 .modal-text {
-  margin: 0 0 20px;
-  font-size: 13px;
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-sm);
   line-height: 1.6;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .modal-buttons {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .confirm-button,
@@ -91,20 +85,20 @@ export default {
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
 }
 
 .confirm-button {
-  background-color: #cba34e;
-  color: #0f172a;
+  background-color: var(--accent-primary);
+  color: white;
   min-width: 90px;
 }
 
 .confirm-button:hover:not(:disabled) {
-  background-color: #b8923f;
+  background-color: var(--accent-primary-hover);
 }
 
 .confirm-button:disabled {
@@ -113,13 +107,13 @@ export default {
 }
 
 .cancel-button {
-  background-color: rgba(148, 163, 184, 0.1);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background-color: var(--bg-body);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
 }
 
 .cancel-button:hover:not(:disabled) {
-  background-color: rgba(148, 163, 184, 0.2);
+  background-color: var(--bg-surface-hover);
 }
 
 .cancel-button:disabled {

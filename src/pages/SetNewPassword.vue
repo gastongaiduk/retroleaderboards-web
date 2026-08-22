@@ -72,9 +72,7 @@ async function handleSubmit() {
     <div class="auth-card">
       <header class="auth-header">
         <h1 class="auth-title">Set new password</h1>
-        <p class="auth-subtitle">
-          Choose a new password for your account.
-        </p>
+        <p class="auth-subtitle">Choose a new password for your account.</p>
       </header>
 
       <form v-if="!success" @submit.prevent="handleSubmit" class="auth-form">
@@ -91,7 +89,9 @@ async function handleSubmit() {
           />
         </div>
         <div class="form-group">
-          <label for="password-confirm" class="form-label">Confirm new password</label>
+          <label for="password-confirm" class="form-label"
+            >Confirm new password</label
+          >
           <input
             type="password"
             id="password-confirm"
@@ -114,10 +114,12 @@ async function handleSubmit() {
           <i class="fa fa-check-circle"></i>
         </div>
         <p class="success-title">Password updated!</p>
-        <p class="success-text">
-          Your password has been changed successfully.
-        </p>
-        <button type="button" class="btn btn-submit" @click="router.push(getRedirectPath())">
+        <p class="success-text">Your password has been changed successfully.</p>
+        <button
+          type="button"
+          class="btn btn-submit"
+          @click="router.push(getRedirectPath())"
+        >
           Continue
         </button>
       </div>
@@ -129,13 +131,10 @@ async function handleSubmit() {
 .auth-page {
   height: 100vh;
   height: 100dvh;
-  background-color: #0f172a;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 163, 78, 0.06), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(203, 163, 78, 0.04), transparent);
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   display: flex;
-  padding: 24px 16px;
+  padding: var(--space-6) var(--space-4);
   box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -145,13 +144,11 @@ async function handleSubmit() {
   width: 100%;
   max-width: 380px;
   margin: auto;
-  background-color: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(203, 163, 78, 0.1);
-  border-radius: 14px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 28px 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-lg);
 }
 
 .auth-header {
@@ -162,14 +159,14 @@ async function handleSubmit() {
 .auth-title {
   font-size: 20px;
   font-weight: 700;
-  color: #cba34e;
+  color: var(--accent-primary);
   margin: 0 0 6px;
   letter-spacing: -0.01em;
 }
 
 .auth-subtitle {
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.6;
 }
@@ -186,7 +183,7 @@ async function handleSubmit() {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -197,22 +194,28 @@ async function handleSubmit() {
   box-sizing: border-box;
   padding: 10px 12px;
   font-size: 14px;
-  color: #e2e8f0;
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--text-primary);
+  background-color: var(--bg-body);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(203, 163, 78, 0.5);
-  box-shadow: 0 0 0 3px rgba(203, 163, 78, 0.08);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.08);
 }
 
 .form-error {
   font-size: 12px;
-  color: #f87171;
+  color: var(--accent-red);
   margin: 0 0 0.75rem;
   line-height: 1.5;
 }
@@ -223,16 +226,16 @@ async function handleSubmit() {
   font-size: 14px;
   font-weight: 600;
   padding: 11px 24px;
-  background-color: #cba34e;
-  color: #0f172a;
+  background-color: var(--accent-primary);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .btn-submit:hover:not(:disabled) {
-  background-color: #b8923f;
+  background-color: var(--accent-primary-hover);
 }
 
 .btn-submit:disabled {
@@ -247,27 +250,35 @@ async function handleSubmit() {
 
 .success-icon {
   font-size: 40px;
-  color: #4ade80;
+  color: var(--accent-green);
   margin-bottom: 16px;
   animation: scaleIn 0.4s ease;
 }
 
 @keyframes scaleIn {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.15); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .success-title {
   font-size: 18px;
   font-weight: 700;
-  color: #cba34e;
+  color: var(--accent-primary);
   margin: 0 0 8px;
 }
 
 .success-text {
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0 0 24px;
 }

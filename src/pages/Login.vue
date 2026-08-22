@@ -105,13 +105,21 @@ onMounted(async () => {
       </form>
 
       <p class="auth-extra">
-        <button type="button" class="link-button" @click="router.push('/forgot-password')">
+        <button
+          type="button"
+          class="link-button"
+          @click="router.push('/forgot-password')"
+        >
           Forgot password?
         </button>
       </p>
       <p class="auth-footer">
         Don't have an account?
-        <button type="button" class="link-button" @click="router.push('/sign-up')">
+        <button
+          type="button"
+          class="link-button"
+          @click="router.push('/sign-up')"
+        >
           Sign up
         </button>
       </p>
@@ -123,13 +131,10 @@ onMounted(async () => {
 .auth-page {
   height: 100vh;
   height: 100dvh;
-  background-color: #0f172a;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 163, 78, 0.06), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(203, 163, 78, 0.04), transparent);
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   display: flex;
-  padding: 24px 16px;
+  padding: var(--space-6) var(--space-4);
   box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -139,13 +144,11 @@ onMounted(async () => {
   width: 100%;
   max-width: 380px;
   margin: auto;
-  background-color: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(203, 163, 78, 0.1);
-  border-radius: 14px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 28px 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-lg);
 }
 
 .back-link {
@@ -153,14 +156,14 @@ onMounted(async () => {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #cba34e;
+  color: var(--accent-primary);
   text-decoration: none;
   margin-bottom: 1.25rem;
   font-weight: 500;
 }
 
 .back-link:hover {
-  color: #d4b565;
+  color: var(--accent-primary-hover);
 }
 
 .auth-header {
@@ -171,14 +174,14 @@ onMounted(async () => {
 .auth-title {
   font-size: 20px;
   font-weight: 700;
-  color: #cba34e;
+  color: var(--accent-primary);
   margin: 0 0 6px;
   letter-spacing: -0.01em;
 }
 
 .auth-subtitle {
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
 }
@@ -195,7 +198,7 @@ onMounted(async () => {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -206,21 +209,23 @@ onMounted(async () => {
   box-sizing: border-box;
   padding: 10px 12px;
   font-size: 14px;
-  color: #e2e8f0;
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--text-primary);
+  background-color: var(--bg-body);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .form-input::placeholder {
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(203, 163, 78, 0.5);
-  box-shadow: 0 0 0 3px rgba(203, 163, 78, 0.08);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.08);
 }
 
 .btn-submit {
@@ -229,16 +234,16 @@ onMounted(async () => {
   font-size: 14px;
   font-weight: 600;
   padding: 11px 24px;
-  background-color: #cba34e;
-  color: #0f172a;
+  background-color: var(--accent-primary);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .btn-submit:hover:not(:disabled) {
-  background-color: #b8923f;
+  background-color: var(--accent-primary-hover);
 }
 
 .btn-submit:disabled {
@@ -254,16 +259,16 @@ onMounted(async () => {
 .auth-footer {
   text-align: center;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  border-top: 1px solid var(--border-default);
 }
 
 .link-button {
   font-size: 13px;
   font-weight: 500;
-  color: #cba34e;
+  color: var(--accent-primary);
   background: none;
   border: none;
   cursor: pointer;
@@ -271,7 +276,7 @@ onMounted(async () => {
 }
 
 .link-button:hover {
-  color: #d4b565;
+  color: var(--accent-primary-hover);
   text-decoration: underline;
 }
 </style>

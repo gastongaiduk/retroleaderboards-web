@@ -73,40 +73,45 @@ const uniqueGamesFromUpdates = computed(() => {
 
 const groupedUpdates = computed(() => {
   if (!filteredUpdates.value) return [];
-  
-  const groups = filteredUpdates.value.reduce((acc, update) => {
-    const gameId = update.leaderboards.game_id;
-    if (!acc[gameId]) {
-      acc[gameId] = {
-        gameId,
-        gameName: update.leaderboards.games.name,
-        gameIcon: update.leaderboards.games.image_icon,
-        updates: []
-      };
-    }
-    acc[gameId].updates.push(update);
-    return acc;
-  }, {} as Record<number, any>);
 
-  return Object.values(groups).sort((a, b) => a.gameName.localeCompare(b.gameName));
+  const groups = filteredUpdates.value.reduce(
+    (acc, update) => {
+      const gameId = update.leaderboards.game_id;
+      if (!acc[gameId]) {
+        acc[gameId] = {
+          gameId,
+          gameName: update.leaderboards.games.name,
+          gameIcon: update.leaderboards.games.image_icon,
+          updates: [],
+        };
+      }
+      acc[gameId].updates.push(update);
+      return acc;
+    },
+    {} as Record<number, any>,
+  );
+
+  return Object.values(groups).sort((a, b) =>
+    a.gameName.localeCompare(b.gameName),
+  );
 });
 
 function formatValue(value: number, format: string): string {
   if (!value && value !== 0) return "";
-  
+
   const fmt = format?.toUpperCase() || "SCORE";
-  
+
   if (fmt === "SCORE" || fmt === "POINTS" || fmt === "VALUE") {
     return value.toLocaleString();
   }
-  
+
   if (fmt === "TIME" || fmt === "FRAMES") {
     // RA TIME is usually frames (60 fps)
     const hours = Math.floor(value / 216000);
     const minutes = Math.floor((value % 216000) / 3600);
     const seconds = Math.floor((value % 3600) / 60);
     const centiseconds = Math.floor(((value % 60) / 60) * 100);
-    
+
     let res = "";
     if (hours > 0) res += `${hours}:`;
     res += `${String(minutes).padStart(2, "0")}:`;
@@ -114,15 +119,15 @@ function formatValue(value: number, format: string): string {
     res += String(centiseconds).padStart(2, "0");
     return res;
   }
-  
+
   if (fmt === "MILLISECS") {
     const seconds = Math.floor(value / 1000);
     const ms = value % 1000;
     const minutes = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return `${minutes}:${String(s).padStart(2, "0")}.${String(Math.floor(ms/10)).padStart(2, "0")}`;
+    return `${minutes}:${String(s).padStart(2, "0")}.${String(Math.floor(ms / 10)).padStart(2, "0")}`;
   }
-  
+
   return value.toLocaleString();
 }
 
@@ -269,7 +274,10 @@ onMounted(async () => {
       <i class="fa fa-info-circle" aria-hidden="true"></i>
       Updates are refreshed every hour.
     </p>
-    <div v-if="updatesStore.updates && uniqueGamesFromUpdates.length > 1" class="filter-row">
+    <div
+      v-if="updatesStore.updates && uniqueGamesFromUpdates.length > 1"
+      class="filter-row"
+    >
       <label for="game-filter" class="filter-label">Filter by game</label>
       <select
         id="game-filter"
@@ -289,7 +297,11 @@ onMounted(async () => {
     </div>
     <div v-if="updatesStore.updates">
       <div v-if="groupedUpdates.length" class="grouped-updates">
-        <div v-for="group in groupedUpdates" :key="group.gameId" class="game-group">
+        <div
+          v-for="group in groupedUpdates"
+          :key="group.gameId"
+          class="game-group"
+        >
           <div class="game-group-header">
             <img
               :src="apiUrl + '\\' + group.gameIcon"
@@ -320,11 +332,15 @@ onMounted(async () => {
                 >
                   <span class="update-text">
                     <strong>{{ update.friend_name }}</strong> beat you on
-                    <span class="leaderboard-name">{{ update.leaderboards.name }}</span>
+                    <span class="leaderboard-name">{{
+                      update.leaderboards.name
+                    }}</span>
                   </span>
                   <span class="difference-text">
                     By {{ getFormattedDifference(update) }}
-                    <span class="format-label" v-if="update.leaderboards.format">({{ update.leaderboards.format.toLowerCase() }})</span>
+                    <span class="format-label" v-if="update.leaderboards.format"
+                      >({{ update.leaderboards.format.toLowerCase() }})</span
+                    >
                   </span>
                 </div>
                 <button
@@ -356,8 +372,10 @@ onMounted(async () => {
         <h2 class="section-subtitle">Games I Follow</h2>
         <span class="divider-line"></span>
       </div>
-      
-      <p class="section-info">Receive alerts when friends beat your scores in these games.</p>
+
+      <p class="section-info">
+        Receive alerts when friends beat your scores in these games.
+      </p>
 
       <div v-if="subscriptions">
         <ul v-if="subscriptions.length" class="followed-game-list">
@@ -373,7 +391,10 @@ onMounted(async () => {
                 class="followed-game-icon clickable"
                 @click="onFollowedGameClick(sub)"
               />
-              <div class="clickable followed-game-info" @click="onFollowedGameClick(sub)">
+              <div
+                class="clickable followed-game-info"
+                @click="onFollowedGameClick(sub)"
+              >
                 <span class="followed-game-name">{{ sub.games?.name }}</span>
               </div>
               <button
@@ -384,7 +405,10 @@ onMounted(async () => {
                 title="Unfollow Game"
               >
                 <i
-                  v-if="loadingUnsubscribe && subscriptionToUnsubscribe?.game_id === sub.game_id"
+                  v-if="
+                    loadingUnsubscribe &&
+                    subscriptionToUnsubscribe?.game_id === sub.game_id
+                  "
                   class="fa fa-spinner fa-spin"
                   aria-hidden="true"
                 />
@@ -417,8 +441,8 @@ onMounted(async () => {
 
 <style scoped>
 .page-container {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   padding: 16px;
   flex: 1;
   min-height: 0;
@@ -429,7 +453,7 @@ onMounted(async () => {
 .page-title {
   font-size: 17px;
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   margin: 0 0 6px;
   text-align: center;
   letter-spacing: -0.01em;
@@ -438,7 +462,7 @@ onMounted(async () => {
 .info-hint {
   text-align: center;
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   margin: 0 0 14px;
   display: flex;
   align-items: center;
@@ -447,7 +471,7 @@ onMounted(async () => {
 }
 
 .info-hint .fa {
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -462,15 +486,15 @@ onMounted(async () => {
 .filter-label {
   font-size: 12px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .filter-select {
-  background-color: rgba(15, 23, 42, 0.6);
-  color: #e2e8f0;
-  border: 1px solid rgba(203, 163, 78, 0.2);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   font-size: 12px;
   min-width: 160px;
   transition: border-color 0.2s ease;
@@ -478,7 +502,7 @@ onMounted(async () => {
 
 .filter-select:focus {
   outline: none;
-  border-color: rgba(203, 163, 78, 0.5);
+  border-color: var(--border-accent);
 }
 
 .game-list {
@@ -493,21 +517,21 @@ onMounted(async () => {
 .game-container {
   position: relative;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: flex-start;
-  background-color: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(148, 163, 184, 0.06);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
   transition: all 0.15s ease;
 }
 
 .game-container:hover {
-  background-color: rgba(30, 41, 59, 0.7);
+  background-color: var(--bg-surface-hover);
 }
 
 .game-container.unread {
-  background-color: rgba(203, 163, 78, 0.1);
-  border-color: rgba(203, 163, 78, 0.2);
+  background-color: var(--bg-surface);
+  border-color: var(--border-accent);
 }
 
 .game-icon {
@@ -515,7 +539,7 @@ onMounted(async () => {
   height: auto;
   margin-right: 12px;
   z-index: 1;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   flex-shrink: 0;
 }
 
@@ -535,31 +559,31 @@ onMounted(async () => {
 .game-name {
   font-size: 14px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .update-text {
   padding-top: 4px;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
 .leaderboard-description {
   padding-top: 4px;
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   font-style: italic;
 }
 
 .delete-button {
-  background: rgba(148, 163, 184, 0.08);
-  color: #64748b;
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
   padding: 8px 10px;
   cursor: pointer;
   font-size: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-left: auto;
   z-index: 2;
   flex-shrink: 0;
@@ -569,7 +593,7 @@ onMounted(async () => {
 .delete-button:hover {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  color: var(--accent-red);
 }
 
 /* Grouped Updates Styles */
@@ -595,26 +619,26 @@ onMounted(async () => {
 .game-group-title {
   font-size: 15px;
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   margin: 0;
 }
 
 .leaderboard-name {
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .difference-text {
   display: block;
   font-size: 12px;
-  color: #f87171;
+  color: var(--accent-red);
   margin-top: 4px;
   font-weight: 600;
 }
 
 .format-label {
   font-size: 10px;
-  color: #64748b;
+  color: var(--text-muted);
   font-weight: 400;
   margin-left: 4px;
 }
@@ -623,7 +647,7 @@ onMounted(async () => {
 .empty-text {
   text-align: center;
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
   padding: 20px 0;
 }
 
@@ -651,19 +675,24 @@ onMounted(async () => {
 .section-divider .divider-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(203, 163, 78, 0.2), transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border-accent),
+    transparent
+  );
 }
 
 .section-subtitle {
   font-size: 14px;
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   white-space: nowrap;
 }
 
 .section-info {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   text-align: center;
   margin-bottom: 16px;
 }
@@ -682,21 +711,21 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   padding: 10px;
-  background-color: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(148, 163, 184, 0.04);
-  border-radius: 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   transition: all 0.2s ease;
 }
 
 .followed-game-container:hover {
-  background-color: rgba(30, 41, 59, 0.6);
-  border-color: rgba(203, 163, 78, 0.1);
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-accent);
 }
 
 .followed-game-icon {
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-right: 12px;
   flex-shrink: 0;
 }
@@ -709,20 +738,20 @@ onMounted(async () => {
 .followed-game-name {
   font-size: 13px;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .unsubscribe-button {
-  background: rgba(148, 163, 184, 0.08);
-  color: #64748b;
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
   padding: 8px 10px;
   cursor: pointer;
   font-size: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-left: 10px;
   transition: all 0.2s ease;
 }
@@ -730,7 +759,7 @@ onMounted(async () => {
 .unsubscribe-button:hover:not(:disabled) {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  color: var(--accent-red);
 }
 
 .unsubscribe-button:disabled {
@@ -740,5 +769,50 @@ onMounted(async () => {
 
 .empty-text.small {
   padding: 20px;
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6);
+  }
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+  .game-group {
+    margin-bottom: var(--space-8);
+  }
+  .game-group-title {
+    font-size: var(--text-xl);
+  }
+  .game-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  .game-item {
+    margin-bottom: 0;
+  }
+  .game-container {
+    padding: var(--space-5);
+  }
+  .game-icon {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .game-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .game-container {
+    padding: var(--space-6);
+  }
+  .game-icon {
+    width: 64px;
+    height: 64px;
+  }
 }
 </style>

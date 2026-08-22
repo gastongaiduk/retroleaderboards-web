@@ -26,16 +26,33 @@ const routes: Array<RouteRecordRaw> = [
   { path: "/sign-up", name: "SignUp", component: SingUp },
   { path: "/logout", name: "Logout", component: Logout },
   { path: "/auth-callback", name: "AuthCallback", component: AuthCallback },
-  { path: "/forgot-password", name: "ForgotPassword", component: ForgotPassword },
+  {
+    path: "/forgot-password",
+    name: "ForgotPassword",
+    component: ForgotPassword,
+  },
   { path: "/privacy", name: "Privacy", component: Privacy },
-  { path: "/set-new-password", name: "SetNewPassword", component: SetNewPassword },
+  {
+    path: "/set-new-password",
+    name: "SetNewPassword",
+    component: SetNewPassword,
+  },
   {
     path: "/",
     component: MainLayout,
     children: [
-      { path: "home", name: "Home", component: Home, meta: { keepAlive: true } },
+      {
+        path: "home",
+        name: "Home",
+        component: Home,
+        meta: { keepAlive: true },
+      },
       { path: "friends", name: "Friends", component: Friends },
-      { path: "ra-credentials", name: "RACredentials", component: RaCredentials },
+      {
+        path: "ra-credentials",
+        name: "RACredentials",
+        component: RaCredentials,
+      },
       { path: "settings", name: "Settings", component: Settings },
       {
         path: "leaderboards-updates",

@@ -6,15 +6,12 @@ import { useUserStore } from "../stores/user.ts";
 import { captureEvent } from "../utils/posthog";
 import axios from "axios";
 
-
 const router = useRouter();
 const user = useUserStore();
 
 const usernameInput = ref("");
 const keyInput = ref("");
 const loading = ref(false);
-
-
 
 async function handleSubmit() {
   loading.value = true;
@@ -76,7 +73,6 @@ onMounted(() => {
     usernameInput.value = user.username;
     keyInput.value = user.key;
   }
-
 });
 </script>
 <template>
@@ -122,9 +118,8 @@ onMounted(() => {
 
 <style scoped>
 .page-container {
-  background-color: #0f172a;
-  color: #e2e8f0;
-  padding: 16px;
+  color: var(--text-primary);
+  padding: var(--space-4);
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -132,17 +127,17 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size: 17px;
+  font-size: var(--text-xl);
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   text-align: center;
-  margin: 0 0 24px;
+  margin: 0 0 var(--space-6);
   letter-spacing: -0.01em;
 }
 
 .user-form {
   max-width: 400px;
-  margin: 0 auto 20px;
+  margin: 0 auto var(--space-5);
 }
 
 .form-group {
@@ -152,9 +147,9 @@ onMounted(() => {
 .form-label {
   display: flex;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -164,36 +159,38 @@ onMounted(() => {
   width: 100%;
   box-sizing: border-box;
   padding: 10px 12px;
-  font-size: 14px;
-  color: #e2e8f0;
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background-color: var(--bg-body);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(203, 163, 78, 0.5);
-  box-shadow: 0 0 0 3px rgba(203, 163, 78, 0.08);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
 }
 
 .form-button {
   width: 100%;
-  margin-top: 4px;
-  font-size: 14px;
+  margin-top: var(--space-1);
+  font-size: var(--text-base);
   font-weight: 600;
   padding: 11px 24px;
-  background-color: #cba34e;
-  color: #0f172a;
+  background-color: var(--accent-primary);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-normal);
 }
 
 .form-button:hover:not(:disabled) {
-  background-color: #b8923f;
+  background-color: var(--accent-primary-hover);
 }
 
 .form-button:disabled {
@@ -202,20 +199,19 @@ onMounted(() => {
 }
 
 .link-icon {
-  color: #cba34e;
+  color: var(--accent-primary);
   padding-right: 8px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   text-decoration: none;
 }
 
 .link-icon:hover {
-  color: #d4b565;
+  color: var(--accent-primary-hover);
 }
 
 @media (min-width: 768px) {
   .page-container {
-    width: calc(100% - 40px);
-    max-width: 1200px;
+    max-width: var(--content-max-width);
     margin-left: auto;
     margin-right: auto;
   }

@@ -24,8 +24,8 @@ const repository = new GameRepository();
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function getFullImageUrl(path: string | undefined) {
-    if (!path) return "";
-    return apiUrl + '/' + path.replace(/\\/g, '/');
+  if (!path) return "";
+  return apiUrl + "/" + path.replace(/\\/g, "/");
 }
 
 const props = defineProps({
@@ -221,7 +221,8 @@ const sortedEntries = computed(() => {
 
     const rankA = Number(a.Rank);
     const rankB = Number(b.Rank);
-    const byRank = (isNaN(rankA) ? Infinity : rankA) - (isNaN(rankB) ? Infinity : rankB);
+    const byRank =
+      (isNaN(rankA) ? Infinity : rankA) - (isNaN(rankB) ? Infinity : rankB);
 
     if (isAMe && isBFriend) {
       return byRank;
@@ -276,7 +277,7 @@ const userStats = computed(() => {
   if (total === 0) return null;
 
   const myEntry = sortedEntries.value.find((entry) => isMe(entry.User));
-  
+
   if (!myEntry) {
     return {
       total,
@@ -300,19 +301,24 @@ function goToGameLeaderboards() {
     postStore.selectGameLeaderboards(selectedGame.value);
   }
 }
-
 </script>
 
 <template>
   <div class="page-container" ref="leaderboardEntriesElement">
-    <BackButton></BackButton>
-    <RefreshButton
-      :loading-state="loadingRefresh"
-      @click="refreshScores"
-    ></RefreshButton>
+    <div class="toolbar">
+      <BackButton></BackButton>
+      <RefreshButton
+        :loading-state="loadingRefresh"
+        @click="refreshScores"
+      ></RefreshButton>
+    </div>
     <div class="game-header-section">
       <div class="game-pill" @click="goToGameLeaderboards">
-        <img v-if="selectedGame?.ImageIcon" :src="getFullImageUrl(selectedGame?.ImageIcon)" class="game-pill-icon" />
+        <img
+          v-if="selectedGame?.ImageIcon"
+          :src="getFullImageUrl(selectedGame?.ImageIcon)"
+          class="game-pill-icon"
+        />
         <span class="game-pill-title">{{ selectedGame?.Title }}</span>
       </div>
     </div>
@@ -348,8 +354,11 @@ function goToGameLeaderboards() {
         <div v-if="loadingInfiniteScroll" class="loading-text">Loading...</div>
       </ul>
     </div>
-    <div v-else-if="!loadingRefresh && !loadingPriorityEntries" class="loading-text">
-        No entries found for this leaderboard.
+    <div
+      v-else-if="!loadingRefresh && !loadingPriorityEntries"
+      class="loading-text"
+    >
+      No entries found for this leaderboard.
     </div>
     <div v-else class="loading-text">Loading...</div>
   </div>
@@ -357,8 +366,8 @@ function goToGameLeaderboards() {
 
 <style scoped>
 .page-container {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   padding: 16px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -369,7 +378,7 @@ function goToGameLeaderboards() {
 h1.entries-title {
   font-size: 17px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
   text-align: center;
   margin: 12px 0 20px;
   letter-spacing: -0.01em;
@@ -385,33 +394,30 @@ h1.entries-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(203, 163, 78, 0.15);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-accent);
   padding: 6px 14px;
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .game-pill:hover {
-  background-color: rgba(30, 41, 59, 0.8);
-  border-color: rgba(203, 163, 78, 0.4);
+  background-color: var(--bg-surface-hover);
+  border-color: var(--accent-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(203, 163, 78, 0.1);
 }
 
 .game-pill-icon {
   width: 20px;
   height: 20px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .game-pill-title {
   font-size: 13px;
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   letter-spacing: 0.02em;
 }
 
@@ -422,15 +428,15 @@ h1.entries-title {
   gap: 8px;
   margin-bottom: 20px;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .stat-separator {
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .stat-item.highlight {
-  color: #cba34e;
+  color: var(--accent-primary);
   font-weight: 500;
 }
 
@@ -441,7 +447,7 @@ h1.entries-title {
 
 .priority-loading {
   font-size: 12px;
-  color: #cba34e;
+  color: var(--accent-primary);
   padding: 8px 0;
   text-align: center;
 }
@@ -456,38 +462,36 @@ h1.entries-title {
 
 .divider-line {
   flex-grow: 1;
-  border-bottom: 1px dashed rgba(203, 163, 78, 0.3);
+  border-bottom: 1px dashed var(--border-accent);
   margin: 0 10px;
 }
 
 .entry-item {
-  background-color: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.06);
-  border-radius: 10px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 10px 14px;
   margin-bottom: 6px;
   transition: background-color 0.15s ease;
 }
 
 .entry-item:hover {
-  background-color: rgba(30, 41, 59, 0.8);
+  background-color: var(--bg-surface-hover);
 }
 
 .entry-rank {
-  color: #cba34e;
+  color: var(--accent-gold);
   font-size: 16px;
   font-weight: 700;
 }
 
 .entry-username {
-  color: #94a3b8;
-  margin-top: 2px;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .entry-user-score {
-  color: #e2e8f0;
-  float: right;
+  color: var(--accent-gold);
   font-size: 13px;
   font-weight: 500;
 }
@@ -498,14 +502,61 @@ h1.entries-title {
 }
 
 .isMe {
-  border: 2px solid rgba(203, 163, 78, 0.4);
+  border: 2px solid var(--border-accent);
   background-color: rgba(203, 163, 78, 0.06);
 }
 
 .loading-text {
   text-align: center;
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
   padding: 16px 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6);
+  }
+  .entries-title {
+    font-size: var(--text-2xl);
+  }
+  .entry-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+  }
+  .entry-rank {
+    min-width: 60px;
+    font-size: var(--text-xl);
+  }
+  .entry-username {
+    flex: 1;
+    font-size: var(--text-lg);
+  }
+  .entry-user-score {
+    font-size: var(--text-xl);
+    font-weight: 600;
+  }
+}
+
+@media (min-width: 1280px) {
+  .entries-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  .entry-item {
+    margin-bottom: 0;
+  }
 }
 </style>

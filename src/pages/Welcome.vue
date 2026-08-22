@@ -33,8 +33,8 @@ onMounted(async () => {
           ></span>
           <h3>Rivalry Dashboard</h3>
           <p>
-            See exactly who's beating you — and where. Expand any friend to
-            get a full breakdown of wins and losses across every leaderboard.
+            See exactly who's beating you — and where. Expand any friend to get
+            a full breakdown of wins and losses across every leaderboard.
           </p>
         </div>
         <div class="feature">
@@ -110,21 +110,10 @@ onMounted(async () => {
 .welcome-page {
   height: 100vh;
   height: 100dvh;
-  background-color: #0f172a;
-  background-image:
-    radial-gradient(
-      ellipse 80% 50% at 50% -20%,
-      rgba(203, 163, 78, 0.06),
-      transparent
-    ),
-    radial-gradient(
-      ellipse 60% 40% at 80% 100%,
-      rgba(203, 163, 78, 0.04),
-      transparent
-    );
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   display: flex;
-  padding: 24px 16px;
+  padding: var(--space-6) var(--space-4);
   box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -153,7 +142,7 @@ onMounted(async () => {
 .hero-title {
   font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: 700;
-  color: #cba34e;
+  color: var(--accent-primary);
   margin: 0 0 1rem;
   line-height: 1.3;
   letter-spacing: -0.02em;
@@ -162,37 +151,33 @@ onMounted(async () => {
 .hero-subtitle {
   font-size: 14px;
   line-height: 1.7;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0 auto;
   max-width: 420px;
 }
 
 .features {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   margin-bottom: 2rem;
 }
 
 .feature {
-  background-color: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(203, 163, 78, 0.1);
-  border-radius: 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
   text-align: center;
   transition: border-color 0.2s ease;
 }
 
 .feature:hover {
-  border-color: rgba(203, 163, 78, 0.2);
+  border-color: var(--border-strong);
 }
 
 .feature-highlight {
-  border-color: rgba(203, 163, 78, 0.25);
-  background-image: linear-gradient(
-    135deg,
-    rgba(203, 163, 78, 0.06) 0%,
-    rgba(30, 41, 59, 0.6) 60%
-  );
+  border-color: var(--border-accent);
+  background-color: var(--bg-surface);
 }
 
 .feature-icon {
@@ -201,34 +186,34 @@ onMounted(async () => {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: rgba(203, 163, 78, 0.1);
-  color: #cba34e;
-  border-radius: 10px;
+  background-color: rgba(233, 69, 96, 0.1);
+  color: var(--accent-primary);
+  border-radius: var(--radius-md);
   margin-bottom: 0.75rem;
   font-size: 1rem;
 }
 
 .feature-icon.highlight {
-  background-color: rgba(203, 163, 78, 0.18);
-  box-shadow: 0 0 12px rgba(203, 163, 78, 0.12);
+  background-color: rgba(233, 69, 96, 0.18);
+  box-shadow: 0 0 12px rgba(233, 69, 96, 0.12);
 }
 
 .feature h3 {
   font-size: 13px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
   margin: 0 0 0.5rem;
 }
 
 .feature p {
   font-size: 12px;
   line-height: 1.7;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .feature a {
-  color: #cba34e;
+  color: var(--accent-primary);
   text-decoration: none;
 }
 
@@ -244,7 +229,7 @@ onMounted(async () => {
 .cta-text {
   font-size: 14px;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
   margin: 0 0 1rem;
 }
 
@@ -260,7 +245,7 @@ onMounted(async () => {
   font-weight: 600;
   padding: 12px 28px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: 0.01em;
@@ -271,39 +256,39 @@ onMounted(async () => {
 }
 
 .btn-primary {
-  background-color: #cba34e;
-  color: #0f172a;
+  background-color: var(--accent-primary);
+  color: white;
 }
 
 .btn-primary:hover {
-  background-color: #b8923f;
+  background-color: var(--accent-primary-hover);
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: #cba34e;
-  border: 1.5px solid rgba(203, 163, 78, 0.4);
+  color: var(--accent-primary);
+  border: 1.5px solid var(--accent-primary);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(203, 163, 78, 0.1);
+  background-color: rgba(233, 69, 96, 0.1);
 }
 
 .footer {
   text-align: center;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(203, 163, 78, 0.08);
+  border-top: 1px solid var(--border-default);
 }
 
 .footer p {
   font-size: 12px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .footer a {
-  color: #cba34e;
+  color: var(--accent-primary);
   text-decoration: none;
 }
 

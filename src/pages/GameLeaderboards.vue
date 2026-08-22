@@ -272,11 +272,13 @@ onMounted(async () => {
 
 <template>
   <div class="page-container" ref="gameLeaderboardsElement">
-    <BackButton></BackButton>
-    <RefreshButton
-      :loading-state="loadingRefresh"
-      @click="refreshLeaderboards"
-    ></RefreshButton>
+    <div class="toolbar">
+      <BackButton></BackButton>
+      <RefreshButton
+        :loading-state="loadingRefresh"
+        @click="refreshLeaderboards"
+      ></RefreshButton>
+    </div>
     <h1 class="page-title">{{ selectedGame?.Title }}</h1>
     <div
       v-if="
@@ -357,7 +359,9 @@ onMounted(async () => {
           >Loading...</span
         >
       </ul>
-      <span v-else class="empty-text">No leaderboards found for this game.</span>
+      <span v-else class="empty-text"
+        >No leaderboards found for this game.</span
+      >
     </div>
     <div v-else class="loading-text">Loading...</div>
   </div>
@@ -365,8 +369,8 @@ onMounted(async () => {
 
 <style scoped>
 .page-container {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
   padding: 16px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -377,7 +381,7 @@ onMounted(async () => {
 .page-title {
   font-size: 17px;
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   text-align: center;
   letter-spacing: -0.01em;
 }
@@ -387,7 +391,7 @@ onMounted(async () => {
   border: none;
   padding: 9px 20px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   font-size: 13px;
   font-weight: 600;
   transition: all 0.2s ease;
@@ -395,24 +399,24 @@ onMounted(async () => {
 }
 
 .subscribe-button {
-  background-color: #cba34e;
-  color: #0f172a;
+  background-color: var(--accent-primary);
+  color: white;
 }
 
 .subscribe-button:hover:not(:disabled) {
-  background-color: #b8923f;
+  background-color: var(--accent-primary-hover);
 }
 
 .unsubscribe-button {
-  background-color: rgba(30, 41, 59, 0.6);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.15);
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
 }
 
 .unsubscribe-button:hover:not(:disabled) {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  color: var(--accent-red);
 }
 
 button:disabled {
@@ -426,9 +430,9 @@ button:disabled {
 }
 
 .leaderboard-item-container {
-  background-color: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.06);
-  border-radius: 10px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 12px 14px;
   margin-bottom: 8px;
   display: flex;
@@ -438,24 +442,24 @@ button:disabled {
 }
 
 .leaderboard-item-container:hover {
-  background-color: rgba(30, 41, 59, 0.9);
-  border-color: rgba(203, 163, 78, 0.1);
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-accent);
 }
 
 .leaderboard-item {
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 500;
 }
 
 .leaderboard-item-description {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-weight: 400;
 }
 
 .top-entry {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 11px;
   align-self: flex-end;
   padding-top: 6px;
@@ -465,13 +469,49 @@ button:disabled {
   text-align: center;
   padding-bottom: 20px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .empty-text {
   text-align: center;
-  font-size: 13px;
-  color: #64748b;
-  padding: 20px 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  padding: var(--space-5) 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6);
+  }
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+  .leaderboard-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  .leaderboard-item-container {
+    margin-bottom: 0;
+    padding: var(--space-4);
+  }
+  .leaderboard-item {
+    font-size: var(--text-base);
+  }
+}
+
+@media (min-width: 1280px) {
+  .leaderboard-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 </style>

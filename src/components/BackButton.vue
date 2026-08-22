@@ -3,10 +3,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const props = withDefaults(
-  defineProps<{ to?: string }>(),
-  { to: undefined },
-);
+const props = withDefaults(defineProps<{ to?: string }>(), { to: undefined });
 
 function goBack() {
   if (props.to) {
@@ -25,22 +22,22 @@ function goBack() {
 
 <style scoped>
 .back-button {
-  background: rgba(203, 163, 78, 0.12);
-  color: #cba34e;
-  border: 1px solid rgba(203, 163, 78, 0.2);
+  background: rgba(233, 69, 96, 0.1);
+  color: var(--accent-primary);
+  border: 1px solid var(--border-accent);
   padding: 7px 14px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .back-button:hover {
-  background: rgba(203, 163, 78, 0.2);
-  border-color: rgba(203, 163, 78, 0.35);
+  background: rgba(233, 69, 96, 0.15);
+  border-color: var(--accent-primary);
 }
 </style>

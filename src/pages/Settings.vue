@@ -26,7 +26,7 @@ const logout = () => {
 <template>
   <div class="page-container">
     <h1 class="page-title">Settings</h1>
-    
+
     <div class="settings-menu">
       <button class="menu-item" @click="goToCredentials">
         <div class="item-content">
@@ -57,8 +57,8 @@ const logout = () => {
 
 <style scoped>
 .page-container {
-  padding: 16px;
-  color: #e2e8f0;
+  padding: var(--space-4);
+  color: var(--text-primary);
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -66,10 +66,10 @@ const logout = () => {
 }
 
 .page-title {
-  font-size: 17px;
+  font-size: var(--text-xl);
   font-weight: 600;
-  color: #cba34e;
-  margin-bottom: 24px;
+  color: var(--accent-primary);
+  margin-bottom: var(--space-6);
   text-align: center;
   letter-spacing: -0.01em;
 }
@@ -77,60 +77,75 @@ const logout = () => {
 .settings-menu {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .menu-item {
-  background-color: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.08);
-  border-radius: 10px;
-  padding: 14px 16px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #e2e8f0;
-  font-size: 13px;
+  color: var(--text-primary);
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   width: 100%;
   text-align: left;
 }
 
 .menu-item:hover {
-  background-color: rgba(30, 41, 59, 0.9);
-  border-color: rgba(148, 163, 184, 0.15);
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-strong);
 }
 
 .item-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .item-icon {
   width: 18px;
   text-align: center;
-  color: #cba34e;
-  font-size: 14px;
+  color: var(--accent-primary);
+  font-size: var(--text-lg);
 }
 
 .item-arrow {
-  color: #475569;
-  font-size: 12px;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
 }
 
 .logout {
-  margin-top: 12px;
-  border-color: rgba(239, 68, 68, 0.2);
+  margin-top: var(--space-3);
+  border-color: var(--accent-red-bg);
 }
 
 .logout .item-icon {
-  color: #ef4444;
+  color: var(--accent-red);
 }
 
 .logout:hover {
-  background-color: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.3);
+  background-color: var(--accent-red-bg);
+  border-color: var(--accent-red);
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6);
+  }
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+  .settings-menu {
+    max-width: 480px;
+    margin: 0 auto;
+  }
 }
 </style>

@@ -1,10 +1,10 @@
 describe("leaderboard entries page", () => {
   beforeEach(() => {
     cy.clearAllLocalStorage();
-    // Set up basic authenticated state 
+    // Set up basic authenticated state
     cy.window().then((win) => {
-      win.localStorage.setItem('user_id', 'fake-user-id');
-      win.localStorage.setItem('token', 'fake-token');
+      win.localStorage.setItem("user_id", "fake-user-id");
+      win.localStorage.setItem("token", "fake-token");
     });
   });
 

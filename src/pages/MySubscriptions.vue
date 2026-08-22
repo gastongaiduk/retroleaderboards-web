@@ -134,11 +134,7 @@ onMounted(async () => {
     <h1 class="page-title">Games I Follow</h1>
     <div v-if="subscriptions">
       <ul v-if="subscriptions.length" class="game-list">
-        <li
-          v-for="sub in subscriptions"
-          :key="sub.game_id"
-          class="game-item"
-        >
+        <li v-for="sub in subscriptions" :key="sub.game_id" class="game-item">
           <div class="game-container">
             <img
               :src="apiUrl + '\\' + sub.games?.image_icon"
@@ -157,7 +153,10 @@ onMounted(async () => {
               title="Unfollow Game"
             >
               <i
-                v-if="loadingUnsubscribe && subscriptionToUnsubscribe?.game_id === sub.game_id"
+                v-if="
+                  loadingUnsubscribe &&
+                  subscriptionToUnsubscribe?.game_id === sub.game_id
+                "
                 class="fa fa-spinner fa-spin"
                 aria-hidden="true"
               />
@@ -167,8 +166,8 @@ onMounted(async () => {
         </li>
       </ul>
       <div v-else class="empty-message">
-        You are not following any game. Follow a game from its page to
-        receive updates when a friend beats your scores.
+        You are not following any game. Follow a game from its page to receive
+        updates when a friend beats your scores.
       </div>
     </div>
     <div v-else class="loading-text">Loading...</div>
@@ -190,9 +189,8 @@ onMounted(async () => {
 
 <style scoped>
 .page-container {
-  background-color: #0f172a;
-  color: #e2e8f0;
-  padding: 16px;
+  color: var(--text-primary);
+  padding: var(--space-4);
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -200,12 +198,12 @@ onMounted(async () => {
 }
 
 .page-title {
-  font-size: 15px;
+  font-size: var(--text-xl);
   font-weight: 600;
-  color: #cba34e;
+  color: var(--accent-primary);
   text-align: center;
-  padding: 8px 0;
-  margin: 0 0 12px;
+  padding: var(--space-2) 0;
+  margin: 0 0 var(--space-3);
   letter-spacing: -0.01em;
 }
 
@@ -216,30 +214,30 @@ onMounted(async () => {
 }
 
 .game-item {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .game-container {
   position: relative;
-  padding: 10px;
-  border-radius: 10px;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
-  background-color: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.06);
-  transition: all 0.15s ease;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  transition: all var(--transition-fast);
 }
 
 .game-container:hover {
-  background-color: rgba(30, 41, 59, 0.8);
+  background-color: var(--bg-surface-hover);
 }
 
 .game-icon {
   width: 44px;
   height: 44px;
-  margin-right: 12px;
+  margin-right: var(--space-3);
   z-index: 1;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   flex-shrink: 0;
 }
 
@@ -252,31 +250,31 @@ onMounted(async () => {
 }
 
 .game-name {
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
   line-height: 1.4;
   word-break: break-word;
 }
 
 .unsubscribe-button {
-  background: rgba(148, 163, 184, 0.08);
-  color: #64748b;
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: var(--bg-body);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
   padding: 8px 10px;
   cursor: pointer;
-  font-size: 12px;
-  border-radius: 8px;
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
   margin-left: auto;
   z-index: 2;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .unsubscribe-button:hover:not(:disabled) {
-  background-color: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  background-color: var(--accent-red-bg);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
 }
 
 .unsubscribe-button:disabled {
@@ -287,12 +285,47 @@ onMounted(async () => {
 .loading-text,
 .empty-message {
   text-align: center;
-  font-size: 13px;
-  color: #64748b;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 .empty-message {
   line-height: 1.7;
-  padding: 20px;
+  padding: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6);
+  }
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+  .game-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  .game-item {
+    margin-bottom: 0;
+  }
+  .game-container {
+    padding: var(--space-4);
+  }
+  .game-icon {
+    width: 52px;
+    height: 52px;
+  }
+  .game-name {
+    font-size: var(--text-base);
+  }
+}
+
+@media (min-width: 1280px) {
+  .game-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 </style>
