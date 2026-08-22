@@ -30,7 +30,7 @@ jobs:
           VITE_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
           VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           VITE_SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          VITE_POSTHOG_PROJECT_TOKEN: ${{ vars.POSTHOG_PROJECT_TOKEN }}
+          VITE_POSTHOG_PROJECT_TOKEN: ${{ secrets.POSTHOG_PROJECT_TOKEN }}
           VITE_POSTHOG_HOST: ${{ vars.POSTHOG_HOST }}
         run: npm run build
 
