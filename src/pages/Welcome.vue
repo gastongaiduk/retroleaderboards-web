@@ -98,6 +98,9 @@ onMounted(async () => {
             >Open an issue on GitHub</a
           >.
         </p>
+        <p>
+          <router-link to="/privacy">Privacy Policy</router-link>
+        </p>
       </footer>
     </div>
   </div>

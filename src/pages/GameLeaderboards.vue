@@ -16,6 +16,7 @@ import { useInfiniteScroll } from "@vueuse/core";
 import { useGameLeaderboardsStore } from "../stores/gameLeaderboards.ts";
 import { Leaderboard } from "../models/GameLeaderboards.ts";
 import { useLeaderboardEntries } from "../stores/leaderboardEntries.ts";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -42,6 +43,11 @@ function hideUnsubscribeModal() {
 }
 
 function selectLeaderboard(leaderboard: Leaderboard) {
+  captureEvent("leaderboard_opened", {
+    leaderboard_id: leaderboard.ID,
+    game_id: props.id,
+    source: "game",
+  });
   saveScrollPosition();
   leaderboardEntries.$reset();
   postStore.selectLeaderboard(leaderboard);
@@ -109,9 +115,25 @@ async function subscribe() {
     if (!response.ok) {
       const errorData = await response.json();
       console.log("Error while subscribing: ", errorData.error);
+      captureEvent("game_subscribed", {
+        game_id: Number(props.id),
+        game_name: selectedGame.value?.Title ?? "",
+        success: false,
+      });
+    } else {
+      captureEvent("game_subscribed", {
+        game_id: Number(props.id),
+        game_name: selectedGame.value?.Title ?? "",
+        success: true,
+      });
     }
   } catch (error) {
     console.log("Error while subscribing: ", error);
+    captureEvent("game_subscribed", {
+      game_id: Number(props.id),
+      game_name: selectedGame.value?.Title ?? "",
+      success: false,
+    });
   }
 
   await refreshSubscriptionToGame();
@@ -146,9 +168,25 @@ async function unsubscribe() {
     if (!response.ok) {
       const errorData = await response.json();
       console.log("Error while unsubscribing: ", errorData.error);
+      captureEvent("game_unsubscribed", {
+        game_id: Number(props.id),
+        source: "game_page",
+        success: false,
+      });
+    } else {
+      captureEvent("game_unsubscribed", {
+        game_id: Number(props.id),
+        source: "game_page",
+        success: true,
+      });
     }
   } catch (error) {
     console.log("Error while unsubscribing: ", error);
+    captureEvent("game_unsubscribed", {
+      game_id: Number(props.id),
+      source: "game_page",
+      success: false,
+    });
   }
 
   await refreshSubscriptionToGame();

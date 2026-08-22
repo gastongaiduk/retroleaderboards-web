@@ -7,7 +7,7 @@ You only need two things in order to use it: your username and your web api key 
 
 This small webpage is built using [VITE](https://vite.dev) and [VUE](https://vuejs.org). Uses [GitHub Pages](https://pages.github.com) to host.
 It uses local storage to keep track of visited games information (so we don't overwhelm the server each time we navigate through pages).
-Sensitive data is stored using [crypto-js](https://www.npmjs.com/package/crypto-js). Testing aiming for full code coverage with [Cypress](https://www.cypress.io).
+Sensitive data is encrypted using [crypto-js](https://www.npmjs.com/package/crypto-js) before being stored in local storage. Testing aiming for full code coverage with [Cypress](https://www.cypress.io).
 For database and account handling, uses [Supabase](https://supabase.com).
 
 ## Is it safe?
@@ -15,11 +15,11 @@ For database and account handling, uses [Supabase](https://supabase.com).
 It tries to. Always keeping in mind that is a frontend application running in your browser which are never exempt of risks.
 
 - So how does it try to be safe?
-  - Basically it encrypts sensitive data before storing it to local storage.
+  - Your RA API key is stored encrypted in the database ([Supabase](https://supabase.com)) and cached encrypted in your browser's local storage.
 - Why does it store the data in first place?
   - So you don't have to fill it up every time you want to use the app.
 - What if I don't want to keep my secrets stored?
-  - Then you could log out after each use and all your stored data will be deleted.
+  - Log out after each use and all your locally stored data will be deleted. Server-side data deletion is coming soon.
 
 ## How to build
 
@@ -31,6 +31,8 @@ VITE_API_URL=https://retroachievements.org
 VITE_ENCRYPTION_KEY=some-key
 VITE_SUPABASE_URL=some-url
 VITE_SUPABASE_KEY=some-key
+VITE_POSTHOG_PROJECT_TOKEN=some-token
+VITE_POSTHOG_HOST=https://eu.i.posthog.com
 ```
 
 Install node, at least version 18. First run `npm install` and then `npm run dev`.

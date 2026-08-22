@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { decryptData, encryptData } from "../utils/crypto.ts";
+import { identifyUser } from "../utils/posthog";
 
 interface UserState {
   user_id: string | null;
@@ -19,6 +20,7 @@ export const useUserStore = defineStore("user", {
     init(): void {
       if (localStorage.getItem("user_id") !== null) {
         this.user_id = localStorage.getItem("user_id");
+        identifyUser(this.user_id as string);
       }
       if (localStorage.getItem("token") !== null) {
         this.token = localStorage.getItem("token");
@@ -55,6 +57,7 @@ export const useUserStore = defineStore("user", {
       this.token = access_token;
       localStorage.setItem("user_id", user_id);
       localStorage.setItem("token", access_token);
+      identifyUser(user_id);
     },
     getId(): string {
       this.init();
