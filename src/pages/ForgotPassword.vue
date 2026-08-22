@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../utils/supabaseClient.ts";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const emailInput = ref("");
@@ -21,9 +22,14 @@ async function handleSubmit() {
 
   loading.value = false;
   if (error) {
+    captureEvent("password_reset_requested", {
+      success: false,
+      error: error.message,
+    });
     errorMessage.value = error.message;
     return;
   }
+  captureEvent("password_reset_requested", { success: true });
   sent.value = true;
 }
 </script>

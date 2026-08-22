@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { useUserStore } from "../stores/user.ts";
+import { captureEvent } from "../utils/posthog";
 import axios from "axios";
 
 
@@ -29,16 +30,25 @@ async function handleSubmit() {
   try {
     await axios.request(options);
     user.set(usernameInput.value, keyInput.value);
+    captureEvent("ra_credentials_saved", { success: true });
   } catch (error) {
     let errorMessage = error.response.data.error;
 
     if (errorMessage.includes("JWT expired")) {
+      captureEvent("ra_credentials_saved", {
+        success: false,
+        error_reason: "session_expired",
+      });
       await router.push("/logout");
     }
 
     if (
       errorMessage.includes("duplicate key value violates unique constraint")
     ) {
+      captureEvent("ra_credentials_saved", {
+        success: false,
+        error_reason: "duplicate_username",
+      });
       alert(
         "Username already assigned to a user. Contact the administrator if you need assistance.",
       );
@@ -46,6 +56,10 @@ async function handleSubmit() {
       return;
     }
 
+    captureEvent("ra_credentials_saved", {
+      success: false,
+      error_reason: "other",
+    });
     alert(error.response.data.error);
     loading.value = false;
     return;

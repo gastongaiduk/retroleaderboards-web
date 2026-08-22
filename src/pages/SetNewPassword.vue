@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../utils/supabaseClient.ts";
 import { useUserStore } from "../stores/user.ts";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const user = useUserStore();
@@ -24,10 +25,18 @@ function getRedirectPath(): string {
 
 async function handleSubmit() {
   if (passwordInput.value !== passwordConfirmInput.value) {
+    captureEvent("password_reset_completed", {
+      success: false,
+      error: "passwords_do_not_match",
+    });
     errorMessage.value = "Passwords do not match";
     return;
   }
   if (passwordInput.value.length < 6) {
+    captureEvent("password_reset_completed", {
+      success: false,
+      error: "password_too_short",
+    });
     errorMessage.value = "Password must be at least 6 characters";
     return;
   }
@@ -40,9 +49,14 @@ async function handleSubmit() {
 
   loading.value = false;
   if (error) {
+    captureEvent("password_reset_completed", {
+      success: false,
+      error: error.message,
+    });
     errorMessage.value = error.message;
     return;
   }
+  captureEvent("password_reset_completed", { success: true });
   if (data.user) {
     const { data: sessionData } = await supabase.auth.getSession();
     if (sessionData.session) {

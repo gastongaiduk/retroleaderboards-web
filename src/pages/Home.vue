@@ -10,6 +10,7 @@ import RefreshButton from "../components/RefreshButton.vue";
 import { useScrollTracker } from "../composables/useScrollTracker.ts";
 import { useInfiniteScroll } from "@vueuse/core";
 import { useGameLeaderboardsStore } from "../stores/gameLeaderboards.ts";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -19,6 +20,11 @@ const gameLeaderboards = useGameLeaderboardsStore();
 const repository = new GameRepository();
 
 function selectGameLeaderboards(game: Game) {
+  captureEvent("game_opened", {
+    game_id: game.GameID,
+    game_name: game.Title,
+    source: "home",
+  });
   saveScrollPosition();
   gameLeaderboards.$reset();
   postStore.selectGameLeaderboards(game);

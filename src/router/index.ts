@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import { capturePageview } from "../utils/posthog";
 import GameLeaderboards from "../pages/GameLeaderboards.vue";
 import Leaderboard from "../pages/LeaderboardEntries.vue";
 import Login from "../pages/Login.vue";
@@ -15,6 +16,7 @@ import ForgotPassword from "../pages/ForgotPassword.vue";
 import SetNewPassword from "../pages/SetNewPassword.vue";
 import Friends from "../pages/Friends.vue";
 import Settings from "../pages/Settings.vue";
+import Privacy from "../pages/Privacy.vue";
 import MainLayout from "../layouts/MainLayout.vue";
 
 const routes: Array<RouteRecordRaw> = [
@@ -25,6 +27,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: "/logout", name: "Logout", component: Logout },
   { path: "/auth-callback", name: "AuthCallback", component: AuthCallback },
   { path: "/forgot-password", name: "ForgotPassword", component: ForgotPassword },
+  { path: "/privacy", name: "Privacy", component: Privacy },
   { path: "/set-new-password", name: "SetNewPassword", component: SetNewPassword },
   {
     path: "/",
@@ -80,6 +83,10 @@ const router = createRouter({
     }
     return { top: 0 };
   },
+});
+
+router.afterEach((to) => {
+  capturePageview(to.fullPath);
 });
 
 export default router;

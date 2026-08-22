@@ -9,6 +9,7 @@ import ConfirmModal from "../components/ConfirmModal.vue";
 import { useSubscriptionList } from "../composables/useSubscriptionList.ts";
 import { supabase } from "../utils/supabaseClient.ts";
 import { Subscription } from "../models/Subscription.ts";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const user = useUserStore();
@@ -44,6 +45,11 @@ function subscriptionToGame(sub: Subscription): Game {
 }
 
 function onGameClick(sub: Subscription) {
+  captureEvent("game_opened", {
+    game_id: sub.game_id,
+    game_name: sub.games?.name ?? "",
+    source: "subscriptions",
+  });
   gameLeaderboards.$reset();
   postStore.selectGameLeaderboards(subscriptionToGame(sub));
 }
@@ -88,11 +94,26 @@ async function unsubscribe() {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error removing subscription:", errorData.error);
+      captureEvent("game_unsubscribed", {
+        game_id: Number(subscriptionToUnsubscribe.value.game_id),
+        source: "subscriptions_list",
+        success: false,
+      });
     } else {
+      captureEvent("game_unsubscribed", {
+        game_id: Number(subscriptionToUnsubscribe.value.game_id),
+        source: "subscriptions_list",
+        success: true,
+      });
       await fetchSubscriptions();
     }
   } catch (error) {
     console.error("Error removing subscription:", error);
+    captureEvent("game_unsubscribed", {
+      game_id: Number(subscriptionToUnsubscribe.value.game_id),
+      source: "subscriptions_list",
+      success: false,
+    });
   }
 
   hideUnsubscribeModal();

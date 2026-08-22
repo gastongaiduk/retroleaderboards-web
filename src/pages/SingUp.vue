@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../utils/supabaseClient.ts";
 import { useUserStore } from "../stores/user.ts";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const user = useUserStore();
@@ -16,6 +17,10 @@ async function handleSubmit() {
   loading.value = true;
   if (passInput.value !== passConfirmInput.value) {
     alert("Passwords do not match");
+    captureEvent("signup_submitted", {
+      success: false,
+      error: "passwords_do_not_match",
+    });
     loading.value = false;
     return;
   }
@@ -30,10 +35,13 @@ async function handleSubmit() {
 
   if (error) {
     console.log(error);
+    captureEvent("signup_submitted", { success: false, error: error.message });
     alert("Error, please try again later");
     loading.value = false;
     return;
   }
+
+  captureEvent("signup_submitted", { success: true });
 
   if (data.user?.confirmation_sent_at) {
     alert("Confirmation email sent, login after confirming your registration");

@@ -3,6 +3,9 @@ import { createPinia, PiniaPlugin } from "pinia";
 import App from "./App.vue";
 import router from "./router/index";
 import { markRaw } from "vue";
+import { initPostHog } from "./utils/posthog";
+
+initPostHog();
 
 const pinia = createPinia();
 

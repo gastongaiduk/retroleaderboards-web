@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../utils/supabaseClient.ts";
 import { useUserStore } from "../stores/user.ts";
+import { captureEvent } from "../utils/posthog";
 import axios from "axios";
 
 const router = useRouter();
@@ -39,10 +40,13 @@ async function handleSubmit() {
   });
 
   if (error) {
+    captureEvent("login_submitted", { success: false, error: error.message });
     alert(error.message);
     loading.value = false;
     return;
   }
+
+  captureEvent("login_submitted", { success: true });
 
   user.login(data.user.id, data.session.access_token);
 

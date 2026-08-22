@@ -10,6 +10,7 @@ import { RivalryBattle, RivalryGame } from "../models/Rivalry";
 import { Game } from "../models/RecentlyPlayedGames";
 import { Leaderboard } from "../models/GameLeaderboards";
 import RefreshButton from "../components/RefreshButton.vue";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const user = useUserStore();
@@ -66,11 +67,21 @@ function buildGameShell(rivalryGame: RivalryGame): Game {
 }
 
 function navigateToGame(rivalryGame: RivalryGame) {
+  captureEvent("game_opened", {
+    game_id: rivalryGame.gameId,
+    game_name: rivalryGame.gameName,
+    source: "rivals",
+  });
   gameLeaderboards.$reset();
   postStore.selectGameLeaderboards(buildGameShell(rivalryGame));
 }
 
 function navigateToBattle(rivalryGame: RivalryGame, battle: RivalryBattle) {
+  captureEvent("leaderboard_opened", {
+    leaderboard_id: battle.leaderboardId,
+    game_id: rivalryGame.gameId,
+    source: "rivals",
+  });
   const leaderboard: Leaderboard = {
     ID: battle.leaderboardId,
     RankAsc: false,

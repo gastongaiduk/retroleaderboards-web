@@ -12,6 +12,7 @@ import { supabase } from "../utils/supabaseClient";
 import { Subscription } from "../models/Subscription";
 import ConfirmModal from "../components/ConfirmModal.vue";
 import { useGameLeaderboardsStore } from "../stores/gameLeaderboards";
+import { captureEvent } from "../utils/posthog";
 
 const router = useRouter();
 const route = useRoute();
@@ -34,6 +35,11 @@ async function selectUpdateLeaderboard(
   description: string,
   friend: string,
 ) {
+  captureEvent("leaderboard_opened", {
+    leaderboard_id: id,
+    game_id: gameId,
+    source: "updates",
+  });
   await updatesStore.markUpdateAsRead(id, user.getId(), friend);
 
   const game = { GameID: gameId, Title: gameName } as Game;
@@ -208,11 +214,26 @@ async function unsubscribe() {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error removing subscription:", errorData.error);
+      captureEvent("game_unsubscribed", {
+        game_id: Number(subscriptionToUnsubscribe.value.game_id),
+        source: "updates",
+        success: false,
+      });
     } else {
+      captureEvent("game_unsubscribed", {
+        game_id: Number(subscriptionToUnsubscribe.value.game_id),
+        source: "updates",
+        success: true,
+      });
       await fetchSubscriptions();
     }
   } catch (error) {
     console.error("Error removing subscription:", error);
+    captureEvent("game_unsubscribed", {
+      game_id: Number(subscriptionToUnsubscribe.value.game_id),
+      source: "updates",
+      success: false,
+    });
   }
 
   hideUnsubscribeModal();

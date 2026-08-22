@@ -8,6 +8,7 @@ import UserRepository from "../repositories/UserRepository";
 
 import FriendDetailsModal from "../components/FriendDetailsModal.vue";
 import { UserSummary } from "../models/UserSummary";
+import { captureEvent } from "../utils/posthog";
 
 
 const router = useRouter();
@@ -91,6 +92,7 @@ function getAvatarUrl(username: string) {
 }
 
 async function openFriendDetails(username: string) {
+    captureEvent("friend_details_opened");
     isModalVisible.value = true;
     isModalLoading.value = true;
     selectedUserSummary.value = null;
